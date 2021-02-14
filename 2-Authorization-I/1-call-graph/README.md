@@ -1,4 +1,4 @@
-# Angular single-page application using MSAL Angular to sign-in users against Azure Active Directory
+# Angular single-page application using MSAL Angular to sign-in users against Azure Active Directory and call the Microsoft Graph API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,12 +15,12 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory/develop/id-tokens), [OIDC scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [single-sign on](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso), **silent requests** and more.
+This sample demonstrates a Angular SPA calling the Microsoft Graph.
 
 ## Scenario
 
-1. The client Angular SPA uses **MSAL Angular** to obtain an ID Token from **Azure AD**.
-2. The **ID Token** proves that the user has successfully authenticated against **Azure AD**.
+1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD**.
+2. The access token is used as a *bearer token* to authorize the user to call the Microsoft Graph protected **Azure AD**.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -30,8 +30,9 @@ This sample demonstrates an Angular single-page application (SPA) that lets user
 |---------------------------------|-----------------------------------------------------------|
 | `AppCreationScripts/`           | Contains Powershell scripts to automate app registration. |
 | `ReadmeFiles/`                  | Contains illustrations and etc.                           |
+| `src/`                          | Contains sample source code.                              |
 | `src/app/app-config.json`       | Authentication parameters reside here.                    |
-| `src/app/app.module.ts`         | MSAL Angular configuration parameters reside here.        |
+| `src/app/app.module.ts`         | MSAL-Angular configuration parameters reside here.        |
 | `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                           |
 
 ## Prerequisites
@@ -57,7 +58,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 1-Authentication/1-sign-in/App
+    cd 2-Authorization-I/1-call-graph
     npm install
 ```
 
@@ -110,10 +111,16 @@ As a first step you'll need to:
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200`.
+   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+   - Select the **Add a permission** button and then,
+   - Ensure that the **Microsoft APIs** tab is selected.
+   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+   - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
+   - Select the **Add permissions** button at the bottom.
 
 #### Configure the app (msal-angular-spa) to use your app registration
 
@@ -121,21 +128,22 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App\src\app\app-config.json` file.
+1. Open the `App\src\app\authConfig.js` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here` and replace the existing value with the tenant ID of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
 ## Running the sample
 
 ```console
-    cd 1-Authentication/1-sign-in/App
+    cd 2-Authorization-I/1-call-graph
     npm start
 ```
 
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:4200`.
-1. Select the **Sign-in** button on the top right corner. Once you sign-in, you will see some of the important claims in your ID token.
+1. Click the **sign-in** button on the top right corner.
+1. Once you authenticate, click the **Call API** button at the center.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
@@ -147,146 +155,134 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-### Configuration
+### Protected resources
 
-You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration Options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/configuration.md) for more information.
+**MSAL-Angular** allows you to add an **Http interceptor** (*MsalInterceptor*) in your `app.module.ts` as follows. **MsalInterceptor** will obtain tokens and add them to all your http requests in API calls based on the `protectedResourceMap` property.
 
-### Securing Routes
-
-You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes.
-
-```javascript
-    const routes: Routes = [
+```typescript
+@NgModule({
+    imports: [
+        MsalModule.forRoot({
+            auth: {
+                clientId: "Your client ID"
+            }
+        }, {
+            protectedResourceMap: [
+                ['https://graph.microsoft.com/v1.0/me', ['user.read']],
+                ['https://api.myapplication.com/users/*', ['customscope']]
+            ]
+        })
+    ],
+    providers: [
+        ProductService,
         {
-            path: 'admin',
-            component: AdminComponent,
-            canActivate: [MsalGuard]
+            provide: HTTP_INTERCEPTORS,
+            useClass: MsalInterceptor,
+            multi: true
         }
     ]
+})
+export class AppModule {}
 ```
 
-### Broadcast Events
+### Acquire a token
 
-**MSAL-Angular** wrapper provides below callbacks for various operations. For all callbacks, you need to inject `BroadcastService` as a dependency in your component/service:
+**Access Token** requests in **MSAL.js** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
+
+- cannot be used for accessing resource **A** with scope `scp2`, and,
+- cannot be used for accessing resource **B** of any scope.
+
+The intended recipient of an **Access Token** is represented by the `aud` claim; in case the value for the `aud` claim does not mach the resource ***APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+
+**MSAL-Angular** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`.
 
 ```typescript
-    this.broadcastService.subscribe("msal:loginSuccess", (payload) => {
+    this.broadcastService.subscribe("msal:acquireTokenSuccess", payload => {
         // do something here
     });
 
-    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", (payload) => {
-        // do something here
-    });
+    this.authService.acquireTokenPopup(scope)
+        .then((response) => {
+            // do something here
+        })
+        .catch((error) => {
+            // error
+        });
 ```
 
-It is important to unsubscribe. Implement `ngOnDestroy()` in your component and unsubscribe.
-
-```typescript
-    private subscription: Subscription;
-
-    this.subscription = this.broadcastService.subscribe("msal:acquireTokenFailure", (payload) => {});
-
-    ngOnDestroy() {
-        this.broadcastService.getMSALSubject().next(1);
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
-    }
-```
-
-### Sign-in
-
-**MSAL-Angular** wrapper exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`:
-
-```typescript
-    this.authService.loginPopup();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-To use the redirect flow, you must register a handler for the redirect callback. **MSAL-Angular** provides the`handleRedirectCallback()` API:
+For `acquireTokenRedirect()`, you must register a redirect promise handler:
 
 ```typescript
     this.authService.handleRedirectCallback((authError, response) => {
-        // do something here
+      if (authError) {
+        console.error('Redirect Error: ', authError.errorMessage);
+        return;
+      }
+
+      console.log('Redirect Success: ', response);
     });
 
-    this.authService.loginRedirect();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
+    this.authService.acquireTokenRedirect(scope);
 ```
 
-The recommended pattern is that you fallback to an **interactive method** should silent SSO fails:
+In most cases you do **not** need to use these methods directly, as the `protectedResourceMap` property you define in the configuration will automatically handle token acquisition.
+
+### Silent token acquisition
+
+The **MSAL-Angular** allows you to acquire a silently (i.e. cache). In case the silent token acquisition fails, the recommended pattern is to fallback to an **interactive method** for token acquisition.
 
 ```typescript
-
-    const silentRequest = {
-        loginHint: "example@domain.net"
-    };
-
-    this.authService.ssoSilent(silentRequest);
-
-    this.broadcastService.subscribe("msal:ssoSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", payload => {
-        if (InteractionRequiredAuthError.isInteractionRequiredError(payload.error.errorCode)) {
-            this.authService.loginRedirect(loginRequest);
+    this.http.get(API_ENDPOINT)
+      .subscribe({
+        next: (profile) => {
+          this.profile = profile;
+        },
+        error: (err: AuthError) => {
+          // If there is an interaction required error,
+          // call one of the interactive methods and then make the request again.
+          if (InteractionRequiredAuthError.isInteractionRequiredError(err.errorCode)) {
+            this.authService.acquireTokenPopup({
+              scopes: this.authService.getScopesForEndpoint(API_ENDPOINT)
+            })
+            .then(() => {
+              this.http.get(API_ENDPOINT)
+                .toPromise()
+                .then(profile => {
+                  this.profile = profile;
+                });
+            });
+          }
         }
-    });
-
+      });
 ```
 
-You can get the current signed-in user's account with `getAccount()` API:
+### Dynamic scopes and incremental consent
+
+In **Azure AD**, the scopes (permissions) set directly on the application registration are called **static** scopes. Other scopes that are only defined within the code are called **dynamic** scopes. Consider:
 
 ```typescript
-    this.authService.getAccount();
+function MSALAngularConfigFactory(): MsalAngularConfiguration {
+  return {
+    popUp: !isIE,
+    consentScopes: [
+      "user.read",
+      "openid",
+      "profile",
+    ],
+    protectedResourceMap: [
+        ['https://graph.microsoft.com/v1.0/me', ['user.read']],
+        ['https://graph.microsoft.com/v1.0/me/messages', ['mail.read']],
+    ]
+    extraQueryParameters: {}
+  };
+}
 ```
 
-### Sign-out
+In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
 
-The Application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. For more information, see: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
+### Access Token validation
 
-### ID Token Validation
-
-A single-page application does not benefit from validating ID tokens, since the application runs without a back-end and as such, attackers can intercept and edit the keys used for validation of the token.
-
-### Authentication with National Clouds
-
-**National Clouds** (aka Sovereign Clouds) are physically isolated instances of Azure. These regions of Azure are designed to make sure that data residency, sovereignty, and compliance requirements are honored within geographical boundaries. Enabling your application for sovereign clouds requires you to:
-
-- register your application in a specific portal, depending on the cloud.
-- use a specific authority, depending on the cloud in the configuration file for your application.
-- in case you want to call the graph, this requires a specific Graph endpoint URL, depending on the cloud.
-
-For instance, to configure this sample for **Azure AD Germany** National Cloud:
-
-1. Open the `src\app\app-config.json` file.
-1. Find the app key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of the `ms-identity-javascript-angular-signin` application copied from the Azure portal.
-1. Find the app key `Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
-
-See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints) for more information.
+Clients should treat access tokens as opaque strings, as the contents of the token are intended for the resource only (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
 ## More information
 
@@ -294,7 +290,8 @@ See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/
 - [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
 - [Quickstart: Register an application with the Microsoft identity platform (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
 - [Quickstart: Configure a client application to access web APIs (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints)
+- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
+- [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
 - [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
 - [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
 - [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)

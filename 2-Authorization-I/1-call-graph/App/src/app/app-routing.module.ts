@@ -1,18 +1,30 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { ProfileComponent } from './profile/profile.component';
 import { HomeComponent } from './home/home.component';
 import { MsalGuard } from '@azure/msal-angular';
+import { DetailComponent } from './detail/detail.component';
 
 const routes: Routes = [
   {
-    // Needed for hash routing
-    path: 'error',
-    component: HomeComponent
+    path: 'profile',
+    component: ProfileComponent,
+    canActivate: [MsalGuard]
   },
   {
-    // Needed for hash routing
-    path: 'state',
-    component: HomeComponent
+    path: 'profile',
+    canActivateChild: [MsalGuard],
+    children: [
+      {
+        path: 'detail',
+        component: DetailComponent
+      }
+    ]
+  },
+  { 
+    path: 'lazyLoad', 
+    loadChildren: () => import('./lazy/lazy.module').then(m => m.LazyModule),
+    canLoad: [MsalGuard]
   },
   {
     // Needed for hash routing
@@ -22,6 +34,10 @@ const routes: Routes = [
   {
     path: '',
     component: HomeComponent
+  },
+  {
+    path: 'login-failed',
+    component: FailedComponent
   }
 ];
 

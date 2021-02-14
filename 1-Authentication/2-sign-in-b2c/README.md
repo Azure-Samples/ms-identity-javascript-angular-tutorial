@@ -1,4 +1,4 @@
-# Angular single-page application using MSAL Angular to sign-in users against Azure Active Directory
+# Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,29 +15,30 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory/develop/id-tokens), [OIDC scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [single-sign on](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso), **silent requests** and more.
+This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with [Azure AD B2C](https://azure.microsoft.com/services/active-directory/external-identities/b2c/) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication and B2C concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory-b2c/tokens-overview#token-types), [OIDC Scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [external identity providers](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#external-identity-providers) , [consumer social accounts](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#consumer-accounts), [single-sign on (SSO)](https://docs.microsoft.com/azure/active-directory-b2c/session-overview), **silent requests** and more.
 
 ## Scenario
 
-1. The client Angular SPA uses **MSAL Angular** to obtain an ID Token from **Azure AD**.
-2. The **ID Token** proves that the user has successfully authenticated against **Azure AD**.
+1. The client Angular SPA uses **MSAL Angular** to obtain an ID Token from **Azure AD B2C**.
+2. The **ID Token** proves that the user has successfully authenticated against **Azure AD B2C**.
 
 ![Overview](./ReadmeFiles/topology.png)
 
 ## Contents
 
-| File/folder                     | Description                                               |
-|---------------------------------|-----------------------------------------------------------|
-| `AppCreationScripts/`           | Contains Powershell scripts to automate app registration. |
-| `ReadmeFiles/`                  | Contains illustrations and etc.                           |
-| `src/app/app-config.json`       | Authentication parameters reside here.                    |
-| `src/app/app.module.ts`         | MSAL Angular configuration parameters reside here.        |
-| `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                           |
+| File/folder           | Description                                               |
+|-----------------------|-----------------------------------------------------------|
+| `src/`                | Contains sample source code.                              |
+| `AppCreationScripts/` | Contains Powershell scripts to automate app registration. |
+| `ReadmeFiles/`        | Contains illustrations etc.                               |
+| `CHANGELOG.md`        | List of changes to the sample.                            |
+| `CONTRIBUTING.md`     | Guidelines for contributing to the sample.                |
+| `LICENSE`             | The license for the sample.                               |
 
 ## Prerequisites
 
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
-- A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
+- An **Azure AD B2C** tenant. For more information see: [How to get an Azure AD B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
+- A user account in your **Azure AD B2C** tenant.
 
 ## Setup
 
@@ -57,65 +58,42 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 1-Authentication/1-sign-in/App
+    cd 1-Authentication/2-sign-in-b2c/App
     npm install
 ```
 
 ## Registration
 
-There is one project in this sample. To register it, you can:
-
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
-
-<details>
-  <summary>Expand this section if you want to use this automation:</summary>
-
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-1. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
-
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
-
-</details>
+:warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps for [Running the sample](#running-the-sample).
 
 ### Choose the Azure AD tenant where you want to create your applications
 
 As a first step you'll need to:
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
-1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+1. If your account is present in more than one Azure AD B2C tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD B2C tenant.
 
-### Register the app (msal-angular-spa)
+### Create User Flows and Custom Policies
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
+
+### Add External Identity Providers
+
+Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
+
+### Register the spa app (msal-angular-spa)
+
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
+   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
    - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 
-#### Configure the app (msal-angular-spa) to use your app registration
+#### Configure the spa app (msal-angular-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -123,12 +101,14 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `App\src\app\app-config.json` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here` and replace the existing value with the tenant ID of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here` and replace the existing value with "https://login.microsoftonline.com/"+$tenantName.
+
+<!-- ENTER CONFIGURATION STEPS FOR B2C USER-FLOWS/CUSTOM POLICIES BELOW -->
 
 ## Running the sample
 
 ```console
-    cd 1-Authentication/1-sign-in/App
+    cd 1-Authentication/2-sign-in-b2c/App
     npm start
 ```
 
@@ -140,6 +120,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
+
+> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory-b2c/support-options).
 
 ## We'd love your feedback!
 
@@ -258,6 +240,20 @@ The recommended pattern is that you fallback to an **interactive method** should
 
 ```
 
+You can pass custom query string parameters to your sign-in request, using the `extraQueryParameters` property. For instance, in order to customize your B2C user interface, you can:
+
+```typescript
+function MSALAngularConfigFactory(): MsalAngularConfiguration {
+  return {
+    popUp: !isIE,
+    consentScopes: ["openid", "profile"],
+    extraQueryParameters: { campaignId: 'hawaii', ui_locales: 'es' },
+  };
+}
+```
+
+See here for more: [Customize the user interface of your application in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-ui-customization)
+
 You can get the current signed-in user's account with `getAccount()` API:
 
 ```typescript
@@ -266,35 +262,68 @@ You can get the current signed-in user's account with `getAccount()` API:
 
 ### Sign-out
 
-The Application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. For more information, see: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
+The application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. See for more: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
+
+The sign-out clears the user's single sign-on session with **Azure AD B2C**, but it might not sign the user out of their **social identity provider** session. If the user selects the same identity provider during a subsequent sign-in, they might re-authenticate without entering their credentials. Here the assumption is that, if a user wants to sign out of the application, it doesn't necessarily mean they want to sign out of their social account (e.g. Facebook) itself.
 
 ### ID Token Validation
 
 A single-page application does not benefit from validating ID tokens, since the application runs without a back-end and as such, attackers can intercept and edit the keys used for validation of the token.
 
-### Authentication with National Clouds
+### Integrating user-flows
 
-**National Clouds** (aka Sovereign Clouds) are physically isolated instances of Azure. These regions of Azure are designed to make sure that data residency, sovereignty, and compliance requirements are honored within geographical boundaries. Enabling your application for sovereign clouds requires you to:
+- **Sign-up/sign-in**
 
-- register your application in a specific portal, depending on the cloud.
-- use a specific authority, depending on the cloud in the configuration file for your application.
-- in case you want to call the graph, this requires a specific Graph endpoint URL, depending on the cloud.
+This user-flow allows your users to sign-in to your application if the user has an account already, or sign-up for an account if not. This is the default user-flow that we pass during the initialization of MSAL instance.
 
-For instance, to configure this sample for **Azure AD Germany** National Cloud:
+- **Password reset**
 
-1. Open the `src\app\app-config.json` file.
-1. Find the app key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of the `ms-identity-javascript-angular-signin` application copied from the Azure portal.
-1. Find the app key `Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
+When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will throw an error. To initiate the password reset user-flow, you need to catch this error and handle it by sending another login request with the corresponding password reset authority string.
 
-See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints) for more information.
+```typescript
+    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
+        if (payload.errorMessage.indexOf('AADB2C90118') > -1) {
+          if (isIE) {
+            this.authService.loginRedirect(config.policies.authorities.forgotPassword);
+          } else {
+            this.authService.loginPopup(config.policies.authorities.forgotPassword);
+          }
+        }
+    });
+```
+
+We need to reject ID tokens that were not issued with the default sign-in policy. After the user resets her password and signs-in again, we will force a logout and prompt for login again (with the default sign-in policy).
+
+```typescript
+    this.broadcastService.subscribe('msal:loginSuccess', (payload) => {
+        if (payload.idToken.claims['acr'] === config.policies.names.forgotPassword) {
+          window.alert("Password has been reset successfully. \nPlease sign-in with your new password");
+          return this.authService.logout();
+        }
+      });
+```
+
+- **Edit Profile**
+
+Unlike password reset, edit profile user-flow does not require users to sign-out and sign-in again. Instead, **MSAL-Angular** will handle
+switching back to the authority string of the default user-flow automatically.
+
+```typescript
+    editProfile() {
+        if (isIE) {
+            this.authService.loginRedirect(config.policies.authorities.editProfile);
+        } else {
+            this.authService.loginPopup(config.policies.authorities.editProfile);
+        }
+    }
+```
 
 ## More information
 
-- [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
-- [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
-- [Quickstart: Register an application with the Microsoft identity platform (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
-- [Quickstart: Configure a client application to access web APIs (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints)
+- [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
+- [Application types that can be used in Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/application-types)
+- [Recommendations and best practices for Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
+- [Azure AD B2C session](https://docs.microsoft.com/azure/active-directory-b2c/session-overview)
 - [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
 - [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
 - [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
