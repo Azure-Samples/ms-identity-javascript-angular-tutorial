@@ -39,6 +39,7 @@ Please refer to each sample's README for sample-specific prerequisites.
 
 - [jwt.ms](https://jwt.ms) for inspecting your tokens
 - [Fiddler](https://www.telerik.com/fiddler) for monitoring your network activity and troubleshooting
+- Check [MSAL.js FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/FAQ.md) and [MSAL Angular FAQ](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/FAQ.md) for your questions
 - Follow the [Azure AD Blog](https://techcommunity.microsoft.com/t5/azure-active-directory-identity/bg-p/Identity) to stay up-to-date with the latest developments
 
 Please refer to each sample's README for sample-specific recommendations.
