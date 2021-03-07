@@ -2,8 +2,16 @@ import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { HomeComponent } from './home/home.component';
 import { MsalGuard } from '@azure/msal-angular';
+import { GuardedComponent } from './guarded/guarded.component';
 
 const routes: Routes = [
+  {
+    path: 'guarded',
+    component: GuardedComponent,
+    canActivate: [
+      MsalGuard
+    ]
+  },
   {
     // Needed for hash routing
     path: 'error',

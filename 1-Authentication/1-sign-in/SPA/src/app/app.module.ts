@@ -11,46 +11,16 @@ import { MatCardModule } from '@angular/material/card';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
+import { GuardedComponent } from './guarded/guarded.component';
 
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { IPublicClientApplication, PublicClientApplication, InteractionType, BrowserCacheLocation, LogLevel } from '@azure/msal-browser';
-import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
+import { HttpClientModule } from '@angular/common/http';
+import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
+import { MsalGuard, MsalBroadcastService, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
-const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
-
-export function loggerCallback(logLevel: LogLevel, message: string) {
-  console.log(message);
-}
+import { msalConfig } from './auth-config';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication({
-    auth: {
-      clientId: '88a9d47b-61a4-48f6-a4a9-b764b01fa35b',
-      authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef',
-      redirectUri: '/'
-    },
-    cache: {
-      cacheLocation: BrowserCacheLocation.LocalStorage,
-      storeAuthStateInCookie: isIE, // set to true for IE 11
-    },
-    system: {
-      loggerOptions: {
-        loggerCallback,
-        logLevel: LogLevel.Info,
-        piiLoggingEnabled: false
-      }
-    }
-  });
-}
-
-export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
-  const protectedResourceMap = new Map<string, Array<string>>();
-  protectedResourceMap.set('Enter_the_Graph_Endpoint_Herev1.0/me', ['user.read']);
-
-  return {
-    interactionType: InteractionType.Redirect,
-    protectedResourceMap
-  };
+  return new PublicClientApplication(msalConfig);
 }
 
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
@@ -63,6 +33,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   declarations: [
     AppComponent,
     HomeComponent,
+    GuardedComponent,
   ],
   imports: [
     BrowserModule,
@@ -78,21 +49,12 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   ],
   providers: [
     {
-      provide: HTTP_INTERCEPTORS,
-      useClass: MsalInterceptor,
-      multi: true
-    },
-    {
       provide: MSAL_INSTANCE,
       useFactory: MSALInstanceFactory
     },
     {
       provide: MSAL_GUARD_CONFIG,
       useFactory: MSALGuardConfigFactory
-    },
-    {
-      provide: MSAL_INTERCEPTOR_CONFIG,
-      useFactory: MSALInterceptorConfigFactory
     },
     MsalService,
     MsalGuard,

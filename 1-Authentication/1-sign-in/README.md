@@ -30,7 +30,7 @@ This sample demonstrates an Angular single-page application (SPA) that lets user
 |---------------------------------|-----------------------------------------------------------|
 | `AppCreationScripts/`           | Contains Powershell scripts to automate app registration. |
 | `ReadmeFiles/`                  | Contains illustrations and etc.                           |
-| `src/app/app-config.json`       | Authentication parameters reside here.                    |
+| `src/app/auth-config.ts`        | Authentication parameters reside here.                    |
 | `src/app/app.module.ts`         | MSAL Angular configuration parameters reside here.        |
 | `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                           |
 
@@ -57,7 +57,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 1-Authentication/1-sign-in/App
+    cd 1-Authentication/1-sign-in/SPA
     npm install
 ```
 
@@ -128,7 +128,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 ## Running the sample
 
 ```console
-    cd 1-Authentication/1-sign-in/App
+    cd 1-Authentication/1-sign-in/SPA
     npm start
 ```
 
@@ -155,12 +155,14 @@ You can initialize your application in several ways, for instance, by loading th
 
 You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes.
 
-```javascript
+```typescript
     const routes: Routes = [
         {
-            path: 'admin',
-            component: AdminComponent,
-            canActivate: [MsalGuard]
+            path: 'guarded',
+            component: GuardedComponent,
+            canActivate: [ 
+                MsalGuard 
+            ]
         }
     ]
 ```
@@ -270,7 +272,7 @@ The Application redirects the user to the **Microsoft identity platform** logout
 
 ### ID Token Validation
 
-A single-page application does not benefit from validating ID tokens, since the application runs without a back-end and as such, attackers can intercept and edit the keys used for validation of the token.
+When you receive an [ID token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) directly from the IdP on a secure channel (e.g. HTTPS), such is the case with SPAs, there’s no need to validate it. If you were to do it, you would validate it by asking the same server that gave you the ID token to give you the keys needed to validate it, which renders it pointless, as if one is compromised so is the other.
 
 ### Authentication with National Clouds
 

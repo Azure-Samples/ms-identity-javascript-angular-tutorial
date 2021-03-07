@@ -3,40 +3,14 @@ import { LogLevel, Configuration, BrowserCacheLocation } from '@azure/msal-brows
 const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
 
 /**
- * Enter here the user flows and custom policies for your B2C application,
- * To learn more about user flows, visit https://docs.microsoft.com/en-us/azure/active-directory-b2c/user-flow-overview
- * To learn more about custom policies, visit https://docs.microsoft.com/en-us/azure/active-directory-b2c/custom-policy-overview
- */
-export const b2cPolicies = {
-    names: {
-        signUpSignIn: "b2c_1_susi",
-        forgotPassword: "b2c_1_reset",
-        editProfile: "b2c_1_edit_profile"
-    },
-    authorities: {
-        signUpSignIn: {
-            authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi",
-        },
-        forgotPassword: {
-            authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_reset",
-        },
-        editProfile: {
-            authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_edit_profile"
-        }
-    },
-    authorityDomain: "fabrikamb2c.b2clogin.com"
-};
-
-/**
  * Configuration object to be passed to MSAL instance on creation. 
  * For a full list of MSAL.js configuration parameters, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
- export const msalConfig: Configuration = {
+export const msalConfig: Configuration = {
     auth: {
-        clientId: '9067c884-9fa6-414f-9aa4-a565b1cb46be', // This is the ONLY mandatory field that you need to supply.
-        authority: b2cPolicies.authorities.signUpSignIn.authority, // Defaults to "https://login.microsoftonline.com/common"
-        knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
+        clientId: '88a9d47b-61a4-48f6-a4a9-b764b01fa35b', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
         navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.

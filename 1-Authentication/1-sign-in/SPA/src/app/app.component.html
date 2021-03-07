@@ -2,6 +2,7 @@
   <a class="title" href="/">{{ title }}</a>
 
   <div class="toolbar-spacer"></div>
+  <a mat-button [routerLink]="['guarded']">Guarded Component</a>
 
   <button mat-raised-button *ngIf="!loginDisplay" (click)="login()">Login</button>
   <button mat-raised-button color="accent" *ngIf="loginDisplay" (click)="logout()">Logout</button>

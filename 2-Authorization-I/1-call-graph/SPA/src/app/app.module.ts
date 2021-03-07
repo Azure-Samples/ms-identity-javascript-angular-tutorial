@@ -14,40 +14,16 @@ import { HomeComponent } from './home/home.component';
 import { ProfileComponent } from './profile/profile.component';
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { IPublicClientApplication, PublicClientApplication, InteractionType, BrowserCacheLocation, LogLevel } from '@azure/msal-browser';
+import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
-const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
-
-export function loggerCallback(logLevel: LogLevel, message: string) {
-  console.log(message);
-}
+import { msalConfig, loginRequest, protectedResourceMap } from './auth-config';
 
 export function MSALInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication({
-    auth: {
-      clientId: '88a9d47b-61a4-48f6-a4a9-b764b01fa35b',
-      authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef',
-      redirectUri: '/'
-    },
-    cache: {
-      cacheLocation: BrowserCacheLocation.LocalStorage,
-      storeAuthStateInCookie: isIE, // set to true for IE 11
-    },
-    system: {
-      loggerOptions: {
-        loggerCallback,
-        logLevel: LogLevel.Info,
-        piiLoggingEnabled: false
-      }
-    }
-  });
+  return new PublicClientApplication(msalConfig);
 }
 
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
-  const protectedResourceMap = new Map<string, Array<string>>();
-  protectedResourceMap.set('https://graph.microsoft.com/v1.0/me', ['User.Read']);
-
   return {
     interactionType: InteractionType.Redirect,
     protectedResourceMap
@@ -57,9 +33,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return { 
     interactionType: InteractionType.Redirect,
-    authRequest: {
-      scopes: ['User.Read']
-    }
+    authRequest: loginRequest
   };
 }
 
