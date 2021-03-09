@@ -203,7 +203,7 @@ Function ConfigureApplications
    Write-Host "Granted permissions."
 
    # Update config file for 'spa'
-   $configFile = $pwd.Path + "\..\App\src\app\authConfig.js"
+   $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
    Write-Host "Updating the sample code ($configFile)"
    $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantName };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary

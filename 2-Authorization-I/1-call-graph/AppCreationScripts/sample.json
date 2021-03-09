@@ -34,7 +34,7 @@
         {
             "App": "spa",
             "SettingKind": "Replace",
-            "SettingFile": "\\..\\App\\src\\app\\authConfig.js",
+            "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
             "Mappings": [
                 {
                     "key": "Enter_the_Application_Id_Here",
