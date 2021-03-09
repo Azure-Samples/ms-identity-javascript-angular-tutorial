@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory/develop/id-tokens), [OIDC scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [single-sign on](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso), **silent requests** and more.
+This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory/develop/id-tokens), [OIDC scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [single-sign on](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso), **silent requests** and more.
 
 ## Scenario
 
@@ -121,9 +121,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App\src\app\app-config.json` file.
+1. Open the `App\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here` and replace the existing value with the tenant ID of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with the tenant ID of `msal-angular-spa` app copied from the Azure portal.
 
 ## Running the sample
 
@@ -147,9 +147,11 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
+MSAL Angular is a wrapper around MSAL.js.
+
 ### Configuration
 
-You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration Options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/configuration.md) for more information.
+You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration Options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md) for more information.
 
 ### Securing Routes
 
@@ -167,108 +169,38 @@ You can add authentication to secure specific routes in your application by just
     ]
 ```
 
-### Broadcast Events
+### Event API
 
 **MSAL-Angular** wrapper provides below callbacks for various operations. For all callbacks, you need to inject `BroadcastService` as a dependency in your component/service:
 
-```typescript
-    this.broadcastService.subscribe("msal:loginSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", (payload) => {
-        // do something here
-    });
-```
-
-It is important to unsubscribe. Implement `ngOnDestroy()` in your component and unsubscribe.
-
-```typescript
-    private subscription: Subscription;
-
-    this.subscription = this.broadcastService.subscribe("msal:acquireTokenFailure", (payload) => {});
-
-    ngOnDestroy() {
-        this.broadcastService.getMSALSubject().next(1);
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
-    }
-```
+//
 
 ### Sign-in
 
 **MSAL-Angular** wrapper exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`:
 
-```typescript
-    this.authService.loginPopup();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-To use the redirect flow, you must register a handler for the redirect callback. **MSAL-Angular** provides the`handleRedirectCallback()` API:
-
-```typescript
-    this.authService.handleRedirectCallback((authError, response) => {
-        // do something here
-    });
-
-    this.authService.loginRedirect();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-The recommended pattern is that you fallback to an **interactive method** should silent SSO fails:
-
-```typescript
-
-    const silentRequest = {
-        loginHint: "example@domain.net"
-    };
-
-    this.authService.ssoSilent(silentRequest);
-
-    this.broadcastService.subscribe("msal:ssoSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", payload => {
-        if (InteractionRequiredAuthError.isInteractionRequiredError(payload.error.errorCode)) {
-            this.authService.loginRedirect(loginRequest);
-        }
-    });
-
-```
-
-You can get the current signed-in user's account with `getAccount()` API:
-
-```typescript
-    this.authService.getAccount();
-```
+//
 
 ### Sign-out
 
 The Application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. For more information, see: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
+
+### Sign-in audience and account types
+
+This sample is meant to work with accounts in your organization (aka *single-tenant*). If you would like to allow sign-ins from other organizations and/or with other types of accounts, you have to configure your `authority` string in `authConfig.js` accordingly. For example:
+
+```javascript
+const msalConfig = {
+    auth: {
+      clientId: "<YOUR_CLIENT_ID>",
+      authority: "https://login.microsoftonline.com/common", // allows sign-ins with any type of account
+      redirectUri: "<YOUR_REDIRECT_URI>",
+    },
+```
+
+For more information about audiences and account types, please see: [Validation differences by supported account types (signInAudience)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation)
+
+> :warning: Be aware that making an application multi-tenant entails more than just modifying the `authority` string. For more information, please see [How to: Sign in any Azure Active Directory user using the multi-tenant application pattern](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant).
 
 ### ID Token Validation
 
@@ -286,7 +218,7 @@ For instance, to configure this sample for **Azure AD Germany** National Cloud:
 
 1. Open the `src\app\app-config.json` file.
 1. Find the app key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of the `ms-identity-javascript-angular-signin` application copied from the Azure portal.
-1. Find the app key `Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
+1. Find the app key `https://login.microsoftonline.com/Enter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
 
 See [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud#app-registration-endpoints) for more information.
 

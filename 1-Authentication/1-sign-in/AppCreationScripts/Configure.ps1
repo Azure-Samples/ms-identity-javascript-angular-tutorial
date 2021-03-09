@@ -136,9 +136,9 @@ Function ConfigureApplications
 
 
    # Update config file for 'spa'
-   $configFile = $pwd.Path + "\..\App\src\app\app-config.json"
+   $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Cloud_Instance_Id_Here/Enter_the_Tenant_Info_Here" = "https://login.microsoftonline.com/"+$tenantName };
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 

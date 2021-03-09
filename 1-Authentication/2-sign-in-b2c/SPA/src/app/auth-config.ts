@@ -1,3 +1,11 @@
+/**
+ * This file contains authentication parameters. Contents of this file
+ * is roughly the same across other MSAL.js libraries. These parameters
+ * are used to initialize Angular and MSAL Angular configurations in
+ * in app.module.ts file.
+ */
+
+
 import { LogLevel, Configuration, BrowserCacheLocation } from '@azure/msal-browser';
 
 const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
@@ -39,7 +47,7 @@ export const b2cPolicies = {
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
         redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
         postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
-        navigateToLoginRequestUrl: false, // If "true", will navigate back to the original request location before processing the auth code response.
+        navigateToLoginRequestUrl: true, // If "true", will navigate back to the original request location before processing the auth code response.
     },
     cache: {
         cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.

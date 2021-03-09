@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with [Azure AD B2C](https://azure.microsoft.com/services/active-directory/external-identities/b2c/) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication and B2C concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory-b2c/tokens-overview#token-types), [OIDC Scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [external identity providers](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#external-identity-providers) , [consumer social accounts](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#consumer-accounts), [single-sign on (SSO)](https://docs.microsoft.com/azure/active-directory-b2c/session-overview), **silent requests** and more.
+This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with [Azure AD B2C](https://azure.microsoft.com/services/active-directory/external-identities/b2c/) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authentication and B2C concepts, such as [ID Tokens](https://docs.microsoft.com/azure/active-directory-b2c/tokens-overview#token-types), [OIDC Scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [external identity providers](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#external-identity-providers) , [consumer social accounts](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#consumer-accounts), [single-sign on (SSO)](https://docs.microsoft.com/azure/active-directory-b2c/session-overview), **silent requests** and more.
 
 ## Scenario
 
@@ -26,14 +26,13 @@ This sample demonstrates an Angular single-page application (SPA) that lets user
 
 ## Contents
 
-| File/folder           | Description                                               |
-|-----------------------|-----------------------------------------------------------|
-| `src/`                | Contains sample source code.                              |
-| `AppCreationScripts/` | Contains Powershell scripts to automate app registration. |
-| `ReadmeFiles/`        | Contains illustrations etc.                               |
-| `CHANGELOG.md`        | List of changes to the sample.                            |
-| `CONTRIBUTING.md`     | Guidelines for contributing to the sample.                |
-| `LICENSE`             | The license for the sample.                               |
+| File/folder                     | Description                                               |
+|---------------------------------|-----------------------------------------------------------|
+| `AppCreationScripts/`           | Contains Powershell scripts to automate app registration. |
+| `ReadmeFiles/`                  | Contains illustrations etc.                               |
+| `src/app/auth-config.ts`        | Authentication parameters reside here.                    |
+| `src/app/app.module.ts`         | MSAL Angular configuration parameters reside here.        |
+| `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                           |
 
 ## Prerequisites
 
@@ -58,7 +57,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 1-Authentication/2-sign-in-b2c/App
+    cd 1-Authentication/2-sign-in-b2c/SPA
     npm install
 ```
 
@@ -81,7 +80,7 @@ Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](htt
 
 Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
 
-### Register the spa app (msal-angular-spa)
+### Register the app (msal-angular-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
@@ -93,22 +92,26 @@ Please refer to: [Tutorial: Add identity providers to your applications in Azure
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
 
-#### Configure the spa app (msal-angular-spa) to use your app registration
+#### Configure the app (msal-angular-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App\src\app\app-config.json` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Cloud_Instance_Id_HereEnter_the_Tenant_Info_Here` and replace the existing value with "https://login.microsoftonline.com/"+$tenantName.
+1. Open the `App\src\app\auth-config.ts` file.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
-<!-- ENTER CONFIGURATION STEPS FOR B2C USER-FLOWS/CUSTOM POLICIES BELOW -->
+To setup your B2C user-flows, do the following:
+
+1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 
 ## Running the sample
 
 ```console
-    cd 1-Authentication/2-sign-in-b2c/App
+    cd 1-Authentication/2-sign-in-b2c/SPA
     npm start
 ```
 
@@ -147,98 +150,17 @@ You can add authentication to secure specific routes in your application by just
     ]
 ```
 
-### Broadcast Events
+### Event API
 
 **MSAL-Angular** wrapper provides below callbacks for various operations. For all callbacks, you need to inject `BroadcastService` as a dependency in your component/service:
 
-```typescript
-    this.broadcastService.subscribe("msal:loginSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoSuccess", (payload) => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", (payload) => {
-        // do something here
-    });
-```
-
-It is important to unsubscribe. Implement `ngOnDestroy()` in your component and unsubscribe.
-
-```typescript
-    private subscription: Subscription;
-
-    this.subscription = this.broadcastService.subscribe("msal:acquireTokenFailure", (payload) => {});
-
-    ngOnDestroy() {
-        this.broadcastService.getMSALSubject().next(1);
-        if (this.subscription) {
-            this.subscription.unsubscribe();
-        }
-    }
-```
+//
 
 ### Sign-in
 
 **MSAL-Angular** wrapper exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`:
 
-```typescript
-    this.authService.loginPopup();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-To use the redirect flow, you must register a handler for the redirect callback. **MSAL-Angular** provides the`handleRedirectCallback()` API:
-
-```typescript
-    this.authService.handleRedirectCallback((authError, response) => {
-        // do something here
-    });
-
-    this.authService.loginRedirect();
-
-    this.broadcastService.subscribe("msal:loginSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:loginFailure", payload => {
-        // do something here
-    });
-```
-
-The recommended pattern is that you fallback to an **interactive method** should silent SSO fails:
-
-```typescript
-
-    const silentRequest = {
-        loginHint: "example@domain.net"
-    };
-
-    this.authService.ssoSilent(silentRequest);
-
-    this.broadcastService.subscribe("msal:ssoSuccess", payload => {
-        // do something here
-    });
-
-    this.broadcastService.subscribe("msal:ssoFailure", payload => {
-        if (InteractionRequiredAuthError.isInteractionRequiredError(payload.error.errorCode)) {
-            this.authService.loginRedirect(loginRequest);
-        }
-    });
-
-```
+//
 
 You can pass custom query string parameters to your sign-in request, using the `extraQueryParameters` property. For instance, in order to customize your B2C user interface, you can:
 
@@ -254,12 +176,6 @@ function MSALAngularConfigFactory(): MsalAngularConfiguration {
 
 See here for more: [Customize the user interface of your application in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-ui-customization)
 
-You can get the current signed-in user's account with `getAccount()` API:
-
-```typescript
-    this.authService.getAccount();
-```
-
 ### Sign-out
 
 The application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. See for more: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
@@ -268,7 +184,7 @@ The sign-out clears the user's single sign-on session with **Azure AD B2C**, but
 
 ### ID Token Validation
 
-A single-page application does not benefit from validating ID tokens, since the application runs without a back-end and as such, attackers can intercept and edit the keys used for validation of the token.
+When you receive an [ID token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) directly from the IdP on a secure channel (e.g. HTTPS), such is the case with SPAs, there’s no need to validate it. If you were to do it, you would validate it by asking the same server that gave you the ID token to give you the keys needed to validate it, which renders it pointless, as if one is compromised so is the other.
 
 ### Integrating user-flows
 
@@ -280,43 +196,37 @@ This user-flow allows your users to sign-in to your application if the user has 
 
 When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will throw an error. To initiate the password reset user-flow, you need to catch this error and handle it by sending another login request with the corresponding password reset authority string.
 
-```typescript
-    this.broadcastService.subscribe("msal:loginFailure", (payload) => {
-        if (payload.errorMessage.indexOf('AADB2C90118') > -1) {
-          if (isIE) {
-            this.authService.loginRedirect(config.policies.authorities.forgotPassword);
-          } else {
-            this.authService.loginPopup(config.policies.authorities.forgotPassword);
-          }
+```javascript
+    if (event.eventType === EventType.LOGIN_FAILURE) {
+        if (event.error && event.error.errorMessage.indexOf("AADB2C90118") > -1) {
+            if (event.interactionType === InteractionType.Redirect) {
+                instance.loginRedirect(b2cPolicies.authorities.forgotPassword);
+            } else if (event.interactionType === InteractionType.Popup) {
+                instance.loginPopup(b2cPolicies.authorities.forgotPassword)
+                    .catch(e => {
+                        return;
+                    });
+            }
         }
-    });
+    }
 ```
 
 We need to reject ID tokens that were not issued with the default sign-in policy. After the user resets her password and signs-in again, we will force a logout and prompt for login again (with the default sign-in policy).
 
-```typescript
-    this.broadcastService.subscribe('msal:loginSuccess', (payload) => {
-        if (payload.idToken.claims['acr'] === config.policies.names.forgotPassword) {
-          window.alert("Password has been reset successfully. \nPlease sign-in with your new password");
-          return this.authService.logout();
+```javascript
+    if (event.eventType === EventType.LOGIN_SUCCESS) {
+        if (event?.payload) {
+            if (event.payload.idTokenClaims["acr"] !== b2cPolicies.names.forgotPassword) {
+                window.alert("Password has been reset successfully. \nPlease sign-in with your new password");
+                return instance.logout();
+            }
         }
-      });
+    }
 ```
 
 - **Edit Profile**
 
-Unlike password reset, edit profile user-flow does not require users to sign-out and sign-in again. Instead, **MSAL-Angular** will handle
-switching back to the authority string of the default user-flow automatically.
-
-```typescript
-    editProfile() {
-        if (isIE) {
-            this.authService.loginRedirect(config.policies.authorities.editProfile);
-        } else {
-            this.authService.loginPopup(config.policies.authorities.editProfile);
-        }
-    }
-```
+When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow. Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
 
 ## More information
 

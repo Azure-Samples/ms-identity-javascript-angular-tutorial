@@ -1,3 +1,10 @@
+/**
+ * This file contains authentication parameters. Contents of this file
+ * is roughly the same across other MSAL.js libraries. These parameters
+ * are used to initialize Angular and MSAL Angular configurations in
+ * in app.module.ts file.
+ */
+
 import { LogLevel, Configuration, BrowserCacheLocation } from '@azure/msal-browser';
 
 const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
@@ -9,7 +16,7 @@ const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigato
  */
 export const msalConfig: Configuration = {
     auth: {
-        clientId: '88a9d47b-61a4-48f6-a4a9-b764b01fa35b', // This is the ONLY mandatory field that you need to supply.
+        clientId: '707c146e-6703-412a-bc2c-feb7f634feed', // This is the ONLY mandatory field that you need to supply.
         authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
     },
@@ -29,18 +36,26 @@ export const msalConfig: Configuration = {
 }
 
 /**
+ * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
+ * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
+ */
+export const protectedResources = {
+    graphMe: {
+        endpoint: "https://graph.microsoft.com/v1.0/me",
+        scopes: ["User.Read"],
+    },
+    armTenants: {
+        endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
+        scopes: ["https://management.azure.com/user_impersonation"],
+    }
+}
+
+/**
  * Scopes you add here will be prompted for user consent during sign-in.
  * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
  * For more information about OIDC scopes, visit: 
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
-export const loginRequest = {
-    scopes: []
+ export const loginRequest = {
+    scopes: [...protectedResources.armTenants.scopes]
 };
-
-/**
- * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
- */
-export const protectedResourceMap = new Map<string, Array<string>>();
-protectedResourceMap.set('https://graph.microsoft.com/v1.0/me', ['User.Read']);

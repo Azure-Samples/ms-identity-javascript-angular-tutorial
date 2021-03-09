@@ -33,6 +33,10 @@ export class AppComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.isIframe = window !== window.parent && !window.opener;
 
+    /**
+     * You can subscribe to MSAL events as shown below. For more info,
+     * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/events.md
+     */
     this.msalBroadcastService.inProgress$
     .pipe(
       filter((status: InteractionStatus) => status === InteractionStatus.None),

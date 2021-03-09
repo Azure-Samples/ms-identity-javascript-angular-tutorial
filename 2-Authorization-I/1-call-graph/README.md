@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates a Angular SPA calling the Microsoft Graph.
+This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In doing so, it also illustrates various authorization concepts, such as [Access Tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens), [acquiring a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token), [calling a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **silent token acquisition**, **working with multiple resources** and more.
 
 ## Scenario
 
@@ -30,8 +30,7 @@ This sample demonstrates a Angular SPA calling the Microsoft Graph.
 |---------------------------------|-----------------------------------------------------------|
 | `AppCreationScripts/`           | Contains Powershell scripts to automate app registration. |
 | `ReadmeFiles/`                  | Contains illustrations and etc.                           |
-| `src/`                          | Contains sample source code.                              |
-| `src/app/app-config.json`       | Authentication parameters reside here.                    |
+| `src/app/auth-config.ts`       | Authentication parameters reside here.                     |
 | `src/app/app.module.ts`         | MSAL-Angular configuration parameters reside here.        |
 | `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                           |
 
@@ -58,7 +57,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 2-Authorization-I/1-call-graph
+    cd 2-Authorization-I/1-call-graph/SPA
     npm install
 ```
 
@@ -121,6 +120,12 @@ As a first step you'll need to:
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
    - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
+1. Still in the **API permissions** blade,
+   - Select the **Add a permission** button and then,
+   - Ensure that the **Microsoft APIs** tab is selected.
+   - In the *Commonly used Microsoft APIs* section, select **Azure Service Management**
+   - In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
+   - Select the **Add permissions** button at the bottom.
 
 #### Configure the app (msal-angular-spa) to use your app registration
 
@@ -128,14 +133,14 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App\src\app\authConfig.js` file.
+1. Open the `App\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
 ## Running the sample
 
 ```console
-    cd 2-Authorization-I/1-call-graph
+    cd 2-Authorization-I/1-call-graph/SPA
     npm start
 ```
 
@@ -157,7 +162,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### Protected resources
 
-**MSAL-Angular** allows you to add an **Http interceptor** (*MsalInterceptor*) in your `app.module.ts` as follows. **MsalInterceptor** will obtain tokens and add them to all your http requests in API calls based on the `protectedResourceMap` property.
+**MSAL Angular** allows you to add an **Http interceptor** (*MsalInterceptor*) in your `app.module.ts` as follows. **MsalInterceptor** will obtain tokens and add them to all your http requests in API calls based on the `protectedResourceMap` property.
 
 ```typescript
 @NgModule({
@@ -194,7 +199,7 @@ export class AppModule {}
 
 The intended recipient of an **Access Token** is represented by the `aud` claim; in case the value for the `aud` claim does not mach the resource ***APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
 
-**MSAL-Angular** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`.
+**MSAL Angular** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`.
 
 ```typescript
     this.broadcastService.subscribe("msal:acquireTokenSuccess", payload => {
@@ -229,7 +234,7 @@ In most cases you do **not** need to use these methods directly, as the `protect
 
 ### Silent token acquisition
 
-The **MSAL-Angular** allows you to acquire a silently (i.e. cache). In case the silent token acquisition fails, the recommended pattern is to fallback to an **interactive method** for token acquisition.
+The **MSAL Angular** allows you to acquire a silently from the cache. In case the silent token acquisition fails, the recommended pattern is to fallback to an **interactive method** for token acquisition.
 
 ```typescript
     this.http.get(API_ENDPOINT)
@@ -258,31 +263,30 @@ The **MSAL-Angular** allows you to acquire a silently (i.e. cache). In case the 
 
 ### Dynamic scopes and incremental consent
 
-In **Azure AD**, the scopes (permissions) set directly on the application registration are called **static** scopes. Other scopes that are only defined within the code are called **dynamic** scopes. Consider:
+In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. loginPopup, loginRedirect) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
 
-```typescript
-function MSALAngularConfigFactory(): MsalAngularConfiguration {
-  return {
-    popUp: !isIE,
-    consentScopes: [
-      "user.read",
-      "openid",
-      "profile",
-    ],
-    protectedResourceMap: [
-        ['https://graph.microsoft.com/v1.0/me', ['user.read']],
-        ['https://graph.microsoft.com/v1.0/me/messages', ['mail.read']],
-    ]
-    extraQueryParameters: {}
-  };
-}
+```javascript
+     const loginRequest = {
+          scopes: [ "openid", "profile", "User.Read" ]
+     };
+
+     const tokenRequest = {
+          scopes: [ "Mail.Read" ]
+     };
+
+     // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
+     msalInstance.loginPopup(loginRequest);
+
+     // will fail and fallback to an interactive method prompting a consent screen
+     // after consent, the received token will be issued for "openid", "profile" ,"User.Read" and "Mail.Read" combined
+     msalInstance.acquireTokenPopup(tokenRequest);
 ```
 
 In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
 
 ### Access Token validation
 
-Clients should treat access tokens as opaque strings, as the contents of the token are intended for the resource only (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
+Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
 ## More information
 

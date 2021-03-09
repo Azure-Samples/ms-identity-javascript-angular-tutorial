@@ -35,6 +35,7 @@ export class HomeComponent implements OnInit {
       this.setLoginDisplay();
       this.checkAndSetActiveAccount();
       this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims)
+
   }
 
   checkAndSetActiveAccount() {
