@@ -16,8 +16,8 @@ const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigato
  */
 export const msalConfig: Configuration = {
     auth: {
-        clientId: '707c146e-6703-412a-bc2c-feb7f634feed', // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef', // Defaults to "https://login.microsoftonline.com/common"
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure Portal/App Registration.
     },
     cache: {
@@ -57,5 +57,5 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
  export const loginRequest = {
-    scopes: [...protectedResources.armTenants.scopes]
+    scopes: ["User.Read"]
 };
