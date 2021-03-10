@@ -21,7 +21,7 @@ export class TenantComponent implements OnInit {
   }
 
   getTenant() {
-    this.http.get('https://management.azure.com/tenants?api-version=2020-01-01')
+    this.http.get(protectedResources.armTenants.endpoint + '?api-version=2020-01-01')
       .subscribe((tenant: any) => {
         this.dataSource = [
           {id: 1, claim: "Name", value: tenant ? tenant.value[0]['displayName'] : null},

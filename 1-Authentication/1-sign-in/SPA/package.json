@@ -1,7 +1,7 @@
 {
   "name": "ms-identity-angular-c1s1",
   "version": "1.0.0",
-  "description": "Angular single-page application using MSAL React to sign-in users against Azure Active Directory",
+  "description": "Angular single-page application using MSAL React to sign-in users with Azure Active Directory",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

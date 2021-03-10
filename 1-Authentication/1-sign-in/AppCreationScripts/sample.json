@@ -1,6 +1,6 @@
 {
     "Sample": {
-      "Title": "Angular single-page application using MSAL Angular to sign-in users against Azure Active Directory",
+      "Title": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory",
       "Level": 100,
       "Client": "Angular SPA",
       "RepositoryUrl": "ms-identity-javascript-angular-tutorial",

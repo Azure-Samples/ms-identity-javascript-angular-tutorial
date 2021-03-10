@@ -5,3 +5,9 @@
   a.title {
     color: white;
   }
+
+  .footer-text {
+    font-size: small;
+    text-align: center;
+    flex: 1 1 auto;
+  }

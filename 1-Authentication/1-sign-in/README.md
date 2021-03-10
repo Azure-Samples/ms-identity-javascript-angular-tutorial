@@ -1,4 +1,4 @@
-# Angular single-page application using MSAL Angular to sign-in users against Azure Active Directory
+# Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -121,7 +121,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App\src\app\auth-config.ts` file.
+1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with the tenant ID of `msal-angular-spa` app copied from the Azure portal.
 
@@ -146,8 +146,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOU5PNlM4MzRRV0lETkk2ODBPT0NBTEY5MCQlQCN0PWcu).
 
 ## About the code
-
-MSAL Angular is a wrapper around MSAL.js.
 
 ### Configuration
 
@@ -216,7 +214,7 @@ When you receive an [ID token](https://docs.microsoft.com/azure/active-directory
 
 For instance, to configure this sample for **Azure AD Germany** National Cloud:
 
-1. Open the `src\app\app-config.json` file.
+1. Open the `src\app\auth-config.ts` file.
 1. Find the app key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of the `ms-identity-javascript-angular-signin` application copied from the Azure portal.
 1. Find the app key `https://login.microsoftonline.com/Enter_the_Tenant_Info_Here` and replace the existing value with `https://portal.microsoftazure.de/<your-tenant-id>`.
 

@@ -1,4 +1,4 @@
-# Angular single-page application using MSAL Angular to sign-in users against Azure Active Directory and call the Microsoft Graph API
+# Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)

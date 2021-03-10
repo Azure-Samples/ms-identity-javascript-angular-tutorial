@@ -59,7 +59,7 @@ export class HomeComponent implements OnInit {
   getClaims(claims: any) {
     this.dataSource = [
       {id: 1, claim: "Display Name", value: claims ? claims['name'] : null},
-      {id: 2, claim: "User Preferred Name (UPN)", value: claims ? claims['preferred_username'] : null},
+      {id: 2, claim: "User Principal Name (UPN) (UPN)", value: claims ? claims['preferred_username'] : null},
       {id: 2, claim: "OID", value: claims ? claims['oid']: null}
     ];
   }

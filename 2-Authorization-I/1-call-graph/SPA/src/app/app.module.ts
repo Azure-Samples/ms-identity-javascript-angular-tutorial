@@ -12,13 +12,13 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { ProfileComponent } from './profile/profile.component';
+import { TenantComponent } from './tenant/tenant.component';
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { TenantComponent } from './tenant/tenant.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -38,7 +38,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
   protectedResourceMap.set(protectedResources.graphMe.endpoint, protectedResources.graphMe.scopes);
-  protectedResourceMap.set(protectedResources.armTenants.endpoint + '*', protectedResources.armTenants.scopes);
+  protectedResourceMap.set(protectedResources.armTenants.endpoint, protectedResources.armTenants.scopes);
 
   return {
     interactionType: InteractionType.Redirect,

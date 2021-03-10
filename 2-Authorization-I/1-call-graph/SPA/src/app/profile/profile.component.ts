@@ -34,7 +34,7 @@ export class ProfileComponent implements OnInit {
         this.dataSource = [
           {id: 1, claim: "Name", value: profile ? profile['givenName'] : null},
           {id: 2, claim: "Surname", value: profile ? profile['surname'] : null},
-          {id: 3, claim: "User Preferred Name (UPN)", value: profile ? profile['userPrincipalName'] : null},
+          {id: 3, claim: "User Principal Name (UPN) (UPN)", value: profile ? profile['userPrincipalName'] : null},
           {id: 4, claim: "ID", value: profile ? profile['id']: null}
         ];
       });
