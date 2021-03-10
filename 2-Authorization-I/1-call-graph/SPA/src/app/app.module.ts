@@ -38,7 +38,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
   protectedResourceMap.set(protectedResources.graphMe.endpoint, protectedResources.graphMe.scopes);
-  protectedResourceMap.set(protectedResources.armTenants.endpoint, protectedResources.armTenants.scopes);
+  protectedResourceMap.set(protectedResources.armTenants.endpoint + '*', protectedResources.armTenants.scopes);
 
   return {
     interactionType: InteractionType.Redirect,

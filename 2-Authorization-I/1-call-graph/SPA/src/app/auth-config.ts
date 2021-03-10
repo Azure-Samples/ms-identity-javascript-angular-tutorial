@@ -45,7 +45,7 @@ export const protectedResources = {
         scopes: ["User.Read"],
     },
     armTenants: {
-        endpoint: "https://management.azure.com/tenants?api-version=2020-01-01",
+        endpoint: "https://management.azure.com/tenants",
         scopes: ["https://management.azure.com/user_impersonation"],
     }
 }
