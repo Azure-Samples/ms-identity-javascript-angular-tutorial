@@ -27,6 +27,7 @@ export class HomeComponent implements OnInit {
         takeUntil(this._destroying$)
       )
       .subscribe((result: EventMessage) => {
+        console.log(result)
         if (result?.payload?.account) {
           this.authService.instance.setActiveAccount(result?.payload?.account);
         }
@@ -58,8 +59,9 @@ export class HomeComponent implements OnInit {
   getClaims(claims: any) {
     this.dataSource = [
       {id: 1, claim: "Display Name", value: claims ? claims['name'] : null},
-      {id: 2, claim: "User Principal Name (UPN) (UPN)", value: claims ? claims['preferred_username'] : null},
-      {id: 2, claim: "OID", value: claims ? claims['oid']: null}
+      {id: 2, claim: "Object ID", value: claims ? claims['oid']: null},
+      {id: 3, claim: "Job Title", value: claims ? claims['jobTitle']: null},
+      {id: 4, claim: "City", value: claims ? claims['city']: null},
     ];
   }
 

@@ -24,10 +24,10 @@ export class TenantComponent implements OnInit {
     this.http.get(protectedResources.armTenants.endpoint + '?api-version=2020-01-01')
       .subscribe((tenant: any) => {
         this.dataSource = [
-          {id: 1, claim: "Name", value: tenant ? tenant.value[0]['displayName'] : null},
-          {id: 2, claim: "Name", value: tenant ? tenant.value[0]['defaultDomain'] : null},
-          {id: 3, claim: "Surname", value: tenant ? tenant.value[0]['tenantId'] : null},
-          {id: 3, claim: "Surname", value: tenant ? tenant.value[0]['tenantType'] : null},
+          {id: 1, claim: "Display Name", value: tenant ? tenant.value[0]['displayName'] : null},
+          {id: 2, claim: "Default Domain", value: tenant ? tenant.value[0]['defaultDomain'] : null},
+          {id: 3, claim: "Tenant Id", value: tenant ? tenant.value[0]['tenantId'] : null},
+          {id: 3, claim: "Tenant Type", value: tenant ? tenant.value[0]['tenantType'] : null},
         ];
       });
   }
