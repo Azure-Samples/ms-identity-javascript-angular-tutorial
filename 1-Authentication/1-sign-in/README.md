@@ -147,47 +147,96 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
+MSAL Angular is a wrapper around MSAL.js (i.e. *msal-browser*). As such, many of MSAL.js's public APIs are also available to use with MSAL Angular, while MSAL Angular itself offers additional [public APIs](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/public-apis.md).
+
 ### Configuration
 
-You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration Options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md) for more information.
+You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md) for more information.
 
-### Securing Routes
-
-You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes.
-
-```typescript
-    const routes: Routes = [
-        {
-            path: 'guarded',
-            component: GuardedComponent,
-            canActivate: [ 
-                MsalGuard 
-            ]
-        }
-    ]
-```
-
-### Event API
-
-**MSAL-Angular** wrapper provides below callbacks for various operations. For all callbacks, you need to inject `BroadcastService` as a dependency in your component/service:
-
-//
+In the sample, authentication parameters reside in [auth-config.ts](./SPA/src/app/auth-config.ts). These parameters then are used for initializing MSAL Angular configuration options in [app.module.ts](./SPA/src/app/app.module.ts).
 
 ### Sign-in
 
-**MSAL-Angular** wrapper exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`:
+**MSAL Angular** exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`. First, setup your default interaction type in [app.module.ts](./SPA/src/app/app.module.ts):
 
-//
+```typescript
+export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+  return { 
+    interactionType: InteractionType.Redirect,
+  };
+}
+```
 
-### Sign-out
+Then, define a login method in [app.component.ts](./SPA/src/app/app.component.ts) as follows:
 
-The Application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. For more information, see: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
+```typescript
+export class AppComponent implements OnInit {
+
+  constructor(
+    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
+    private authService: MsalService,
+    private msalBroadcastService: MsalBroadcastService
+  ) {}
+
+  ngOnInit(): void {
+
+  login() {
+    if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+      if (this.msalGuardConfig.authRequest) {
+        this.authService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
+          .subscribe((response: AuthenticationResult) => {
+            this.authService.instance.setActiveAccount(response.account);
+          });
+        } else {
+          this.authService.loginPopup()
+            .subscribe((response: AuthenticationResult) => {
+              this.authService.instance.setActiveAccount(response.account);
+            });
+      }
+    } else {
+      if (this.msalGuardConfig.authRequest) {
+        this.authService.loginRedirect({...this.msalGuardConfig.authRequest} as RedirectRequest);
+      } else {
+        this.authService.loginRedirect();
+      }
+    }
+  }
+}
+```
+
+If you already have a session that exists with the authentication server, you can use the `ssoSilent()` API to make a request for tokens without interaction. You will need to pass a [loginHint](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso#automatically-select-account-on-azure-ad) in the request object in order to successfully obtain a token silently.
+
+```typescript
+export class AppComponent implements OnInit {
+
+  constructor(
+    private authService: MsalService,
+  ) {}
+
+  ngOnInit(): void {
+    const silentRequest: SsoSilentRequest = {
+      scopes: ["User.Read"],
+      loginHint: "user@contoso.com"
+    }
+
+    this.authService.ssoSilent(silentRequest)
+      .subscribe({
+        next: (result: AuthenticationResult) => {
+          console.log("SsoSilent succeeded!");
+        }, 
+        error: (error) => {
+          this.authService.loginRedirect();
+        }
+      });
+  }
+}
+```
 
 ### Sign-in audience and account types
 
 This sample is meant to work with accounts in your organization (aka *single-tenant*). If you would like to allow sign-ins from other organizations and/or with other types of accounts, you have to configure your `authority` string in `authConfig.js` accordingly. For example:
 
-```javascript
+```typescript
 const msalConfig = {
     auth: {
       clientId: "<YOUR_CLIENT_ID>",
@@ -203,6 +252,60 @@ For more information about audiences and account types, please see: [Validation 
 ### ID Token Validation
 
 When you receive an [ID token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) directly from the IdP on a secure channel (e.g. HTTPS), such is the case with SPAs, there’s no need to validate it. If you were to do it, you would validate it by asking the same server that gave you the ID token to give you the keys needed to validate it, which renders it pointless, as if one is compromised so is the other.
+
+### Sign-out
+
+The application redirects the user to the **Microsoft identity platform** logout endpoint to sign out. This endpoint clears the user's session from the browser. If your app did not go to the logout endpoint, the user may re-authenticate to your app without entering their credentials again, because they would have a valid single sign-in session with the **Microsoft identity platform** endpoint. For more information, see: [Send a sign-out request](https://docs.microsoft.com/azure/active-directory/develop/v2-protocols-oidc#send-a-sign-out-request).
+
+### Securing Routes
+
+You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes. This ensures that the user must be signed-in to access the secured route.
+
+```typescript
+    const routes: Routes = [
+        {
+            path: 'guarded',
+            component: GuardedComponent,
+            canActivate: [ 
+                MsalGuard 
+            ]
+        }
+    ]
+```
+
+### Events API
+
+Using the event API, you can register an event callback that will do something when an event is emitted. When registering an event callback in an Angular component you will need to make sure you do 2 things.
+
+1. The callback is registered only once
+2. The callback is unregistered before the component unmounts.
+
+```typescript
+export class HomeComponent implements OnInit {
+
+  private readonly _destroying$ = new Subject<void>();
+
+  constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
+
+  ngOnInit(): void {
+    this.msalBroadcastService.msalSubject$
+      .pipe(
+        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
+        takeUntil(this._destroying$)
+      )
+      .subscribe((result: EventMessage) => {
+        // do something with the result, such as accessing ID token
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroying$.next(undefined);
+    this._destroying$.complete();
+  }
+}
+```
+
+For more information, see: [Events in MSAL Angular v2](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/events.md).
 
 ### Authentication with National Clouds
 

@@ -132,49 +132,90 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
+MSAL Angular is a wrapper around MSAL.js (i.e. *msal-browser*). As such, many of MSAL.js's public APIs are also available to use with MSAL Angular, while MSAL Angular itself offers additional [public APIs](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/public-apis.md).
+
 ### Configuration
 
-You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration Options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/configuration.md) for more information.
+You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md) for more information.
 
-### Securing Routes
-
-You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes.
-
-```javascript
-    const routes: Routes = [
-        {
-            path: 'admin',
-            component: AdminComponent,
-            canActivate: [MsalGuard]
-        }
-    ]
-```
-
-### Event API
-
-**MSAL-Angular** wrapper provides below callbacks for various operations. For all callbacks, you need to inject `BroadcastService` as a dependency in your component/service:
-
-//
+In the sample, authentication parameters reside in [auth-config.ts](./SPA/src/app/auth-config.ts). These parameters then are used for initializing MSAL Angular configuration options in [app.module.ts](./SPA/src/app/app.module.ts).
 
 ### Sign-in
 
-**MSAL-Angular** wrapper exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`:
-
-//
-
-You can pass custom query string parameters to your sign-in request, using the `extraQueryParameters` property. For instance, in order to customize your B2C user interface, you can:
+**MSAL Angular** exposes 3 login APIs: `loginPopup()`, `loginRedirect()` and `ssoSilent()`. First, setup your default interaction type in [app.module.ts](./SPA/src/app/app.module.ts):
 
 ```typescript
-function MSALAngularConfigFactory(): MsalAngularConfiguration {
-  return {
-    popUp: !isIE,
-    consentScopes: ["openid", "profile"],
-    extraQueryParameters: { campaignId: 'hawaii', ui_locales: 'es' },
+export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+  return { 
+    interactionType: InteractionType.Redirect,
   };
 }
 ```
 
-See here for more: [Customize the user interface of your application in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/custom-policy-ui-customization)
+Then, define a login method in [app.component.ts](./SPA/src/app/app.component.ts) as follows:
+
+```typescript
+export class AppComponent implements OnInit {
+
+  constructor(
+    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
+    private authService: MsalService,
+    private msalBroadcastService: MsalBroadcastService
+  ) {}
+
+  ngOnInit(): void {
+
+  login() {
+    if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+      if (this.msalGuardConfig.authRequest) {
+        this.authService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
+          .subscribe((response: AuthenticationResult) => {
+            this.authService.instance.setActiveAccount(response.account);
+          });
+        } else {
+          this.authService.loginPopup()
+            .subscribe((response: AuthenticationResult) => {
+              this.authService.instance.setActiveAccount(response.account);
+            });
+      }
+    } else {
+      if (this.msalGuardConfig.authRequest) {
+        this.authService.loginRedirect({...this.msalGuardConfig.authRequest} as RedirectRequest);
+      } else {
+        this.authService.loginRedirect();
+      }
+    }
+  }
+}
+```
+
+If you already have a session that exists with the authentication server, you can use the `ssoSilent()` API to make a request for tokens without interaction. You will need to pass a [loginHint](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso#automatically-select-account-on-azure-ad) in the request object in order to successfully obtain a token silently.
+
+```typescript
+export class AppComponent implements OnInit {
+
+  constructor(
+    private authService: MsalService,
+  ) {}
+
+  ngOnInit(): void {
+    const silentRequest: SsoSilentRequest = {
+      scopes: ["User.Read"],
+      loginHint: "user@contoso.com"
+    }
+
+    this.authService.ssoSilent(silentRequest)
+      .subscribe({
+        next: (result: AuthenticationResult) => {
+          console.log("SsoSilent succeeded!");
+        }, 
+        error: (error) => {
+          this.authService.loginRedirect();
+        }
+      });
+  }
+}
+```
 
 ### Sign-out
 
@@ -186,6 +227,56 @@ The sign-out clears the user's single sign-on session with **Azure AD B2C**, but
 
 When you receive an [ID token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) directly from the IdP on a secure channel (e.g. HTTPS), such is the case with SPAs, there’s no need to validate it. If you were to do it, you would validate it by asking the same server that gave you the ID token to give you the keys needed to validate it, which renders it pointless, as if one is compromised so is the other.
 
+### Securing Routes
+
+You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes. This ensures that the user must be signed-in to access the secured route.
+
+```typescript
+    const routes: Routes = [
+        {
+            path: 'guarded',
+            component: GuardedComponent,
+            canActivate: [ 
+                MsalGuard 
+            ]
+        }
+    ]
+```
+
+### Events API
+
+Using the event API, you can register an event callback that will do something when an event is emitted. When registering an event callback in an Angular component you will need to make sure you do 2 things.
+
+1. The callback is registered only once
+2. The callback is unregistered before the component unmounts.
+
+```typescript
+export class HomeComponent implements OnInit {
+
+  private readonly _destroying$ = new Subject<void>();
+
+  constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
+
+  ngOnInit(): void {
+    this.msalBroadcastService.msalSubject$
+      .pipe(
+        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
+        takeUntil(this._destroying$)
+      )
+      .subscribe((result: EventMessage) => {
+        // do something with the result, such as accessing ID token
+      });
+  }
+
+  ngOnDestroy(): void {
+    this._destroying$.next(undefined);
+    this._destroying$.complete();
+  }
+}
+```
+
+For more information, see: [Events in MSAL Angular v2](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/events.md).
+
 ### Integrating user-flows
 
 - **Sign-up/sign-in**
@@ -194,39 +285,113 @@ This user-flow allows your users to sign-in to your application if the user has 
 
 - **Password reset**
 
-When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will throw an error. To initiate the password reset user-flow, you need to catch this error and handle it by sending another login request with the corresponding password reset authority string.
+When a user clicks on the **forgot your password?** link during sign-in, **Azure AD B2C** will respond with an error. To initiate the password reset user-flow, we need to catch this error and handle it by sending another login request with the corresponding password reset authority string (e.g. `B2C_1_reset`).
 
-```javascript
-    if (event.eventType === EventType.LOGIN_FAILURE) {
-        if (event.error && event.error.errorMessage.indexOf("AADB2C90118") > -1) {
-            if (event.interactionType === InteractionType.Redirect) {
-                instance.loginRedirect(b2cPolicies.authorities.forgotPassword);
-            } else if (event.interactionType === InteractionType.Popup) {
-                instance.loginPopup(b2cPolicies.authorities.forgotPassword)
-                    .catch(e => {
-                        return;
-                    });
-            }
+```typescript
+export class AppComponent implements OnInit, OnDestroy {
+
+  private readonly _destroying$ = new Subject<void>();
+
+  constructor(
+    @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
+    private authService: MsalService,
+    private msalBroadcastService: MsalBroadcastService
+  ) {}
+
+  ngOnInit(): void {
+      this.msalBroadcastService.msalSubject$
+      .pipe(
+        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_FAILURE || msg.eventType === EventType.ACQUIRE_TOKEN_FAILURE),
+        takeUntil(this._destroying$)
+      )
+      .subscribe((result: EventMessage) => {
+        if (result.error instanceof AuthError) {
+          // Check for forgot password error
+          // Learn more about AAD error codes at https://docs.microsoft.com/azure/active-directory/develop/reference-aadsts-error-codes
+          if (result.error.message.includes('AADB2C90118')) {
+            
+            // login request with reset authority
+            let resetPasswordFlowRequest = {
+              scopes: ["openid"],
+              authority: b2cPolicies.authorities.forgotPassword.authority,
+            };
+
+            this.login(resetPasswordFlowRequest);
+          }
         }
+      });
+  }
+
+  login(userFlowRequest?: RedirectRequest | PopupRequest) {
+    if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+      if (this.msalGuardConfig.authRequest) {
+        this.authService.loginPopup({...this.msalGuardConfig.authRequest, ...userFlowRequest} as PopupRequest)
+          .subscribe((response: AuthenticationResult) => {
+            this.authService.instance.setActiveAccount(response.account);
+          });
+      } else {
+        this.authService.loginPopup(userFlowRequest)
+          .subscribe((response: AuthenticationResult) => {
+            this.authService.instance.setActiveAccount(response.account);
+          });
+      }
+    } else {
+      if (this.msalGuardConfig.authRequest){
+        this.authService.loginRedirect({...this.msalGuardConfig.authRequest, ...userFlowRequest} as RedirectRequest);
+      } else {
+        this.authService.loginRedirect(userFlowRequest);
+      }
     }
+  }
+
+  ngOnDestroy(): void {
+    this._destroying$.next(undefined);
+    this._destroying$.complete();
+  }
+}
 ```
 
-We need to reject ID tokens that were not issued with the default sign-in policy. After the user resets her password and signs-in again, we will force a logout and prompt for login again (with the default sign-in policy).
+We need to reject ID tokens that were not issued with the default sign-in policy (e.g. `B2C_1_SUSI`). After the user resets her password and signs-in again, we will force a logout and prompt for login again (with the default sign-in policy). To do this, register another event in [app.component.ts](./SPA/src/app/app.component.ts) as shown below:
 
-```javascript
-    if (event.eventType === EventType.LOGIN_SUCCESS) {
-        if (event?.payload) {
-            if (event.payload.idTokenClaims["acr"] !== b2cPolicies.names.forgotPassword) {
-                window.alert("Password has been reset successfully. \nPlease sign-in with your new password");
-                return instance.logout();
-            }
+```typescript
+    this.msalBroadcastService.msalSubject$
+      .pipe(
+        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS || msg.eventType === EventType.ACQUIRE_TOKEN_SUCCESS),
+        takeUntil(this._destroying$)
+      )
+      .subscribe((result: EventMessage) => {
+      
+        let payload: IdTokenClaims = <AuthenticationResult>result.payload;
+
+        // We need to reject id tokens that were not issued with the default sign-in policy.
+        // "acr" claim in the token tells us what policy is used (NOTE: for new policies (v2.0), use "tfp" instead of "acr")
+        // To learn more about b2c tokens, visit https://docs.microsoft.com/en-us/azure/active-directory-b2c/tokens-overview
+
+        if (payload.idTokenClaims?.acr === b2cPolicies.names.forgotPassword) {
+          window.alert('Password has been reset successfully. \nPlease sign-in with your new password.');
+          return this.authService.logout();
         }
-    }
+
+        return result;
+      });
 ```
 
 - **Edit Profile**
 
-When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow. Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
+When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow:
+
+```typescript
+  editProfile() {
+    let editProfileFlowRequest = {
+      scopes: ["openid"],
+      authority: b2cPolicies.authorities.editProfile.authority,
+    };
+
+    this.login(editProfileFlowRequest);
+  }
+```
+
+Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
 
 ## More information
 

@@ -133,7 +133,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `App\src\app\auth-config.ts` file.
+1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
 
@@ -160,106 +160,117 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-### Protected resources
+### Protected resources and scopes
 
-**MSAL Angular** allows you to add an **Http interceptor** (*MsalInterceptor*) in your `app.module.ts` as follows. **MsalInterceptor** will obtain tokens and add them to all your http requests in API calls based on the `protectedResourceMap` property.
-
-```typescript
-@NgModule({
-    imports: [
-        MsalModule.forRoot({
-            auth: {
-                clientId: "Your client ID"
-            }
-        }, {
-            protectedResourceMap: [
-                ['https://graph.microsoft.com/v1.0/me', ['user.read']],
-                ['https://api.myapplication.com/users/*', ['customscope']]
-            ]
-        })
-    ],
-    providers: [
-        ProductService,
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: MsalInterceptor,
-            multi: true
-        }
-    ]
-})
-export class AppModule {}
-```
-
-### Acquire a token
-
-**Access Token** requests in **MSAL.js** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
+In order to access a protected resource on behalf of a signed-in user, the app needs to present a valid **Access Token** to that resource owner (in this case, Microsoft Graph). **Access Token** requests in **MSAL** are meant to be *per-resource-per-scope(s)*. This means that an **Access Token** requested for resource **A** with scope `scp1`:
 
 - cannot be used for accessing resource **A** with scope `scp2`, and,
 - cannot be used for accessing resource **B** of any scope.
 
-The intended recipient of an **Access Token** is represented by the `aud` claim; in case the value for the `aud` claim does not mach the resource ***APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
+The intended recipient of an **Access Token** is represented by the `aud` claim (in this case, it should be the Microsoft Graph API's App ID); in case the value for the `aud` claim does not mach the resource **APP ID URI**, the token should be considered invalid. Likewise, the permissions that an **Access Token** grants is represented by the `scp` claim. See [Access Token claims](https://docs.microsoft.com/azure/active-directory/develop/access-tokens#payload-claims) for more information.
 
-**MSAL Angular** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`.
+MSAL Angular provides the `MsalInterceptor` for obtaining tokens and adding them to HTTP requests. The `protectedResourceMap` is part of the `MsalInterceptorConfiguration` object, initialized in [app.module.ts](./SPA/src/app/app.module.ts).
 
 ```typescript
-    this.broadcastService.subscribe("msal:acquireTokenSuccess", payload => {
-        // do something here
-    });
+export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
+  const protectedResourceMap = new Map<string, Array<string>>();
 
-    this.authService.acquireTokenPopup(scope)
-        .then((response) => {
-            // do something here
-        })
-        .catch((error) => {
-            // error
-        });
+  protectedResourceMap.set("https://graph.microsoft.com/v1.0/me", ["User.Read"]);
+
+  return {
+    interactionType: InteractionType.Redirect,
+    protectedResourceMap
+  };
+}
 ```
 
-For `acquireTokenRedirect()`, you must register a redirect promise handler:
+See for more: [FAQ: Using the protectedResourceMap](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/FAQ.md#how-do-i-add-tokens-to-api-calls)
+
+### Acquire a Token
+
+Setting `protectedResourceMap` at app initialization takes care of acquiring tokens and attaching them to HTTP requests. Simply call 
 
 ```typescript
-    this.authService.handleRedirectCallback((authError, response) => {
-      if (authError) {
-        console.error('Redirect Error: ', authError.errorMessage);
-        return;
-      }
+export class ProfileComponent implements OnInit {
+  
+  profile!: ProfileType;
+  
+  constructor(
+    private http: HttpClient
+  ) { }
 
-      console.log('Redirect Success: ', response);
-    });
+  ngOnInit() {
+    this.getProfile();
+  }
 
-    this.authService.acquireTokenRedirect(scope);
+  getProfile() {
+    this.http.get("https://graph.microsoft.com/v1.0/me")
+      .subscribe((profile: ProfileType) => {
+            console.log(profile);
+      });
+  }
+}
 ```
 
-In most cases you do **not** need to use these methods directly, as the `protectedResourceMap` property you define in the configuration will automatically handle token acquisition.
-
-### Silent token acquisition
-
-The **MSAL Angular** allows you to acquire a silently from the cache. In case the silent token acquisition fails, the recommended pattern is to fallback to an **interactive method** for token acquisition.
+Alternatively, you can also explicitly acquire tokens using the acquireToken APIs. **MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from cache *silently*. If `acquireTokenSilent()` fails for some reason, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. `acquireTokenSilent()` requires the current user's account as a parameter. Read more about [accounts in MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/FAQ.md#how-do-i-get-accounts).
 
 ```typescript
-    this.http.get(API_ENDPOINT)
-      .subscribe({
-        next: (profile) => {
-          this.profile = profile;
-        },
-        error: (err: AuthError) => {
-          // If there is an interaction required error,
-          // call one of the interactive methods and then make the request again.
-          if (InteractionRequiredAuthError.isInteractionRequiredError(err.errorCode)) {
-            this.authService.acquireTokenPopup({
-              scopes: this.authService.getScopesForEndpoint(API_ENDPOINT)
-            })
-            .then(() => {
-              this.http.get(API_ENDPOINT)
-                .toPromise()
-                .then(profile => {
-                  this.profile = profile;
-                });
-            });
-          }
+export class AppComponent implements OnInit {
+
+  constructor(
+    private authService: MsalService,
+  ) {}
+
+  ngOnInit(): void {
+    this.authService.acquireTokenSilent({
+          account: this.authService.getActiveAccount(), // get the current user's account
+          scopes: ["User.Read"]  
+      }).subscribe({
+        next: (result: AuthenticationResult) => {
+          console.log(result);
+        }, 
+        error: (error) => {
+          this.authService.acquireTokenRedirect({
+            scopes: ["User.Read"]    
+          });
         }
       });
+  }
+}
 ```
+
+> :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
+
+### Working with multiple resources
+
+When you have to access multiple resources, initiate a separate token request for each:
+
+ ```javascript
+     // "User.Read" stands as shorthand for "graph.microsoft.com/User.Read"
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read" ]
+     });
+     const customApiToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
+
+Bear in mind that you *can* request multiple scopes for the same resource (e.g. `User.Read`, `User.Write` and `Calendar.Read` for **MS Graph API**).
+
+ ```javascript
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "User.Write", "Calendar.Read"] // all MS Graph API scopes
+     });
+ ```
+
+In case you *erroneously* pass multiple resources in your token request, the token you will receive will only be issued for the first resource.
+
+ ```javascript
+     // you will only receive a token for MS GRAPH API's "User.Read" scope here
+     const myToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
 
 ### Dynamic scopes and incremental consent
 
