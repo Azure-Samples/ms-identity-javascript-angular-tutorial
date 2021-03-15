@@ -48,7 +48,7 @@
                 },
                 {
                     "key": "Enter_the_Tenant_Info_Here",
-                    "value": "$tenantName"
+                    "value": "$tenantId"
                 }
             ]
         }
