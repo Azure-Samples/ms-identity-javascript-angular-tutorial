@@ -105,6 +105,7 @@ dist
 
 # .NET binaries
 bin
+obj
 
 # Visual Studio cache
 .vs
