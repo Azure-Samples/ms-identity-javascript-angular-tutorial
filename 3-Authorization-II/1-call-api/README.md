@@ -15,14 +15,14 @@
 
 ## Overview
 
-This sample demonstrates a cross-platform application suite involving an Angular SPA (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular).
+This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (M.I.W) for the web API.
 
 ## Scenario
 
-- **TodoListSPA** use [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to sign-in a user.
+- The client Angular SPA uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to sign-in a user.
 - The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from **Azure AD** for the signed-in user.
-- The **access token** is then used to authorize the call to the **TodoListAPI**.
-- **TodoListAPI** uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept authorized calls.
+- The **access token** is then used to authorize the call to the service .NET Core web API.
+- .NET Core web API uses *M.I.W* to protect its endpoint and accept authorized calls.
 
 ![Topology](./ReadmeFiles/topology.png)
 
@@ -30,13 +30,12 @@ This sample demonstrates a cross-platform application suite involving an Angular
 
 | File/folder                         | Description                                                |
 |-------------------------------------|------------------------------------------------------------|
-| `AppCreationScripts`                | Contains Powershell scripts to automate app registrations. |
+| `AppCreationScripts`                | Contains Powershell scripts to automate app registration.  |
 | `ReadmeFiles`                       | Sample readme files.                                       |
-| `SPA/src/app/auth-config.ts`        | Authentication parameters reside here.                     |
-| `SPA/src/app/app.module.ts`         | MSAL-Angular configuration parameters reside here.         |
-| `SPA/src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                            |
-| `API/appsettings.json`              | Authentication parameters reside here.                     |
-| `API/Startup.cs`                    | MSAL-Angular configuration parameters reside here.         |
+| `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
+| `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
+| `API/appsettings.json`              | Authentication parameters for API project reside here.     |
+| `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
 
 ## Prerequisites
 
@@ -119,9 +118,6 @@ There are two projects in this sample. Each needs to be separately registered in
 
 ### Register the service app (msal-angular-api)
 
-> [!NOTE]
-> This sample is **not** configured to be a multi-tenant sample (learn more about [tenancy in Azure AD](https://docs.microsoft.com/azure/active-directory/develop/single-and-multi-tenant-apps)). If you would like to authorize users from other tenants to use this application, you may want to review [this tutorial](https://github.com/Azure-Samples/ms-identity-javascript-angular-spa-aspnet-webapi-multitenant) first.
-
 1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
 1. Select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
@@ -191,7 +187,7 @@ Using a command line interface such as VS Code integrated terminal, locate the a
     npm start
 ```
 
-In a separate console window, execute the following commands
+In a separate console window, execute the following commands:
 
 ```console
     cd API

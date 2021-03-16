@@ -1,4 +1,4 @@
-# Deploy your React Application to Azure Cloud and use Azure services to manage your operations
+# Deploy your Angular application to Azure Cloud and use Azure services to manage your operations
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -13,15 +13,11 @@
 
 ## Overview
 
-This sample demonstrates how to deploy a React single-page application (SPA) coupled with a Node.js web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively.
-
-Azure Storage provides a low cost static website hosting alternative. However, these static websites do not have advanced routing capabilities. As such, [the React SPA in this tutorial](./SPA) does not have a router component.
-
-For React applications with routing support, you can use [Azure Static Web Apps](https://docs.microsoft.com/azure/static-web-apps/) instead. See [Static Web App Deployment](../2-deploy-static/README.md) in the next section.
+This sample demonstrates how to deploy an Angular single-page application (SPA) coupled with a .NET Core web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
 
 ## Scenario
 
-1. The client application uses **MSAL React** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
+1. The client application uses **MSAL Angular** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
 1. The **Access Token** is used as a **bearer** token to *authorize* the user to call the protected web API.
 1. The protected web API responds with the claims in the **Access Token**.
 
@@ -29,6 +25,7 @@ For React applications with routing support, you can use [Azure Static Web Apps]
 
 ## Prerequisites
 
+- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
 - An **Azure subscription**. This sample uses **Azure Storage** and **Azure App Service**.
 
@@ -39,7 +36,7 @@ For React applications with routing support, you can use [Azure Static Web Apps]
 From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-react-tutorial.git
+    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
 ```
 
 or download and extract the repository .zip file.
@@ -51,8 +48,8 @@ or download and extract the repository .zip file.
 - Setup the service app:
 
 ```console
-    cd ms-identity-javascript-react-tutorial
-    cd 4-Deployment/1-deploy-storage
+    cd ms-identity-javascript-angular-tutorial
+    cd 3-Authorization-II/1-call-api
     cd API
     npm install
 ```
@@ -67,13 +64,13 @@ or download and extract the repository .zip file.
 
 ## Registration
 
-### Register the service app (Node.js web API)
+### Register the service app (.NET Core web API)
 
-Use the same app registration credentials that you've obtained during [**chapter 3-1**](../../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
+Use the same app registration credentials that you've obtained during [**chapter 3-1**](../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
 
-### Register the client app (React SPA)
+### Register the client app (Angular SPA)
 
-Use the same app registration credentials that you've obtained during [**chapter 3-1**](../../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
+Use the same app registration credentials that you've obtained during [**chapter 3-1**](../3-Authorization-II/1-call-api/README.md#registration). Update your project files here as needed.
 
 ## Deployment
 
@@ -87,9 +84,9 @@ There is one web API in this sample. To deploy it to **Azure App Services**, you
 #### Publish your files (TodoListAPI)
 
 1. Sign-in to **App Service** using an Azure AD Account.
-1. Open the `TodoListAPI` project folder.
+1. Open the `API` project folder.
 1. Choose **View** > **Terminal** from the main menu.
-1. The terminal opens in the `TodoListAPI` folder.
+1. The terminal opens in the `API` folder.
 1. Run the following command:
 
     ```console
@@ -123,12 +120,12 @@ There is one single-page application in this sample. To deploy it to **Azure Sto
 
 > :information_source: If you would like to use **VS Code Azure Tools** extension for deployment, [watch the tutorial](https://docs.microsoft.com/azure/developer/javascript/tutorial-vscode-static-website-node-01) offered by Microsoft Docs.
 
-#### Build and upload the `TodoListSPA` to an Azure Storage blob
+#### Build and upload the Angular SPA to an Azure Storage blob
 
 Build your project to get a distributable files folder, where your built `html`, `css` and `javascript` files will be generated.
 
 ```console
-    cd TodoListSPA
+    cd SPA
     npm run build
 ```
 
@@ -145,7 +142,7 @@ Then follow the steps below:
 1. In the **Index document name** field, specify a default index page (For example: `index.html`).
 1. The default **index page** is displayed when a user navigates to the root of your static website.
 1. Select **Save**. The Azure Portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
-1. In the `TodoListSPA` project source code, update your configuration file with the **Primary endpoint field** as your new **Redirect URI** (you will register this URI later).
+1. In the `SPA` project source code, update your configuration file with the **Primary endpoint field** as your new **Redirect URI** (you will register this URI later).
 1. Next, select **Storage Explorer**.
 1. Expand the **BLOB CONTAINERS** node, and then select the `$web` container.
 1. Choose the **Upload** button to upload files.
@@ -163,16 +160,14 @@ Then follow the steps below:
 
 ### Update authentication configuration parameters (TodoListSPA)
 
-1. In your IDE, locate the `TodoListSPA` project. Then, open `TodoListSPA\src\app\auth-config.json`.
+1. In your IDE, locate the `TodoListSPA` project. Then, open `SPA\src\app\auth-config.ts`.
 2. Find the key for **redirect URI** and replace its value with the address of the web app you published, for example, [https://TodoListSPA.azurewebsites.net](https://TodoListSPA.azurewebsites.net).
 3. Find the key for **web API endpoint** and replace its value with the address of the web API you published, for example, [https://TodoListAPI.azurewebsites.net/api](https://TodoListAPI.azurewebsites.net/api/todolist).
 
 ## Explore the sample
 
-1. Open your browser and navigate to your deployed client app's URI, for instance: `https://reactspa1.z22.web.core.windows.net/`.
+1. Open your browser and navigate to your deployed client app's URI, for instance: `https://angularspa1.z22.web.core.windows.net/`.
 1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flow.
-1. Select the **Profile** button on the navigation bar. This will make a call to the Microsoft Graph API.
-1. Select the **HelloAPI** button on the navigation bar. This will make a call to your web API.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
