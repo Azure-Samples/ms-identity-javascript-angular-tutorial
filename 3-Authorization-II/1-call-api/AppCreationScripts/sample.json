@@ -10,10 +10,10 @@
   "AADApps": [
     {
       "Id": "service",
-      "Name": "msal-angular-api",
+      "Name": "msal-dotnet-api",
       "Kind": "WebApi",
       "Audience": "AzureADMyOrg",
-      "HomePage": "https://localhost:44351/api/todolist/"
+      "HomePage": "https://localhost:44351/api/todolist"
     },
     {
       "Id": "client",
@@ -49,7 +49,7 @@
         },
         {
           "key": "Enter the Client ID (aka 'Application ID')",
-          "value": "service.AppId"
+          "value": ".AppId"
         },
         {
           "key": "Enter the tenant ID",

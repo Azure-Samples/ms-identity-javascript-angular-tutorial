@@ -116,12 +116,12 @@ There are two projects in this sample. Each needs to be separately registered in
 
 </details>
 
-### Register the service app (msal-angular-api)
+### Register the service app (msal-dotnet-api)
 
-1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-api`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -134,26 +134,26 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
         - Select **Admins and users** options for **Who can consent?**
-        - For **Admin consent display name** type `Access msal-angular-api`
-        - For **Admin consent description** type `Allows the app to access msal-angular-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-angular-api`
-        - For **User consent description** type `Allow the application to access msal-angular-api on your behalf.`
+        - For **Admin consent display name** type `Access msal-dotnet-api`
+        - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
+        - For **User consent display name** type `Access msal-dotnet-api`
+        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
         - Keep **State** as **Enabled**
         - Click on the **Add scope** button on the bottom to save this scope.
 
-#### Configure the service app (msal-angular-api) to use your app registration
+#### Configure the service app (msal-dotnet-api) to use your app registration
 
 Open the project in your IDE to configure the code.
 >In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\appsettings.json` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-angular-api` app copied from the Azure portal.
+1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
 
 ### Register the client app (msal-angular-spa)
 
-1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
@@ -164,11 +164,11 @@ Open the project in your IDE to configure the code.
 1. In the app's registration screen, click on the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Click the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API `msal-angular-api`.
+   - In the list of APIs, select the API `msal-dotnet-api`.
    - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
    - Click on the **Add permissions** button at the bottom.
 
-#### Configure the client app (TodoListSPA) to use your app registration
+#### Configure the client app (msal-angular-spa) to use your app registration
 
 Open the project in your IDE to configure the code.
 >In the steps below, "ClientID" is the same as "Application ID" or "AppId".

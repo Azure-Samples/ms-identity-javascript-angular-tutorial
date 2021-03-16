@@ -15,6 +15,8 @@
 
 This sample demonstrates how to deploy an Angular single-page application (SPA) coupled with a .NET Core web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
 
+> :information_source: You can choose to deploy the [B2C sample from Chapter 3](../3-Authorization-II/1-call-api-b2c) instead. Steps below are more or less the same. 
+
 ## Scenario
 
 1. The client application uses **MSAL Angular** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
@@ -25,7 +27,6 @@ This sample demonstrates how to deploy an Angular single-page application (SPA) 
 
 ## Prerequisites
 
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
 - An **Azure subscription**. This sample uses **Azure Storage** and **Azure App Service**.
 
@@ -76,12 +77,12 @@ Use the same app registration credentials that you've obtained during [**chapter
 
 ### Deploying web API to Azure App Services
 
-There is one web API in this sample. To deploy it to **Azure App Services**, you'll need to:
+There is one .NET Core web API in this sample. To deploy it to **Azure App Services**, you'll need to:
 
 - create an **Azure App Service**
 - publish the projects to the **App Services**
 
-#### Publish your files (TodoListAPI)
+#### Publish your files
 
 1. Sign-in to **App Service** using an Azure AD Account.
 1. Open the `API` project folder.
@@ -98,13 +99,13 @@ There is one web API in this sample. To deploy it to **Azure App Services**, you
 1. Select **Create New Web App**, enter a unique name for the app.
 1. Select **Windows** as the OS. Press **Enter**.
 
-#### Disable Azure App Services default authentication (TodoListAPI)
+#### Disable Azure App Services default authentication
 
 1. Go to [Azure Portal](https://portal.azure.com), and locate your project there.
     - On the Settings tab, select **Authentication/Authorization**. Make sure `App Service Authentication` is Off. Select **Save**.
 1. Browse your website. If you see the default web page of the project, the publication was successful.
 
-#### Enable cross-origin resource sharing (CORS) (TodoListAPI)
+#### Enable cross-origin resource sharing (CORS)
 
 1. Go to [Azure Portal](https://portal.azure.com), and locate your project there.
     - On the API tab, select **CORS**. Check the box **Enable Access-Control-Allow-Credentials**.
@@ -112,7 +113,7 @@ There is one web API in this sample. To deploy it to **Azure App Services**, you
 
 ### Deploying SPA to Azure Storage
 
-There is one single-page application in this sample. To deploy it to **Azure Storage**, you'll need to:
+There is one Angular single-page application in this sample. To deploy it to **Azure Storage**, you'll need to:
 
 - create an Azure Storage blob and obtain website coordinates
 - build your project and upload it to Azure Storage blob
@@ -126,7 +127,7 @@ Build your project to get a distributable files folder, where your built `html`,
 
 ```console
     cd SPA
-    npm run build
+    ng build --prod
 ```
 
 Then follow the steps below:
@@ -142,32 +143,32 @@ Then follow the steps below:
 1. In the **Index document name** field, specify a default index page (For example: `index.html`).
 1. The default **index page** is displayed when a user navigates to the root of your static website.
 1. Select **Save**. The Azure Portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
-1. In the `SPA` project source code, update your configuration file with the **Primary endpoint field** as your new **Redirect URI** (you will register this URI later).
 1. Next, select **Storage Explorer**.
 1. Expand the **BLOB CONTAINERS** node, and then select the `$web` container.
 1. Choose the **Upload** button to upload files.
 1. If you intend for the browser to display the contents of file, make sure that the content type of that file is set to `text/html`.
 1. In the pane that appears beside the **account overview page** of your storage account, select **Static Website**. The URL of your site appears in the **Primary endpoint field**. In the next section, you will register this URI.
 
-##### Update the Azure AD app registration for TodoListSPA
+##### Update the Azure AD app registration
 
 1. Navigate back to to the [Azure portal](https://portal.azure.com).
 1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
-1. In the resulting screen, select `TodoListSPA`.
+1. In the resulting screen, select `msal-angular-spa`.
 1. In the app's registration screen, select **Authentication** in the menu.
    - In the **Redirect URIs** section, update the reply URLs to match the site URL of your Azure deployment. For example:
-      - `https://TodoListSPA.azurewebsites.net/`
+      - `https://angularspa1.z22.web.core.windows.net`
 
-### Update authentication configuration parameters (TodoListSPA)
+### Update authentication configuration parameters
 
-1. In your IDE, locate the `TodoListSPA` project. Then, open `SPA\src\app\auth-config.ts`.
-2. Find the key for **redirect URI** and replace its value with the address of the web app you published, for example, [https://TodoListSPA.azurewebsites.net](https://TodoListSPA.azurewebsites.net).
-3. Find the key for **web API endpoint** and replace its value with the address of the web API you published, for example, [https://TodoListAPI.azurewebsites.net/api](https://TodoListAPI.azurewebsites.net/api/todolist).
+1. In your IDE, locate the `SPA` project. Then, open `SPA\src\app\auth-config.ts`.
+2. Find the key for **redirect URI** and replace its value with the address of the web app you published, for example, `https://angularspa1.z22.web.core.windows.net`.
+3. Find the key for **web API endpoint** and replace its value with the address of the web API you published, for example, `https://dotnetwebapi.azurewebsites.net/api/todolist`.
 
 ## Explore the sample
 
 1. Open your browser and navigate to your deployed client app's URI, for instance: `https://angularspa1.z22.web.core.windows.net/`.
-1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flow.
+1. Select the **Sign In** button on the top right corner.
+3. Select the **TodoList** button on the navigation bar to access your todo list.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 

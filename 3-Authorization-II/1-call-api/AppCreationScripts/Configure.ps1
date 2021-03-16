@@ -197,10 +197,10 @@ Function ConfigureApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    # Create the service AAD application
-   Write-Host "Creating the AAD application (msal-angular-api)"
+   Write-Host "Creating the AAD application (msal-dotnet-api)"
    # create the application 
-   $serviceAadApplication = New-AzureADApplication -DisplayName "msal-angular-api" `
-                                                   -HomePage "https://localhost:44351/api/todolist/" `
+   $serviceAadApplication = New-AzureADApplication -DisplayName "msal-dotnet-api" `
+                                                   -HomePage "https://localhost:44351/api/todolist" `
                                                    -PublicClient $False
 
    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
@@ -238,9 +238,9 @@ Function ConfigureApplications
     if ($scopes.Count -ge 0) 
     {
              $scope = CreateScope -value access_as_user  `
-                -userConsentDisplayName "Access msal-angular-api"  `
-                -userConsentDescription "Allow the application to access msal-angular-api on your behalf."  `
-                -adminConsentDisplayName "Access msal-angular-api"  `
+                -userConsentDisplayName "Access msal-dotnet-api"  `
+                -userConsentDescription "Allow the application to access msal-dotnet-api on your behalf."  `
+                -adminConsentDisplayName "Access msal-dotnet-api"  `
                 -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
             
                 $scopes.Add($scope)
@@ -250,12 +250,12 @@ Function ConfigureApplications
     # add/update scopes
     Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -OAuth2Permission $scopes
 
-   Write-Host "Done creating the service application (msal-angular-api)"
+   Write-Host "Done creating the service application (msal-dotnet-api)"
 
    # URL of the AAD application in the Azure portal
    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-angular-api</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-dotnet-api</a></td></tr>" -Path createdApps.html
 
 
    # Create the client AAD application
@@ -291,7 +291,7 @@ Function ConfigureApplications
 
    # Add Required Resources Access (from 'client' to 'service')
    Write-Host "Getting access from 'client' to 'service'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-angular-api" `
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-dotnet-api" `
                                                 -requiredDelegatedPermissions "access_as_user" `
 
    $requiredResourcesAccess.Add($requiredPermissions)
