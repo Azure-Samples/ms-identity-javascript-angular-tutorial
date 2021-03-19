@@ -1,4 +1,5 @@
-# Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API
+
+# Angular single-page application that authenticates users with Azure AD B2C and calls a protected .NET Core web API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -6,7 +7,7 @@
  1. [Prerequisites](#prerequisites)
  1. [Setup](#setup)
  1. [Registration](#registration)
- 1. [Running the sample](#run-the-sample)
+ 1. [Running the sample](#running-the-sample)
  1. [Explore the sample](#explore-the-sample)
  1. [About the code](#about-the-code)
  1. [More information](#more-information)
@@ -15,14 +16,14 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (M.I.W) for the web API.
+This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (M.I.W) for the web API.
 
 ## Scenario
 
-1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD**.
-2. The access token is used as a bearer token to authorize the user to call the .NET Core web API protected by **Azure AD**.
+1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD B2C**.
+2. The access token is used as a bearer token to authorize the user to call the .NET Core web API protected by **Azure AD B2C**.
 
-![Topology](./ReadmeFiles/topology.png)
+![Overview](./ReadmeFiles/topology.png)
 
 ## Contents
 
@@ -41,7 +42,7 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 3-Authorization-II/1-call-api/API
+    cd 3-Authorization-II/2-call-api-b2c/API
     dotnet restore
 ```
 
@@ -54,7 +55,7 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 Learn more about [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
-### Step 1. Install Angular SPA dependencies
+### Step 3. Install Angular SPA dependencies
 
 ```console
     cd ../
@@ -62,99 +63,98 @@ Learn more about [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/sec
     npm install
 ```
 
-## Registration
+### Registration
 
-### Register the sample applications with your Azure Active Directory tenant
+:warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps for [Running the sample](#running-the-sample).
 
-There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
+### Choose the Azure AD tenant where you want to create your applications
 
-- either follow the steps below for manual registration,
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the configuration files.
+As a first step you'll need to:
 
-<details>
-  <summary>Expand this section if you want to use this automation:</summary>
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If your account is present in more than one Azure AD B2C tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD B2C tenant.
 
-1. On Windows, run PowerShell and navigate to the root of the cloned directory
-1. In PowerShell run:
+### Create User Flows and Custom Policies
 
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
+Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
 
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
+### Add External Identity Providers
 
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
-
-1. Follow the section on "Running the sample" below.
-
-</details>
+Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
 
 ### Register the service app (msal-dotnet-api)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
-1. Select **New registration**.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
+1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
    - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
+   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
-1. In the app's registration screen, click on the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
-The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI, follow the following steps:
-   - Click `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
-   - For this sample, accept the proposed Application ID URI (api://{clientId}) by selecting **Save**.
+1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
+The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
+   - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
+   - For this sample, accept the proposed Application ID URI (`https://{tenantName}.onmicrosoft.com/{clientId}`) by selecting **Save**.
 1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
-        - Select **Admins and users** options for **Who can consent?**
-        - For **Admin consent display name** type `Access msal-dotnet-api`
+        - For **Admin consent display name** type `Access msal-dotnet-api`.
         - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-dotnet-api`
-        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
-        - Keep **State** as **Enabled**
-        - Click on the **Add scope** button on the bottom to save this scope.
+        - Keep **State** as **Enabled**.
+        - Select the **Add scope** button on the bottom to save this scope.
 
 #### Configure the service app (msal-dotnet-api) to use your app registration
 
-Open the project in your IDE to configure the code.
->In the steps below, "ClientID" is the same as "Application ID" or "AppId".
+Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
+
+> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\appsettings.json` file.
-1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
+1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
-1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
+1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name.
+
+1. Find the key `SignUpSignInPolicyId` and replace the existing value with your sign-up/sign-in user-flow string e.g. `b2c_1_susi`.
+1. Find the key `ResetPasswordPolicyId` and replace the existing value with your your password-reset user-flow string e.g. `b2c_1_reset`.
+1. Find the key `EditProfilePolicyId` and replace the existing value with your profile-edit user-flow string e.g. `b2c_1_edit`.
 
 ### Update the client app's registration (msal-angular-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-angular-spa`).
-1. In the app's registration screen, click on the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Click the **Add a permission** button and then,
+1. In the **Register an application page** that appears, enter your application's registration information:
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
+   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
+   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/`.
+1. Select **Register** to create the application.
+1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. Select **Save** to save your changes.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+   - Select the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
    - In the list of APIs, select the API `msal-dotnet-api`.
-   - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
-   - Click on the **Add permissions** button at the bottom.
+   - In the **Delegated permissions** section, select the **Access 'msal-dotnet-api'** in the list. Use the search box if necessary.
+   - Select the **Add permissions** button at the bottom.
 
 #### Configure the client app (msal-angular-spa) to use your app registration
 
-Open the project in your IDE to configure the code.
->In the steps below, "ClientID" is the same as "Application ID" or "AppId".
+Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
+
+> In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure Portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with *scope* you created earlier e.g. `api://{clientId}/access_as_user`.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD B2C tenant ID.
+1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with the scope of the web API that you have just exposed during the web API registration steps, for example `https://{tenantName}.onmicrosoft.com/{service_clientId}/access_as_user`
 
-## Run the sample
+To setup your B2C user-flows, do the following:
+
+1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
+
+## Running the sample
 
 Using a command line interface such as VS Code integrated terminal, locate the application directory. Then:  
 
@@ -177,6 +177,8 @@ In a separate console window, execute the following commands:
 3. Select the **TodoList** button on the navigation bar to access your todo list.
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../issues) page.
+
+> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory-b2c/support-options).
 
 ## We'd love your feedback!
 
@@ -211,8 +213,8 @@ In your controller, add [Authorize] decorator, which will make sure all incoming
     public class TodoListController : ControllerBase
     {
         // The Web API will only accept tokens 1) for users, and 
-        // 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
+        // 2) having the demo.read scope for this API
+        static readonly string[] scopeRequiredByApi = new string[] { "demo.read" };
 
         private readonly TodoContext _context;
 
@@ -259,12 +261,10 @@ Continue with the next tutorial: [Deploy your apps to Azure](../../4-Deployment/
 
 ## More information
 
-- [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
-- [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
-- [Quickstart: Register an application with the Microsoft identity platform (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
-- [Quickstart: Configure a client application to access web APIs (Preview)](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
-- [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
+- [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
+- [Application types that can be used in Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/application-types)
+- [Recommendations and best practices for Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
+- [Azure AD B2C session](https://docs.microsoft.com/azure/active-directory-b2c/session-overview)
 - [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
 - [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
 - [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
@@ -279,22 +279,14 @@ For more information about how OAuth 2.0 protocols work in this scenario and oth
 
 Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`msal` `dotnet` `angular` `azure-active-directory`].
+Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, please raise the issue on [GitHub Issues](../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
 
-To provide a recommendation, visit the following [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
