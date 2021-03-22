@@ -152,7 +152,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 ## We'd love your feedback!
 

@@ -53,7 +53,7 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
     dotnet dev-certs https --trust
 ```
 
-Learn more about [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
+For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
 ### Step 3. Install Angular SPA dependencies
 
@@ -119,6 +119,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `ResetPasswordPolicyId` and replace the existing value with your your password-reset user-flow string e.g. `b2c_1_reset`.
 1. Find the key `EditProfilePolicyId` and replace the existing value with your profile-edit user-flow string e.g. `b2c_1_edit`.
 
+1. Open the `API\Controllers\TodoListController.cs` file.
+1. Find the variable `scopeRequiredByApi` and replace its value with the name of the API scope that you have just exposed (by default `demo.read`)
+
 ### Update the client app's registration (msal-angular-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
@@ -144,9 +147,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD B2C tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with the scope of the web API that you have just exposed during the web API registration steps, for example `https://{tenantName}.onmicrosoft.com/{service_clientId}/access_as_user`
+1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `protectedResources.todoListApi.scopes` and replace the existing value with the scope of the web API that you have just exposed during the web API registration steps, for example `https://{tenantName}.onmicrosoft.com/{service_clientId}/access_as_user`
 
 To setup your B2C user-flows, do the following:
 
@@ -281,7 +283,7 @@ Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get supp
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
 Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
 To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 

@@ -99,8 +99,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant name.
+1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-react-spa` app copied from the Azure portal.
 
 To setup your B2C user-flows, do the following:
 
@@ -122,7 +121,7 @@ To setup your B2C user-flows, do the following:
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 > :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory-b2c/support-options).
 

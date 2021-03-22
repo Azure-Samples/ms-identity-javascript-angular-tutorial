@@ -68,7 +68,7 @@ or download and extract the repository .zip file.
     dotnet dev-certs https --trust
 ```
 
-Learn more about [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
+For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
 ### Step 4. Install Angular SPA dependencies
 
@@ -149,6 +149,9 @@ Open the project in your IDE to configure the code.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
 
+1. Open the `API\Controllers\TodoListController.cs` file.
+1. Find the variable `scopeRequiredByApi` and replace its value with the name of the API scope that you have just exposed (by default `access_as_user`).
+
 ### Register the client app (msal-angular-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
@@ -172,7 +175,7 @@ Open the project in your IDE to configure the code.
 >In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure Portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with *scope* you created earlier e.g. `api://{clientId}/access_as_user`.
 

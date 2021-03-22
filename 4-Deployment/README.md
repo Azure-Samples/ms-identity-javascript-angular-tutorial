@@ -15,7 +15,7 @@
 
 This sample demonstrates how to deploy an Angular single-page application (SPA) coupled with a .NET Core web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
 
-> :information_source: You can choose to deploy the [B2C sample from Chapter 3](../3-Authorization-II/1-call-api-b2c) instead. Steps below are more or less the same. 
+> :information_source: You can choose to deploy the [B2C sample from Chapter 3](../3-Authorization-II/2-call-api-b2c/README.md) instead. Steps below are more or less the same.
 
 ## Scenario
 
@@ -52,7 +52,7 @@ or download and extract the repository .zip file.
     cd ms-identity-javascript-angular-tutorial
     cd 3-Authorization-II/1-call-api
     cd API
-    npm install
+    dotnet restore
 ```
 
 - Setup the client app:
@@ -101,13 +101,13 @@ There is one .NET Core web API in this sample. To deploy it to **Azure App Servi
 
 #### Disable Azure App Services default authentication
 
-1. Go to [Azure Portal](https://portal.azure.com), and locate your project there.
+1. Go to [Azure portal](https://portal.azure.com), and locate your project there.
     - On the Settings tab, select **Authentication/Authorization**. Make sure `App Service Authentication` is Off. Select **Save**.
 1. Browse your website. If you see the default web page of the project, the publication was successful.
 
 #### Enable cross-origin resource sharing (CORS)
 
-1. Go to [Azure Portal](https://portal.azure.com), and locate your project there.
+1. Go to [Azure portal](https://portal.azure.com), and locate your project there.
     - On the API tab, select **CORS**. Check the box **Enable Access-Control-Allow-Credentials**.
     - Under **Allowed origins**, add the coordinates of your published website.
 
@@ -142,7 +142,7 @@ Then follow the steps below:
 1. Select **Enabled** to enable static website hosting for the storage account.
 1. In the **Index document name** field, specify a default index page (For example: `index.html`).
 1. The default **index page** is displayed when a user navigates to the root of your static website.
-1. Select **Save**. The Azure Portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
+1. Select **Save**. The Azure portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
 1. Next, select **Storage Explorer**.
 1. Expand the **BLOB CONTAINERS** node, and then select the `$web` container.
 1. Choose the **Upload** button to upload files.
