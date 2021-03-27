@@ -3,17 +3,18 @@ page_type: sample
 languages:
 - javascript
 - typescript
+- csharp
 products:
 - angular
+- dotnet
 - msal-js
 - ms-graph
 - azure-storage
 - azure-app-service
 - azure-key-vault
-- azure-functions
 - azure-active-directory
 - azure-active-directory-b2c
-- microsoft-identity-platform
+- microsoft-identity-web
 description: "Tutorial: Enable your Angular single-page application to sign-in users and call APIs with the Microsoft identity platform"
 urlFragment: "ms-identity-javascript-angular-tutorial"
 ---
@@ -23,8 +24,6 @@ urlFragment: "ms-identity-javascript-angular-tutorial"
 The [Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/v2-overview), along with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) and [Azure Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) (Azure AD B2C) are central to the **Azure** cloud ecosystem. This tutorial aims to take you through the fundamentals of modern authentication with Angular, using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular).
 
 We recommend following the chapters in successive order. However, the code samples are self-contained, so feel free to pick samples by topics that you may need at the moment.
-
-> :warning: This is a *work in progress*. Come back frequently to discover more samples.
 
 ## Prerequisites
 
@@ -76,6 +75,25 @@ Alternatively, choose below the sample you want to review.
 |                 |               |
 |-----------------|---------------|
 | <img src="./4-Deployment/ReadmeFiles/topology.png" width="200"> | [**Deploy to Azure Storage and App Service**](./4-Deployment/README.md) </br> Prepare your app for deployment to various **Azure** services. Learn how to package and upload files, configure authentication parameters and use **Azure** services for managing your operations. |
+
+### Chapter 5: Call Microsoft Graph from your protected API on behalf-of a user
+
+|                 |               |
+|-----------------|---------------|
+| <img src="./5-AdvancedGrants/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call a web API that calls Microsoft Graph on behalf of a user**](./5-AdvancedGrants/1-call-api-obo/README.md) </br> Enhance your protected web API to acquire an **Access Token** for Microsoft Graph **on-behalf-of** a user signed-in to your client app. |
+
+### Chapter 6: Control access to your protected API using App Roles and Security Groups
+
+|                 |               |
+|-----------------|---------------|
+| <img src="./6-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Call a web API using App Roles**](./6-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. |
+| <img src="./6-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Security Groups**](/6-AccessControl/1-call-api-groups/README.md) </br> Create Security Groups and use groups claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. Handle overage scenarios.  |
+
+### Chapter 7: Develop and provision a multi-tenant SaaS application
+
+|                 |               |
+|-----------------|---------------|
+| <img src="./7-Multitenant/1-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./7-Multitenant/1-call-api-mt/README.md) </br> Understand multitenancy in Azure AD. Handle provisioning your app to other tenants and control who can access your resources. |
 
 ## We'd love your feedback!
 

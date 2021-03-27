@@ -1,0 +1,20 @@
+{
+  "credentials": {
+    "clientId": "Enter the Client Id (aka 'Application ID')",
+    "tenantId": "organizations"
+  },
+  "configuration": {
+    "redirectUri": "http://localhost:4200",
+    "postLogoutRedirectUri": "http://localhost:4200"
+  },
+  "resources": {
+    "graphApi": {
+      "resourceUri": "https://graph.microsoft.com/v1.0/users",
+      "resourceScopes": [ "User.Read.All" ]
+    },
+    "todoListApi": {
+      "resourceUri": "https://localhost:44351/api/todolist",
+      "resourceScopes": [ "Enter the API scopes as declared in the app registration 'Expose an API' blade in the form of api://{clientId}/.default" ]
+    }
+  }     
+}

@@ -1,0 +1,14 @@
+<mat-card class='card-section'>
+    <mat-card-title>You have too many group memberships!</mat-card-title>
+    <mat-card-content>The application will now query Microsoft Graph to get the full list of groups that you are a member of.</mat-card-content>
+    <mat-card-content>This operation requires Admin Consent for the GroupMember.Read.All scope</mat-card-content>
+    <mat-card-content>Once its done, you may go back and try to access again.</mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button [routerLink]="['/']">I understand, take me back</button>
+    </mat-card-actions>
+    <hr>
+    <mat-card-subtitle>Your group memberships:</mat-card-subtitle>
+    <ol>
+        <li *ngFor="let group of groups">{{group}}</li>
+    </ol>
+</mat-card>
