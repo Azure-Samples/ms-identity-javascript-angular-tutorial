@@ -6,6 +6,12 @@ a.title {
   color: white;
 }
 
+footer {
+  position:fixed;
+  bottom:0px;
+  width:100%;
+}
+
 .footer-text {
   font-size: small;
   text-align: center;

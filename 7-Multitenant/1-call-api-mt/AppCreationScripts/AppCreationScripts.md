@@ -24,22 +24,22 @@
 
 The following paragraphs:
 
-- [Registering the sample apps with the Microsoft identity platform and updating the configuration files using PowerShell](#registering-the-sample-apps-with-the-Microsoft-identity-platform-and-updating-the-configuration-files-using-PowerShell)
-  - [Overview](#overview)
-    - [Quick summary](#quick-summary)
-    - [More details](#more-details)
-  - [Goal of the provided scripts](#goal-of-the-provided-scripts)
-    - [Presentation of the scripts](#presentation-of-the-scripts)
-    - [Usage pattern for tests and DevOps scenarios](#usage-pattern-for-tests-and-DevOps-scenarios)
-  - [How to use the app creation scripts?](#how-to-use-the-app-creation-scripts)
-    - [Pre-requisites](#pre-requisites)
-    - [Run the script and start running](#run-the-script-and-start-running)
-    - [Four ways to run the script](#four-ways-to-run-the-script)
-      - [Option 1 (interactive)](#option-1-interactive)
-      - [Option 2 (non-interactive)](#option-2-non-interactive)
-      - [Option 3 (Interactive, but create apps in a specified tenant)](#option-3-Interactive-but-create-apps-in-a-specified-tenant)
-      - [Option 4 (non-interactive, and create apps in a specified tenant)](#option-4-non-interactive-and-create-apps-in-a-specified-tenant)
-    - [Running the script on Azure Sovereign clouds](#running-the-script-on-Azure-Sovereign-clouds)
+- [Registering the sample apps with the Microsoft identity platform and updating the configuration files using PowerShell](#Registering-the-sample-apps-with-the-Microsoft-identity-platform-and-updating-the-configuration-files-using-PowerShell)
+  - [Overview](#Overview)
+    - [Quick summary](#Quick-summary)
+    - [More details](#More-details)
+  - [Goal of the provided scripts](#Goal-of-the-provided-scripts)
+    - [Presentation of the scripts](#Presentation-of-the-scripts)
+    - [Usage pattern for tests and DevOps scenarios](#Usage-pattern-for-tests-and-DevOps-scenarios)
+  - [How to use the app creation scripts?](#How-to-use-the-app-creation-scripts)
+    - [Pre-requisites](#Pre-requisites)
+    - [Run the script and start running](#Run-the-script-and-start-running)
+    - [Four ways to run the script](#Four-ways-to-run-the-script)
+      - [Option 1 (interactive)](#Option-1-interactive)
+      - [Option 2 (non-interactive)](#Option-2-non-interactive)
+      - [Option 3 (Interactive, but create apps in a specified tenant)](#Option-3-Interactive-but-create-apps-in-a-specified-tenant)
+      - [Option 4 (non-interactive, and create apps in a specified tenant)](#Option-4-non-interactive-and-create-apps-in-a-specified-tenant)
+    - [Running the script on Azure Sovereign clouds](#Running-the-script-on-Azure-Sovereign-clouds)
 
 ## Goal of the provided scripts
 
@@ -104,7 +104,7 @@ The scripts install the required PowerShell module (AzureAD) for the current use
 
 1. Run the scripts. See below for the [four options](#four-ways-to-run-the-script) to do that.
 1. Open the Visual Studio solution, and in the solution's context menu, choose **Set Startup Projects**.
-1. Select **Start** for the projects
+1. select **Start** for the projects
 
 You're done. this just works!
 

@@ -1,16 +1,16 @@
 {
   "Sample": {
-    "Title": "An Angular single-page application (SPA) calling a protected web API and using App Roles to implement Role-Based Access Control (RBAC)",
+    "Title": "Angular single-page application calling a protected web API and using App Roles to implement Role-Based Access Control",
     "Level": 300,
-    "Client": "Angular SPA TodoListSPA",
-    "Service": ".NET Core web API TodoListAPI",
-    "RepositoryUrl": "ms-identity-javascript-angular-spa-dotnetcore-webapi-roles-groups",
+    "Client": "Angular SPA",
+    "Service": ".NET Core web API",
+    "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
     "Endpoint": "AAD v2.0"
   },
   "AADApps": [
     {
       "Id": "service",
-      "Name": "TodoListAPI-chapter1",
+      "Name": "msal-dotnet-api",
       "Kind": "WebApi",
       "Audience": "AzureADMyOrg",
       "HomePage": "https://localhost:44351/api/todolist",
@@ -33,7 +33,7 @@
     },
     {
       "Id": "client",
-      "Name": "TodoListSPA-chapter1",
+      "Name": "msal-angular-spa",
       "Kind": "SinglePageApplication",
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:4200/",
@@ -67,7 +67,7 @@
     {
       "App": "service",
       "SettingKind": "Replace",
-      "SettingFile": "\\..\\TodoListAPI\\appsettings.json",
+      "SettingFile": "\\..\\API\\appsettings.json",
       "Mappings": [
         {
           "key": "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com",
@@ -87,22 +87,18 @@
     {
       "App": "client",
       "SettingKind": "Replace",
-      "SettingFile": "\\..\\TodoListSPA\\src\\app\\auth-config.json",
+      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
       "Mappings": [
         {
-          "key": "Enter the application ID (clientId) of the 'TodoListSPA' application copied from the Azure portal",
+          "key": "Enter_the_Application_Id_Here",
           "value": "client.AppId"
         },
         {
-          "key": "Enter the ID of your Azure AD tenant copied from the Azure portal",
+          "key": "Enter_the_Tenant_Info_Here",
           "value": "$tenantId"
         },
         {
-          "key": "Enter the endpoint for TodoListAPI, e.g. https://localhost:44351/api/todolist",
-          "value": "service.HomePage"
-        },
-        {
-          "key": "Enter the API scopes as declared in the app registration 'Expose an API' blade, e.g. api://{clientId}/access_as_user",
+          "key": "Enter_the_Web_Api_Scope_here",
           "value": "service.Scope"
         }
       ]

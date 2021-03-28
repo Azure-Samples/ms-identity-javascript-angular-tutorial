@@ -116,7 +116,6 @@ namespace TodoListAPI.Controllers
 
             todoItem.Status = false;
 
-
             _context.TodoItems.Add(todoItem);
             await _context.SaveChangesAsync();
 

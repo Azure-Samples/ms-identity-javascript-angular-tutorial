@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
-import { EventMessage, EventType } from '@azure/msal-browser';
+import { EventMessage, EventType, AuthenticationResult } from '@azure/msal-browser';
 
 @Component({
   selector: 'app-home',
@@ -27,8 +27,9 @@ export class HomeComponent implements OnInit {
         takeUntil(this._destroying$)
       )
       .subscribe((result: EventMessage) => {
-        if (result?.payload?.account) {
-          this.authService.instance.setActiveAccount(result?.payload?.account);
+        if (result?.payload) {
+          const payload: AuthenticationResult = result.payload as AuthenticationResult
+          this.authService.instance.setActiveAccount(payload.account);
         }
       });
 
@@ -57,10 +58,11 @@ export class HomeComponent implements OnInit {
   }
 
   getClaims(claims: any) {
+    console.log(claims)
     this.dataSource = [
       {id: 1, claim: "Display Name", value: claims ? claims['name'] : null},
       {id: 2, claim: "User Principal Name (UPN)", value: claims ? claims['preferred_username'] : null},
-      {id: 2, claim: "OID", value: claims ? claims['oid']: null}
+      {id: 3, claim: "OID", value: claims ? claims['oid']: null},
     ];
   }
 

@@ -24,7 +24,7 @@ export class ConsentComponent {
            */
           const adminConsentUri = "https://login.microsoftonline.com/" + 
           `${account.tenantId}` + "/v2.0/adminconsent?client_id=" + 
-          `${msalConfig.auth.clientId}` + "&state=" + `${state}` + "&redirect_uri=" + `${msalConfig.auth.redirectUri}` +
+          `${msalConfig.auth.clientId}` + "&state=" + `${state}` + "&redirect_uri=" + `${window.location.origin}` +
           "&scope=" + `${protectedResources.todoListApi.scopes.join(' ')}`;
     
         // redirecting...

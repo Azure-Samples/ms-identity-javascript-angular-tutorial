@@ -104,8 +104,8 @@ dist
 .tern-port
 
 # .NET binaries
-bin
-obj
+bin/
+obj/
 
 # Visual Studio cache
 .vs

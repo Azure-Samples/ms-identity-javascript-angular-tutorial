@@ -4,13 +4,13 @@
       "Level": 300,
       "Client": "Angular SPA",
       "Service": ".NET Core web API",
-      "RepositoryUrl": "ms-identity-javascript-angular-spa-aspnet-webapi-multitenant",
+      "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
       "Endpoint": "AAD v2.0"
     },
     "AADApps": [
       {
         "Id": "service",
-        "Name": "TodoListAPI",
+        "Name": "msal-dotnet-api",
         "Kind": "WebApi",
         "Audience": "AzureADMultipleOrgs",
         "RequiredResourcesAccess": [
@@ -27,7 +27,7 @@
       },
       {
         "Id": "client",
-        "Name": "TodoListSPA",
+        "Name": "msal-angular-spa",
         "Kind": "SinglePageApplication",
         "Audience": "AzureADMultipleOrgs",
         "HomePage": "http://localhost:4200",
@@ -53,7 +53,7 @@
       {
         "App": "service",
         "SettingKind": "Replace",
-        "SettingFile": "\\..\\TodoListAPI\\appsettings.json",
+        "SettingFile": "\\..\\API\\appsettings.json",
         "Mappings": [
           {
             "key": "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com",
@@ -68,7 +68,7 @@
       {
         "App": "client",
         "SettingKind": "Replace",
-        "SettingFile": "\\..\\TodoListSPA\\src\\app\\auth-config.json",
+        "SettingFile": "\\..\\SPA\\src\\app\\auth-config.json",
         "Mappings": [
           {
             "key": "Enter the Client Id (aka 'Application ID')",

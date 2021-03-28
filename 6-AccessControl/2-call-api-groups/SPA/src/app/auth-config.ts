@@ -15,24 +15,24 @@ const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigato
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
 export const msalConfig: Configuration = {
-    auth: {
-        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
-    },
-    cache: {
-        cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
-        storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge
-    },
-    system: {
-        loggerOptions: {
-            loggerCallback(logLevel: LogLevel, message: string) {
-                console.log(message);
-            },
-            logLevel: LogLevel.Verbose,
-            piiLoggingEnabled: false
-        }
+  auth: {
+    clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+    authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
+    redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+  },
+  cache: {
+    cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+    storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge
+  },
+  system: {
+    loggerOptions: {
+      loggerCallback(logLevel: LogLevel, message: string) {
+        console.log(message);
+      },
+      logLevel: LogLevel.Verbose,
+      piiLoggingEnabled: false
     }
+  }
 }
 
 /**
@@ -46,7 +46,7 @@ export const protectedResources = {
   },
   graphApi: {
     endpoint: "https://graph.microsoft.com/v1.0/me/memberOf",
-    scopes: [ "User.Read", "GroupMember.Read.All"]
+    scopes: ["User.Read", "GroupMember.Read.All"]
   }
 }
 
@@ -61,6 +61,6 @@ export const loginRequest = {
 };
 
 export const groups = {
-    groupAdmin: "Enter the objectID for GroupAdmin group copied from Azure Portal",
-    groupMember: "Enter the objectID for GroupMember group copied from Azure Portal"
-  }
+  groupAdmin: "Enter the objectID for GroupAdmin group copied from Azure Portal",
+  groupMember: "Enter the objectID for GroupMember group copied from Azure Portal"
+}

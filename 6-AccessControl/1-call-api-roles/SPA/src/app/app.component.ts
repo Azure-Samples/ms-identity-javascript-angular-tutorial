@@ -12,7 +12,8 @@ import { filter, takeUntil } from 'rxjs/operators';
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Microsoft identity platform';
   isIframe = false;
-  loggedIn = false;
+  loginDisplay = false;
+  
   private readonly _destroying$ = new Subject<void>();
 
   constructor(
@@ -41,7 +42,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   checkAccount() {
-    this.loggedIn = this.authService.instance.getAllAccounts().length > 0;
+    this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
   }
 
   login() {

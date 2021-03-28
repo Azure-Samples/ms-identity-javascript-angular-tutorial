@@ -48,7 +48,8 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
-  protectedResourceMap.set(protectedResources.todoListApi.endpoint, protectedResources.todoListApi.scopes);
+  protectedResourceMap.set(protectedResources.todoListApi.endpoint, protectedResources.todoListApi.scopes)
+    .set(protectedResources.graphApi.endpoint, protectedResources.graphApi.scopes);
 
   return {
     interactionType: InteractionType.Redirect,

@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { IPublicClientApplication, PublicClientApplication, InteractionType, BrowserCacheLocation } from '@azure/msal-browser';
+import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -60,11 +60,6 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  * additional scopes you want the user to consent upon login, add them here as well.
  */
  export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-
-    /**
-     * If you would like the admin-user to explicitly consent via "Admin" page, instead of 
-     * being prompted for admin consent during initial login, comment the section below.
-     */
 
   return { 
     interactionType: InteractionType.Redirect,

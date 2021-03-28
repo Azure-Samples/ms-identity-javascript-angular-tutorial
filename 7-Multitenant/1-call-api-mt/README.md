@@ -1,433 +1,4 @@
----
-page_type: sample
-languages:
-- javascript
-- typescript
-- csharp
-products:
-- dotnet-core
-- angular
-- msal-angular
-- ms-graph
-- microsoft-identity-web
-- azure-active-directory
-description: "An incremental multi-tenancy tutorial demonstrating how to develop and configure your app, provision using consent and deploy it on Azure"
-urlFragment: "ms-identity-javascript-angular-spa-aspnet-webapi-multitenant"
----
-
-# Developing a multi-tenant (SaaS) application on Microsoft identity platform
-
-This is an incremental chapterwise tutorial that teaches you how to develop a [multi-tenant](https://docs.microsoft.com/azure/active-directory/develop/single-and-multi-tenant-apps) application using the Microsoft identity platform. It'll demonstrate how to setup and configure your app, provision it in customers tenants and make it available for end users. We will also cover the steps to deploy it on **Azure** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/storage-blobs-overview) and [Azure App Services](https://azure.microsoft.com/services/app-service/).
-
-## How to Use this tutorial
-
-The aim of this tutorial is for you to understand aspects of **multi-tenancy** in Azure Active Directory (Azure AD) from an *app developer's perspective*. The assumption is that you will follow each chapter in a successive fashion, as the concepts involved are built on top of the previous topic and explanations may not be repeated. Before proceeding to **Chapter 1**, you might wish to go through [Prerequisites](#prerequisites) below to get familiar with a few important terms.
-
-## Contents
-
-| File/folder       | Description                                |
-|-------------------|--------------------------------------------|
-| [Chapter 1](./Chapter1) | A multi-tenant Angular SPA signing-in users and calling MS Graph. |
-| [Chapter 2](./Chapter2) | A multi-tenant Angular SPA signing-in users and calling a protected .NET Core web API and MS Graph. |
-| [Chapter 3](./Chapter3) | Deploying this solution to Azure App Services and Azure Storage. |
-| `CHANGELOG.md`    | List of changes to the sample.             |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `LICENSE`         | The license for the sample.                |
-
-## Prerequisites
-
-Please refer to each chapter's sub-folder for prerequisites.
-
-We highly recommend you first getting familiar with the following *basic sign-in* examples and documents. This will help you easily grasp the various aspects that the **multi-tenant** app development scenario will present:
-
-1. [An Angular SPA that calls the Microsoft Graph using MSAL Angular](https://github.com/Azure-Samples/ms-identity-javascript-angular-spa)
-1. [An Angular SPA that signs-in users with Azure AD and calls a protected ASP.NET Core web API](https://github.com/Azure-Samples/ms-identity-javascript-angular-spa-aspnetcore-webapi)
-1. [Tenancy in Azure Active Directory](https://docs.microsoft.com/azure/active-directory/develop/single-and-multi-tenant-apps)
-1. [Applications and Service Principals](https://docs.microsoft.com/azure/active-directory/develop/app-objects-and-service-principals)
-1. [Azure Active Directory Consent Framework](https://docs.microsoft.com/azure/active-directory/develop/consent-framework)
-
-> A recording of a Microsoft Identity Platform developer session that covered this topic of developing a multi-tenant app with Azure Active Directory is available at [Develop multi-tenant applications with Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4).
-
-## Setup
-
-Using a command line interface such as VS Code integrated terminal, clone or download this repository:
-
-```console
-  git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-spa-aspnetcore-webapi.git
-```
-
-> [!NOTE] Given that the name of the sample is quite long, and so are the names of the referenced NuGet packages, you might want to clone it in a folder close to the root of your hard drive, to avoid file size limitations on Windows.
-
-### Overview
-
-When it comes to integrate Azure AD authentication in their apps, developers can choose to configure their app to be either **single-tenant** or **multi-tenant** while registering their app in the [Azure portal](https://portal.azure.com).
-
-- `Single tenant` apps are only available in the tenant they were registered in, also known as their **home tenant**.
-- `Multi-tenant` apps are available to users in both their home tenant and other tenants where they are **provisioned**. Apps that allow users to sign-in using their personal accounts that they use to sign into services like Xbox and Skype are also multi-tenant apps. We will cover provisioning of a multi-tenant app in other tenants using **admin-consent**, in [Chapter 1](./Chapter1/README.md).
-
-Now let's start with [Chapter 1](./Chapter1/README.md).
-
-## More information
-
-For more information, visit the following links:
-
-- See the [Microsoft identity platform documentation](https://docs.microsoft.com/azure/active-directory/develop/), with a focus on:
-  - [Converting an application to Multi-tenant](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant)
-  - [Permissions and Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent)
-  - [Understanding Azure AD Application Consent Experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
-  - [Understand User and Admin Consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
-
-- To learn more about the application registration, see:
-  - [Quickstart: Set up a tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
-  - [Quickstart: Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
-  - [Quickstart: Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-  - [Quickstart: Configure an application to expose web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-expose-web-apis)
-
-## Community Help and Support
-
-Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
-Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`msal` `dotnet` `angular` `azure-active-directory` `ms-identity`].
-
-If you find a bug in the sample, please raise the issue on [GitHub Issues](../../issues).
-
-To provide a recommendation, visit the following [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
-
-## Contributing
-
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
-
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-## Code of Conduct
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments
-
-# A multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users from any tenant
-
- 1. [Overview](#overview)
- 1. [Scenario](#scenario)
- 1. [Contents](#contents)
- 1. [Prerequisites](#prerequisites)
- 1. [Setup](#setup)
- 1. [Registration](#registration)
- 1. [Running the sample](#running-the-sample)
- 1. [Explore the sample](#explore-the-sample)
- 1. [About the code](#about-the-code)
- 1. [More information](#more-information)
- 1. [Community Help and Support](#community-help-and-support)
- 1. [Contributing](#contributing)
-
-## Overview
-
-A multi-tenant Angular single-page application (SPA) which demonstrates how to use the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) to sign-in, consent, provision, and acquire [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for a protected resource like [Microsoft Graph API](https://developer.microsoft.com/graph).
-
-In order to grasp the important aspects of **multi-tenancy** in this sample, please read [About the code](#about-the-code) section below.
-
-## Scenario
-
-1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD**.
-2. The access token is used as a bearer token to authorize the user to call **Microsoft Graph**.
-
-## Contents
-
-| File/folder       | Description                                |
-|-------------------|--------------------------------------------|
-| `AppCreationScripts` | Contains Powershell scripts to automate app registrations. |
-| `src/app/auth-config.json` | Authentication configuration parameters. |
-
-## Prerequisites
-
-- [Node.js](https://nodejs.org/en/) must be installed to run this sample.
-- [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
-- You would need *at least* **two** Azure Active Directory (Azure AD) tenants to successfully run this sample. For more information on how to get an Azure AD tenant, see [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/).
-- On each tenant, *at least* **one** admin account and **one** non-admin/user account should be present for testing purposes.
-- A modern browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
-- We recommend [VS Code](https://code.visualstudio.com/download) for running and debugging this cross-platform application.
-
-## Setup
-
-Using a command line interface such as VS Code integrated terminal, install the project dependencies via **npm**.
-
-```console
-  cd chapter1
-  npm install
-```
-
-## Registration
-
-To register this project, you can:
-
-- either follow the steps below for manual registration,
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the configuration files.
-
-<details>
-  <summary>Expand this section if you want to use this automation:</summary>
-
-1. On Windows, run PowerShell and navigate to the root of the cloned directory
-2. In PowerShell run:
-
-   ```PowerShell
-   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-   ```
-
-3. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-4. In PowerShell run:
-
-   ```PowerShell
-   cd .\AppCreationScripts\
-   .\Configure.ps1
-   ```
-
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
-
-</details>
-
-### Register the application
-
-1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
-1. Select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `multitenant-spa`.
-   - Under **Supported account types**, select **Accounts in any organizational directory**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the Apis that your application needs.
-   - Click the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** option is selected.
-   - In the list of APIs, select the API `Microsoft Graph`.
-   - In the **Delegated permissions** section, select the **User.Read.All** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
-
-### Configure the application
-
-Open the project in your IDE (like Visual Studio) to configure the code.
-
-> In the steps below, "clientId" is the same as "Application ID" or "AppId".
-
-1. Open the `src/app/auth-config.json` file
-1. Find the key `clientId` and replace the existing value with the application ID (clientId) of the `multitenant-spa` application copied from the Azure portal.
-
-## Explore the sample
-
-1. Using a command line interface such as VS Code integrated terminal, run the sample:
-
-```console
-  npm start
-```
-
-1. Open your browser and navigate to `http://localhost:4200`.
-
-    ![index.html](../ReadmeFiles/ch1_login_screen.png)
-
-1. Sign-in using the button on top-right. If you haven't provided **admin-consent** yet, you will not be able to sign-in with a non-admin account from another tenant.
-
-    ![need-consent](../ReadmeFiles/ch1_need_admin_approval.png)
-
-1. Select the `Get users` button at the center to see the other users in your tenant.
-
-    ![success](../ReadmeFiles/ch1_success.png)
-
-> :information_source: Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOE9NQjZCMEs4NEtZQ0JFMzBDSTU2WUtBMSQlQCN0PWcu)
-
-## About the Code
-
-Here we discuss some of the more important aspects of multi-tenant single-page applications.
-
-### Usage of `/common` endpoint
-
-When registering an application with the Microsoft identity platform for developers, you are asked to select which account types your application supports. The options include the following:
-
-| **Audience** | **Single/multi-tenant** | **Who can sign in** |
-|----------|---------------------| --------------- |
-| Accounts in this directory only | Single tenant | All user and guest accounts in your directory can use your application or API. *Use this option if your target audience is internal to your organization.* |
-| Accounts in any Azure AD directory | Multi-tenant | All users and guests with a work or school account from Microsoft can use your application or API. This includes schools and businesses that use Office 365. *Use this option if your target audience is business or educational customers.* |
-| Accounts in any Azure AD directory and personal Microsoft accounts (such as Skype, Xbox, Outlook.com) | Multi-tenant | All users with a work or school, or personal Microsoft account can use your application or API. It includes schools and businesses that use Office 365 as well as personal accounts that are used to sign in to services like Xbox and Skype. *Use this option to target the widest set of Microsoft accounts.* |
-
-Your MSAL configuration will reflect your choice audience in the `authority` parameter. For instance, an application that targets  **accounts in this directory only** will have a configuration similar to:
-
-```typescript
-export function MSALInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication({
-    auth: {
-        clientId: "<your-client-id>",
-        authority: "https://login.microsoftonline.com/<your-tenant-id>",
-        redirectUri: "http://localhost:4200/",
-    },
-  });
-}
-```
-
-On the other hand, an application that targets **accounts in any Azure AD directory** will have its authority parameter set to `https://login.microsoftonline.com/organizations`, while for an application that targets **Accounts in any Azure AD directory and personal Microsoft accounts (such as Skype, Xbox, Outlook.com)** it will be `https://login.microsoftonline.com/common`. Here, `/organizations` and `/common` are not real tenants, they are just **multiplexers**.
-
-> Please note that if you sign-in guest users at the `/common` (or `/organizations`) endpoint, they will be directed to their home tenant for signing-in. So, if your multi-tenant app cares about applying tenant specific conditional access policies, group assignments or app roles to be applied to the guest users, the app should sign-in the guest user on the **tenanted endpoint** (https://login.microsoftonline.com/{tenantId}) instead of the `/common` endpoint.
-
-### Testing the Application
-
-To properly test this application, you need *at least* **2** tenants, and on each tenant, *at least* **1** administrator and **1** non-administrator account.
-
-Before each test, you should delete your **service principal** for the tenant you are about to test, in order to remove any previously given consents and start the **provisioning process** from scratch.
-
-> #### How to delete Service Principals
->
-> Steps for deleting a service principal differs with respect to whether the principal is in the **home tenant** of the application or in another tenant. If it is in the **home tenant**, you will find the entry for the application under the **App Registrations** blade. If it is another tenant, you will find the entry under the **Enterprise Applications** blade. Read more about these blades in the [How and why applications are added to Azure AD](https://docs.microsoft.com/azure/active-directory/develop/active-directory-how-applications-are-added).The screenshot below shows how to access the service principal from a **home tenant**:
->
-> ![principal1](../ReadmeFiles/ch1_service_principal1.png)
->
-> The rest of the process is the same for both cases. In the next screen, select **Properties** and then the **Delete** button on the upper side.
->
-> ![principal1](../ReadmeFiles/ch1_service_principal2.png)
->
-> You have now deleted the service principal for that tenant. Next time, once a user successfully authenticates to your application, a new service principal will be created (i.e. *provisioning*) in the tenant from which *that* user belongs.
-
-### Ways of providing admin consent
-
-A service principal of your multi-tenant app is created via one of the following ways.
-
-1. When the first user signs-in to your app for the first time in a tenant.
-1. Manually or programmatically created by a tenant admin using one of the following
-   1. Using the [/adminconsent endpoint](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent)
-   1. [Using the PowerShell command](https://docs.microsoft.com/powershell/azure/create-azure-service-principal-azureps).
-
-- **Consent during sign-in:**
-
-This method requires the most minimal setup. The only thing needed is that the tenant admin signs-in first and *optionally* choose to "consent on behalf of your organization" during the AAD sign-in as shown in the screen below:
-
-![consent](../ReadmeFiles/ch1_consent_onbehalf.png)
-
-- **Consent using the `/adminconsent` endpoint**
-
-This method provides a programmatic control over the consent process. To be able to **consent as an admin** with this method, there are two steps your application needs to carry out:
-
-1. Determine the `tenantId` of the signed-in user.
-2. Redirect the user to the correct `/adminconsent` endpoint (which is why you need the `tenantId`).
-
-In your app, to send a tenant admin to the `/adminconsent` endpoint you would construct a URL as explained below:
-
-```HTML
-    // Line breaks are for legibility only.
-    GET https://login.microsoftonline.com/{tenant}/v2.0/adminconsent?
-    client_id=6731de76-14a6-49ae-97bc-6eba6914391e
-    &state=12345
-    &redirect_uri=http://localhost/myapp/permissions
-    &scope=calendars.read
-```
-
-This is demonstrated in the code snippet below:
-
-```typescript
-  adminConsent() {
-
-    // if you want to work with multiple accounts, add your account selection logic below
-    let account = this.authService.instance.getAllAccounts()[0];
-
-    if (account) {
-      const state = Math.floor(Math.random() * 90000) + 10000; // state parameter for anti token forgery
-      
-        const adminConsentUri = "https://login.microsoftonline.com/" + 
-        `${account.tenantId}` + "/v2.0/adminconsent?client_id=" + 
-        `${auth.credentials.clientId}` + "&state=" + `${state}` + "&redirect_uri=" + `${auth.configuration.redirectUri}` +
-        "&scope=https://graph.microsoft.com/.default";
-  
-      // redirecting...
-      window.location.replace(adminConsentUri);
-      
-    } else {
-      window.alert('Please sign-in first.')
-    }
-  }
-```
-
-You can try the `/adminconsent` endpoint on the "Admin" page of the sample by clicking on the link on the navbar.
-
-![admin consent endpoint](../ReadmeFiles/ch1_admin_consent_endpoint.png)
-
-> #### The `.default` scope
->
-> Did you notice the scope here is set to `.default`, as opposed to `User.Read.All`? This is a built-in scope for every application that refers to the static list of permissions configured on the application registration. Basically, it *bundles* all the permissions in one scope. The /.default scope can be used in any OAuth 2.0 flow. Read about `scopes` usage at [Scopes and permissions in the Microsoft Identity Platform](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#scopes-and-permissions).  
-  
-When redirected to the `/adminconsent` endpoint, the tenant admin will see:
-
-![consent](../ReadmeFiles/ch1_admin_redirect.png)
-
-After you choose an admin account, it will lead to the following prompt:
-
-![consent](../ReadmeFiles/ch1_admin_consent.png)
-
-Once it finishes, your application service principal will be provisioned in that tenant.
-
-### Scopes and sign-in Differences
-
-The main scope of interest in this sample is `User.Read.All`. This is a MS Graph API scope, and it allows a user to read every user in the tenant. This scope requires a tenant admin to consent.
-
-Remember that the first time you were not able to sign-in with a non-admin account before providing admin consent for that tenant.
-To see why this was so, notice, in `src/app/app-module.ts`, how the MSAL Guard is setup:
-
-```typescript
-export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return { 
-    interactionType: InteractionType.Redirect,
-    authRequest: {
-      scopes: [...auth.resources.graphApi.resourceScopes],
-    },
-  };
-}
-```
-
-This means that the user will be prompted for consent during sign-in. However, since only an admin can consent to the scope `User.Read.All`, a non-admin account will simply not be able to login! (unless consented prior by a tenant admin). For best end-user experience, please have the tenant admin consent to your app before a user from the tenant tries to sign-in.
-
-### Custom token validation allowing only registered tenants
-
-By marking your application as multi-tenant, your application will be able to sign-in users from **any** Azure AD tenant out there. Because of this, you may want to restrict the tenants you want to work with. That is, you need to check the `tenantId` in an ID token for a signed-in user, and see if it is one of the tenants you want to grant access to. Since a single-page application cannot or should not make this check securely, you might want to couple your SPA with a web API to carry out this in a real world scenario. In the next chapter, we cover this case.
-
-> :information_source: Did the sample not work for you as expected? Did you encounter issues trying this sample? Then please reach out to us using the [GitHub Issues](../../../issues) page.
-
-## Next step
-
-Let's now proceed to [Chapter 2](../Chapter2/README.md) of this tutorial where we demonstrate a multi-tenant Angular SPA working along with a multi-tenant .NET Core web API and more.
-
-## Learn more
-
-To learn more about single and multi-tenant apps, see:
-
-- [Develop multi-tenant applications with Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4)
-- [How and why applications are added to Azure AD](https://docs.microsoft.com/azure/active-directory/develop/active-directory-how-applications-are-added)
-- [Scopes and permissions in the Microsoft Identity Platform](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#scopes-and-permissions)
-- [National Clouds](https://docs.microsoft.com/azure/active-directory/develop/authentication-national-cloud)
-- [Endpoints](https://docs.microsoft.com/azure/active-directory/develop/active-directory-v2-protocols#endpoints)
-
-To learn more about admin consent experiences, see:
-
-- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
-- [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
-
-## Community Help and Support
-
-Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
-Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
-
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
-
-To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
-
-## Contributing
-
-If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-# A multi-tenant (SaaS) Angular single-page application (SPA) that authenticates users with Azure AD and calls a protected ASP.NET Core web API
+# multi-tenant (SaaS) Angular single-page application that authenticates users with Azure AD and calls a protected ASP.NET Core web API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -444,6 +15,13 @@ This project has adopted the [Microsoft Open Source Code of Conduct](https://ope
 
 This sample demonstrates how to develop a multi-tenant, cross-platform application suite comprising of an Angular SPA (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with Azure Active Directory (Azure AD). Due to the topology of this application suite (*multi-tier*, *multi-tenant*), additional steps are needed for making the apps available to users in other tenants.
 
+When it comes to integrate Azure AD authentication in their apps, developers can choose to configure their app to be either **single-tenant** or **multi-tenant** while registering their app in the [Azure portal](https://portal.azure.com).
+
+- `Single tenant` apps are only available in the tenant they were registered in, also known as their **home tenant**.
+- `Multi-tenant` apps are available to users in both their home tenant and other tenants where they are **provisioned**. Apps that allow users to sign-in using their personal accounts that they use to sign into services like Xbox and Skype are also multi-tenant apps. We will cover provisioning of a multi-tenant app in other tenants using **admin-consent**
+
+> A recording of a Microsoft Identity Platform developer session that covered this topic of developing a multi-tenant app with Azure Active Directory is available at [Develop multi-tenant applications with Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4).
+
 In order to grasp the relevant aspects of **multi-tenancy** covered in the sample, please follow [About the code](#about-the-code) section below.
 
 ## Scenario
@@ -452,7 +30,7 @@ In order to grasp the relevant aspects of **multi-tenancy** covered in the sampl
 - The access token is then used by the **TodoListAPI** to authorize the user.
 - **TodoListAPI** uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept authorized calls.
 
-![Topology](../ReadmeFiles/ch2_topology.png)
+![Topology](./ReadmeFiles/ch2_topology.png)
 
 ## Contents
 
@@ -633,27 +211,169 @@ In a separate console window, execute the following commands
 
 1. Sign-in using the button on top-right:
 
-![login](../ReadmeFiles/ch2_login.png)
+![login](./ReadmeFiles/ch2_login.png)
 
 Regular users won't be able to sign-in, until an **admin-user** provides **admin-consent** to application permissions.
 
-![admin](../ReadmeFiles/ch2_error.png)
+![admin](./ReadmeFiles/ch2_error.png)
 
 You can either consent as admin during initial sign-in, or if you miss this step, via the **Admin** page
 
-![admin](../ReadmeFiles/ch2_admin_prompt.png)
+![admin](./ReadmeFiles/ch2_admin_prompt.png)
 
-![admin](../ReadmeFiles/ch2_admin.png)
+![admin](./ReadmeFiles/ch2_admin.png)
 
 1. Once **admin-consent** is provided, users can select the **Get my tasks** button to access the todo list. When you create a new task, you will also have an option to assign it to any other user from your tenant:
 
-![assign](../ReadmeFiles/ch2_user_list.png)
+![assign](./ReadmeFiles/ch2_user_list.png)
 
-> :information_source: Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOE9NQjZCMEs4NEtZQ0JFMzBDSTU2WUtBMSQlQCN0PWcu)
+> :information_source: Consider taking a moment to [share your experience with us](INSERT_LINK_HERE)
 
 ## About the code
 
-We have just finished testing this provision topology in our single-tenant. Now we will discuss what you need to do further to provision the apps into another tenant and let the users from other tenants sign-in.
+Here we discuss some of the more important aspects of multi-tenant applications.
+
+### Usage of `/common` endpoint
+
+When registering an application with the Microsoft identity platform for developers, you are asked to select which account types your application supports. The options include the following:
+
+| **Audience** | **Single/multi-tenant** | **Who can sign in** |
+|----------|---------------------| --------------- |
+| Accounts in this directory only | Single tenant | All user and guest accounts in your directory can use your application or API. *Use this option if your target audience is internal to your organization.* |
+| Accounts in any Azure AD directory | Multi-tenant | All users and guests with a work or school account from Microsoft can use your application or API. This includes schools and businesses that use Office 365. *Use this option if your target audience is business or educational customers.* |
+| Accounts in any Azure AD directory and personal Microsoft accounts (such as Skype, Xbox, Outlook.com) | Multi-tenant | All users with a work or school, or personal Microsoft account can use your application or API. It includes schools and businesses that use Office 365 as well as personal accounts that are used to sign in to services like Xbox and Skype. *Use this option to target the widest set of Microsoft accounts.* |
+
+Your MSAL configuration will reflect your choice audience in the `authority` parameter. For instance, an application that targets  **accounts in this directory only** will have a configuration similar to:
+
+```typescript
+export function MSALInstanceFactory(): IPublicClientApplication {
+  return new PublicClientApplication({
+    auth: {
+        clientId: "<your-client-id>",
+        authority: "https://login.microsoftonline.com/<your-tenant-id>",
+        redirectUri: "http://localhost:4200/",
+    },
+  });
+}
+```
+
+On the other hand, an application that targets **accounts in any Azure AD directory** will have its authority parameter set to `https://login.microsoftonline.com/organizations`, while for an application that targets **Accounts in any Azure AD directory and personal Microsoft accounts (such as Skype, Xbox, Outlook.com)** it will be `https://login.microsoftonline.com/common`. Here, `/organizations` and `/common` are not real tenants, they are just **multiplexers**.
+
+> Please note that if you sign-in guest users at the `/common` (or `/organizations`) endpoint, they will be directed to their home tenant for signing-in. So, if your multi-tenant app cares about applying tenant specific conditional access policies, group assignments or app roles to be applied to the guest users, the app should sign-in the guest user on the **tenanted endpoint** (`https://login.microsoftonline.com/{tenantId}`) instead of the `/common` endpoint.
+
+### Testing the Application
+
+To properly test this application, you need *at least* **2** tenants, and on each tenant, *at least* **1** administrator and **1** non-administrator account.
+
+Before each test, you should delete your **service principal** for the tenant you are about to test, in order to remove any previously given consents and start the **provisioning process** from scratch.
+
+> #### How to delete Service Principals
+>
+> Steps for deleting a service principal differs with respect to whether the principal is in the **home tenant** of the application or in another tenant. If it is in the **home tenant**, you will find the entry for the application under the **App Registrations** blade. If it is another tenant, you will find the entry under the **Enterprise Applications** blade. Read more about these blades in the [How and why applications are added to Azure AD](https://docs.microsoft.com/azure/active-directory/develop/active-directory-how-applications-are-added).The screenshot below shows how to access the service principal from a **home tenant**:
+>
+> ![principal1](./ReadmeFiles/ch1_service_principal1.png)
+>
+> The rest of the process is the same for both cases. In the next screen, select **Properties** and then the **Delete** button on the upper side.
+>
+> ![principal1](./ReadmeFiles/ch1_service_principal2.png)
+>
+> You have now deleted the service principal for that tenant. Next time, once a user successfully authenticates to your application, a new service principal will be created (i.e. *provisioning*) in the tenant from which *that* user belongs.
+
+### Ways of providing admin consent
+
+A service principal of your multi-tenant app is created via one of the following ways.
+
+1. When the first user signs-in to your app for the first time in a tenant.
+1. Manually or programmatically created by a tenant admin using one of the following
+   1. Using the [/adminconsent endpoint](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent)
+   1. [Using the PowerShell command](https://docs.microsoft.com/powershell/azure/create-azure-service-principal-azureps).
+
+- **Consent during sign-in:**
+
+This method requires the most minimal setup. The only thing needed is that the tenant admin signs-in first and *optionally* choose to "consent on behalf of your organization" during the AAD sign-in as shown in the screen below:
+
+![consent](./ReadmeFiles/ch1_consent_onbehalf.png)
+
+- **Consent using the `/adminconsent` endpoint**
+
+This method provides a programmatic control over the consent process. To be able to **consent as an admin** with this method, there are two steps your application needs to carry out:
+
+1. Determine the `tenantId` of the signed-in user.
+2. Redirect the user to the correct `/adminconsent` endpoint (which is why you need the `tenantId`).
+
+In your app, to send a tenant admin to the `/adminconsent` endpoint you would construct a URL as explained below:
+
+```HTML
+    // Line breaks are for legibility only.
+    GET https://login.microsoftonline.com/{tenant}/v2.0/adminconsent?
+    client_id=6731de76-14a6-49ae-97bc-6eba6914391e
+    &state=12345
+    &redirect_uri=http://localhost/myapp/permissions
+    &scope=calendars.read
+```
+
+This is demonstrated in the code snippet below:
+
+```typescript
+  adminConsent() {
+
+    // if you want to work with multiple accounts, add your account selection logic below
+    let account = this.authService.instance.getAllAccounts()[0];
+
+    if (account) {
+      const state = Math.floor(Math.random() * 90000) + 10000; // state parameter for anti token forgery
+      
+        const adminConsentUri = "https://login.microsoftonline.com/" + 
+        `${account.tenantId}` + "/v2.0/adminconsent?client_id=" + 
+        `${auth.credentials.clientId}` + "&state=" + `${state}` + "&redirect_uri=" + `${window.location.origin}` +
+        "&scope=https://graph.microsoft.com/.default";
+  
+      // redirecting...
+      window.location.replace(adminConsentUri);
+      
+    } else {
+      window.alert('Please sign-in first.')
+    }
+  }
+```
+
+You can try the `/adminconsent` endpoint on the "Admin" page of the sample by clicking on the link on the navbar.
+
+![admin consent endpoint](./ReadmeFiles/ch1_admin_consent_endpoint.png)
+
+> #### The `.default` scope
+>
+> Did you notice the scope here is set to `.default`, as opposed to `User.Read.All`? This is a built-in scope for every application that refers to the static list of permissions configured on the application registration. Basically, it *bundles* all the permissions in one scope. The /.default scope can be used in any OAuth 2.0 flow. Read about `scopes` usage at [Scopes and permissions in the Microsoft Identity Platform](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#scopes-and-permissions).  
+  
+When redirected to the `/adminconsent` endpoint, the tenant admin will see:
+
+![consent](./ReadmeFiles/ch1_admin_redirect.png)
+
+After you choose an admin account, it will lead to the following prompt:
+
+![consent](./ReadmeFiles/ch1_admin_consent.png)
+
+Once it finishes, your application service principal will be provisioned in that tenant.
+
+### Scopes and sign-in Differences
+
+The main scope of interest in this sample is `User.Read.All`. This is a MS Graph API scope, and it allows a user to read every user in the tenant. This scope requires a tenant admin to consent.
+
+Remember that the first time you were not able to sign-in with a non-admin account before providing admin consent for that tenant.
+To see why this was so, notice, in `src/app/app-module.ts`, how the MSAL Guard is setup:
+
+```typescript
+export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+  return { 
+    interactionType: InteractionType.Redirect,
+    authRequest: {
+      scopes: [...auth.resources.graphApi.resourceScopes],
+    },
+  };
+}
+```
+
+This means that the user will be prompted for consent during sign-in. However, since only an admin can consent to the scope `User.Read.All`, a non-admin account will simply not be able to login! (unless consented prior by a tenant admin). For best end-user experience, please have the tenant admin consent to your app before a user from the tenant tries to sign-in.
 
 ### Consenting to applications with distributed topology
 
@@ -692,7 +412,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
 
 ### Custom token validation allowing only registered tenants
 
-By marking your application as multi-tenant, your application will be able to sign-in users from any Azure AD tenant out there. Now you would want to restrict the tenants you want to work with. For this, we will now extend token validation to only those Azure AD tenants registered in the application database. Below, the event handler `OnTokenValidated` was configured to grab the `tenantId` from the token claims and check if it has an entry on the records. If it doesn't, an exception is thrown, canceling the authentication. (See: [Startup.cs](./TodoListAPI/Startup.cs))
+By marking your application as multi-tenant, your application will be able to sign-in users from any Azure AD tenant out there. Now you would want to restrict the tenants you want to work with. For this, we will now extend token validation to only those Azure AD tenants registered in the application database.
+
+Below, the event handler `OnTokenValidated` was configured to grab the `tenantId` from the token claims and check if it has an entry on the records. If it doesn't, an exception is thrown, canceling the authentication. (See: [Startup.cs](./TodoListAPI/Startup.cs))
 
 ```csharp
    services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -715,7 +437,7 @@ By marking your application as multi-tenant, your application will be able to si
 
 Let's now proceed to [Chapter 3](../Chapter3/README.md) of this tutorial where we demonstrate how to deploy this project on **Azure Storage** (for TodoListSPA) and **Azure App Service** (for TodoListAPI).
 
-> : information_source: Did the sample not work for you as expected? Did you encounter issues trying this sample? Then please reach out to us using the [GitHub Issues](../../../issues) page.
+> : information_source: Did the sample not work for you as expected? Did you encounter issues trying this sample? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 ## Debugging the sample
 
@@ -727,6 +449,10 @@ Learn more about using [.NET Core with Visual Studio Code](https://docs.microsof
 
 To learn more about single and multi-tenant apps, see:
 
+- [Permissions and Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent)
+- [Understanding Azure AD Application Consent Experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
+- [Understand User and Admin Consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
+- [Converting an application to Multi-tenant](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant)
 - [Multi-tenant SaaS database tenancy patterns](https://docs.microsoft.com/azure/sql-database/saas-tenancy-app-design-patterns)
 - [How to configure a new multi-tenant application](https://docs.microsoft.com/azure/active-directory/develop/setup-multi-tenant-app)
 - [How to: Sign in any Azure Active Directory user using the multi-tenant application pattern](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant)
@@ -743,7 +469,7 @@ Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get supp
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
 Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
 To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 

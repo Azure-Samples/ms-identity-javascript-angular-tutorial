@@ -223,14 +223,14 @@ Function ConfigureApplications
     $user = Get-AzureADUser -ObjectId $creds.Account.Id
 
    # Create the service AAD application
-   Write-Host "Creating the AAD application (TodoListAPI)"
+   Write-Host "Creating the AAD application (msal-dotnet-api)"
    # Get a 2 years application key for the service Application
    $pw = ComputePassword
    $fromDate = [DateTime]::Now;
    $key = CreateAppKey -fromDate $fromDate -durationInYears 2 -pw $pw
    $serviceAppKey = $pw
    # create the application 
-   $serviceAadApplication = New-AzureADApplication -DisplayName "TodoListAPI" `
+   $serviceAadApplication = New-AzureADApplication -DisplayName "msal-dotnet-api" `
                                                    -PasswordCredentials $key `
                                                    -GroupMembershipClaims "SecurityGroup" `
                                                    -PublicClient $False
@@ -253,39 +253,41 @@ Function ConfigureApplications
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.OAuth2Permission]
    
+    # delete default scope i.e. User_impersonation
+    $scope = $serviceAadApplication.Oauth2Permissions | Where-Object { $_.Value -eq "User_impersonation" }
+    if($scope -ne $null)
+    {
+       # disable the scope
+       $scope.IsEnabled = $false
+       $scopes.Add($scope)
+       Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -Oauth2Permissions $scopes
+
+       # clear the scope
+       $scopes.Clear()
+       Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -Oauth2Permissions $scopes
+    }
+
     if ($scopes.Count -ge 0) 
     {
-        # add all existing scopes first
-        $serviceAadApplication.Oauth2Permissions | foreach-object { $scopes.Add($_) }
-
-        $scope = $serviceAadApplication.Oauth2Permissions | Where-Object { $_.Value -eq "User_impersonation" }
-
-        if ($scope -ne $null) 
-        {
-            $scope.Value = "access_as_user"
-        }
-        else 
-        {
-            # Add scope
-            $scope = CreateScope -value "access_as_user"  `
-                -userConsentDisplayName "Access TodoListAPI"  `
-                -userConsentDescription "Allow the application to access TodoListAPI on your behalf."  `
-                -adminConsentDisplayName "Access TodoListAPI"  `
+             $scope = CreateScope -value access_as_user  `
+                -userConsentDisplayName "Access msal-dotnet-api"  `
+                -userConsentDescription "Allow the application to access msal-dotnet-api on your behalf."  `
+                -adminConsentDisplayName "Access msal-dotnet-api"  `
                 -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
             
-            $scopes.Add($scope)
-        }        
+                $scopes.Add($scope)
+    
     }
      
     # add/update scopes
     Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -OAuth2Permission $scopes
 
-   Write-Host "Done creating the service application (TodoListAPI)"
+   Write-Host "Done creating the service application (msal-dotnet-api)"
 
    # URL of the AAD application in the Azure portal
    # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$serviceAadApplication.AppId+"/objectId/"+$serviceAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>TodoListAPI</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-dotnet-api</a></td></tr>" -Path createdApps.html
 
    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
 
@@ -301,12 +303,12 @@ Function ConfigureApplications
    Write-Host "Granted permissions."
 
    # Create the client AAD application
-   Write-Host "Creating the AAD application (TodoListSPA)"
+   Write-Host "Creating the AAD application (msal-angular-spa)"
    # create the application 
-   $clientAadApplication = New-AzureADApplication -DisplayName "TodoListSPA" `
+   $clientAadApplication = New-AzureADApplication -DisplayName "msal-angular-spa" `
                                                   -HomePage "http://localhost:4200/" `
                                                   -ReplyUrls "http://localhost:4200/" `
-                                                  -IdentifierUris "https://$tenantName/TodoListSPA" `
+                                                  -IdentifierUris "https://$tenantName/msal-angular-spa" `
                                                   -GroupMembershipClaims "SecurityGroup" `
                                                   -PublicClient $False
 
@@ -323,18 +325,18 @@ Function ConfigureApplications
    }
 
 
-   Write-Host "Done creating the client application (TodoListSPA)"
+   Write-Host "Done creating the client application (msal-angular-spa)"
 
    # URL of the AAD application in the Azure portal
    # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.ObjectId+"/isMSAApp/"
-   Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>TodoListSPA</a></td></tr>" -Path createdApps.html
+   Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-spa</a></td></tr>" -Path createdApps.html
 
    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
 
    # Add Required Resources Access (from 'client' to 'service')
    Write-Host "Getting access from 'client' to 'service'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "TodoListAPI" `
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-dotnet-api" `
                                                 -requiredDelegatedPermissions "access_as_user" `
 
    $requiredResourcesAccess.Add($requiredPermissions)
@@ -353,7 +355,7 @@ Function ConfigureApplications
    # Configure known client applications for service 
    Write-Host "Configure known client applications for the 'service'"
    $knowApplications = New-Object System.Collections.Generic.List[System.String]
-   $knowApplications.Add($clientAadApplication.AppId)
+    $knowApplications.Add($clientAadApplication.AppId)
    Set-AzureADApplication -ObjectId $serviceAadApplication.ObjectId -KnownClientApplications $knowApplications
    Write-Host "Configured."
 
@@ -373,32 +375,39 @@ Function ConfigureApplications
    $groupAdmin = Get-AzureADGroup -SearchString "GroupAdmin"
    $groupMember = Get-AzureADGroup -SearchString "GroupMember"
 
+
    # Update config file for 'service'
-   $configFile = $pwd.Path + "\..\TodoListAPI\appsettings.json"
+   $configFile = $pwd.Path + "\..\API\appsettings.json"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com" = $tenantName;"Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $serviceAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $serviceAppKey; "Enter the objectID for GroupAdmin group copied from Azure Portal" = $groupAdmin.objectId; "Enter the objectID for GroupMember group copied from Azure Portal" = $groupMember.objectId };
+   $dictionary = @{ "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com" = $tenantName;"Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $serviceAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $serviceAppKey; "Enter the objectID for GroupAdmin group copied from Azure Portal" = $groupAdmin.objectId; "Enter the objectID for GroupMember group copied from Azure Portal" = $groupMember.objectId};
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-   
+
    # Update config file for 'client'
-   $configFile = $pwd.Path + "\..\TodoListSPA\src\app\auth-config.json"
+   $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
    Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter the application ID (clientId) of the 'TodoListSPA' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the endpoint for TodoListAPI, e.g. https://localhost:44351/api/todolist" = $serviceAadApplication.HomePage;"Enter the API scopes as declared in the app registration 'Expose an API' blade, e.g. api://{clientId}/access_as_user" = ("api://"+$serviceAadApplication.AppId+"/access_as_user"); "Enter the objectID for GroupAdmin group copied from Azure Portal" = $groupAdmin.objectId; "Enter the objectID for GroupMember group copied from Azure Portal" = $groupMember.objectId};
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$serviceAadApplication.AppId+"/access_as_user"); "Enter the objectID for GroupAdmin group copied from Azure Portal" = $groupAdmin.objectId; "Enter the objectID for GroupMember group copied from Azure Portal" = $groupMember.objectId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
    Write-Host ""
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
    Write-Host "- For 'service'"
    Write-Host "  - Navigate to '$servicePortalUrl'"
-   Write-Host "  - On Azure Portal, assign some users to security group named GroupAdmin" -ForegroundColor Red 
-   Write-Host "  - On Azure Portal, assign some users to security group named GroupMember" -ForegroundColor Red 
+   Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+   Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
    Write-Host "- For 'client'"
    Write-Host "  - Navigate to '$clientPortalUrl'"
    Write-Host "  - Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" -ForegroundColor Red 
-   Write-Host "  - On Azure Portal, assign some users to security group named GroupAdmin" -ForegroundColor Red 
-   Write-Host "  - On Azure Portal, assign some users to security group named GroupMember" -ForegroundColor Red 
-   
+   Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+   Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+
    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-     
+      if($isOpenSSL -eq 'Y')
+   {
+        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
+        Write-Host "Install the certificate on your system from current folder."
+        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+   }
    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 }
 

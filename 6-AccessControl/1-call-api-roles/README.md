@@ -1,4 +1,4 @@
-# An Angular single-page application (SPA) calling a protected web API and using App Roles to implement Role-Based Access Control (RBAC)
+# Angular single-page application calling a .NET Core web API and using App Roles to implement Role-Based Access Control
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,9 +15,9 @@
 
 ## Overview
 
-This sample demonstrates a cross-platform application suite involving an Angular SPA (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **role-based access control** by using Azure AD **App Roles**.
+This sample demonstrates a cross-platform application suite involving an Angular SPA (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **App Roles**.
 
-Authorization in Azure AD can also be done with **Security Groups** as well, as we will cover the [next chapter](../chapter2/README.md). **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Access control in Azure AD can also be done with **Security Groups** as well, as we will cover in the [next chapter](../2-call-api-groups/README.md). **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
 ## Scenario
 
@@ -25,8 +25,7 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 
 - The **TodoListSPA** uses [MSAL Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user with the Microsoft identity platform.
 - The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure Active Directory (Azure AD) on behalf of the authenticated user for the **TodoListAPI**.
-- The access token is then used by the **TodoListAPI** to authorize the user.
-- **TodoListAPI** uses [MSAL.NET](https://github.com/AzureAD/microsoft-authentication-library-for-dotnet) and [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept only authorized calls.
+- **TodoListAPI** uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept only authorized calls.
 
 ![Topology](./ReadmeFiles/topology.png)
 
@@ -34,13 +33,15 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 
 | File/folder          | Description                                                |
 |----------------------|------------------------------------------------------------|
-| `AppCreationScripts` | Contains Powershell scripts to automate app registrations. |
-| `TodoListAPI`        | Source code of the TodoList API.                           |
-| `TodoListSPA`        | Source code of the TodoList client SPA.                    |
+| `AppCreationScripts`                | Contains Powershell scripts to automate app registration.  |
+| `ReadmeFiles`                       | Sample readme files.                                       |
+| `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
+| `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
+| `API/appsettings.json`              | Authentication parameters for API project reside here.     |
+| `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
 
 ## Prerequisites
 
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 - An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
 - At least **two** user accounts in your Azure AD tenant.
 - A modern Browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
@@ -52,29 +53,36 @@ Using a command line interface such as VS Code integrated terminal, follow the s
 ### Step 1. Install .NET Core API dependencies
 
 ```console
-   cd chapter2
+    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
 ```
 
+or download and extract the repository .zip file.
+
+> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
+
+### Step 2. Install .NET Core API dependencies
+
 ```console
-   cd TodoListAPI
-   dotnet restore
+    cd ms-identity-javascript-angular-tutorial
+    cd 6-AccessControl/1-call-api-roles/API
+    dotnet restore
 ```
 
-### Step 2. Trust development certificates
+### Step 3. Trust development certificates
 
 ```console
-   dotnet dev-certs https --clean
-   dotnet dev-certs https --trust
+    dotnet dev-certs https --clean
+    dotnet dev-certs https --trust
 ```
 
-Learn more about [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
+For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
-### Step 3. Install Angular SPA dependencies
+### Step 4. Install Angular SPA dependencies
 
 ```console
-   cd ../
-   cd TodoListSPA
-   npm install
+    cd ../
+    cd SPA
+    npm install
 ```
 
 ## Registration
@@ -121,12 +129,12 @@ As a first step you'll need to:
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
 
-### Register the service app (TodoListAPI)
+### Register the service app (msal-dotnet-api)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListAPI`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -139,10 +147,10 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
         - Select **Admins and users** options for **Who can consent?**.
-        - For **Admin consent display name** type `Access TodoListAPI`.
-        - For **Admin consent description** type `Allows the app to access TodoListAPI as the signed-in user.`
-        - For **User consent display name** type `Access TodoListAPI`.
-        - For **User consent description** type `Allow the application to access TodoListAPI on your behalf.`
+        - For **Admin consent display name** type `Access msal-dotnet-api`.
+        - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
+        - For **User consent display name** type `Access msal-dotnet-api`.
+        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
 
@@ -169,7 +177,7 @@ To add users to this app role, follow the guidelines here: [Assign users and gro
 
 For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
 
-#### Configure the service app (TodoListAPI) to use your app registration
+#### Configure the service app (msal-dotnet-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -178,14 +186,14 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `TodoListAPI\appsettings.json` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of **TodoListAPI** app copied from the Azure portal.
+1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of **msal-dotnet-api** app copied from the Azure portal.
 
-### Register the client app (TodoListSPA)
+### Register the client app (msal-angular-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListSPA`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
    - Under **Supported account types**, select **Accounts in this organizational directory only**.
    - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/`.
 1. Select **Register** to create the application.
@@ -194,8 +202,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then,
    - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API `TodoListAPI`.
-   - In the **Delegated permissions** section, select the **Access 'TodoListAPI'** in the list. Use the search box if necessary.
+   - In the list of APIs, select the API `msal-dotnet-api`.
+   - In the **Delegated permissions** section, select the **Access 'msal-dotnet-api'** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
 #### Define Application Roles
@@ -215,17 +223,17 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 To add users to this app role, follow the guidelines here: [Assign users and groups to roles](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-users-and-groups-to-roles).
 
-#### Configure the client app (TodoListSPA) to use your app registration
+#### Configure the client app (msal-angular-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `TodoListSPA\src\app\auth-config.json` file.
-1. Find the key `clientId` and replace the existing value with the application ID (clientId) of **TodoListSPA** app copied from the Azure portal.
+1. Find the key `clientId` and replace the existing value with the application ID (clientId) of **msal-angular-spa** app copied from the Azure portal.
 1. Find the key `tenantId` and replace the existing value with your Azure AD tenant ID copied from the Azure portal.
-1. Find the key `resources.todoListApi.resourceUri` and replace the existing value with the endpoint **TodoListAPI** (by default `https://localhost:44351/api/todolist`).
-1. Find the key `resources.todoListApi.resourceScopes` and replace the existing value with scope you created during the app registration of `TodoListAPI`.
+1. Find the key `resources.todoListApi.endpoint` and replace the existing value with the endpoint **msal-dotnet-api** (by default `https://localhost:44351/api/todolist`).
+1. Find the key `resources.todoListApi.scopes` and replace the existing value with scope you created during the app registration of `TodoListAPI`.
 
 1. The number of **App Roles** that can be created for an app are limited by the [App Manifest limits](https://docs.microsoft.com/azure/active-directory/develop/reference-app-manifest#manifest-limits).
 
@@ -241,15 +249,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 Using a command line interface such as **VS Code** integrated terminal, locate the application directory. Then:  
 
 ```console
-   cd ../
-   cd TodoListSPA
+   cd SPA
    npm start
 ```
 
 In a separate console window, execute the following commands:
 
 ```console
-   cd TodoListAPI
+   cd ../
+   cd API
    dotnet run
 ```
 
@@ -284,7 +292,7 @@ In a separate console window, execute the following commands:
 
 ### Angular RoleGuard and protected routes for role-based access control
 
-Our client application, TodoListSPA, has a **RoleGuard** (`role-guard.service.ts`) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
+The client application Angular SPA has a **RoleGuard** (`role-guard.service.ts`) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
 
 ```typescript
 export class RoleGuardService implements CanActivate {

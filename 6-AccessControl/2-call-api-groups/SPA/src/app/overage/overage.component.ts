@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { GraphService } from '../graph.service';
 
-import * as auth from '../auth-config.json';
+import { groups } from '../auth-config';
 
 @Component({
   selector: 'app-overage',
@@ -33,16 +33,15 @@ export class OverageComponent implements OnInit {
         if (response['@odata.nextLink']) {
           this.handleNextPage(response['@odata.nextLink'])
         } else {
-          if (this.groups.includes(auth.groups.groupAdmin)) {
-            this.service.user.groupIDs.push(auth.groups.groupAdmin)
+          if (this.groups.includes(groups.groupAdmin)) {
+            this.service.user.groupIDs.push(groups.groupAdmin)
           }
 
-          if (this.groups.includes(auth.groups.groupMember)) {
-            this.service.user.groupIDs.push(auth.groups.groupMember)
+          if (this.groups.includes(groups.groupMember)) {
+            this.service.user.groupIDs.push(groups.groupMember)
           }
         }
 
-        console.log(this.groups);
     });
   }
 
@@ -59,12 +58,12 @@ export class OverageComponent implements OnInit {
         if (response['@odata.nextLink']) {
           this.handleNextPage(response['@odata.nextLink'])
         } else {
-          if (this.groups.includes(auth.groups.groupAdmin)) {
-            this.service.user.groupIDs.push(auth.groups.groupAdmin);
+          if (this.groups.includes(groups.groupAdmin)) {
+            this.service.user.groupIDs.push(groups.groupAdmin);
           }
 
-          if (this.groups.includes(auth.groups.groupMember)) {
-            this.service.user.groupIDs.push(auth.groups.groupMember);
+          if (this.groups.includes(groups.groupMember)) {
+            this.service.user.groupIDs.push(groups.groupMember);
           }
         }
       })
