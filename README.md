@@ -77,24 +77,18 @@ Alternatively, choose below the sample you want to review.
 |-----------------|---------------|
 | <img src="./4-Deployment/ReadmeFiles/topology.png" width="200"> | [**Deploy to Azure Storage and App Service**](./4-Deployment/README.md) </br> Prepare your app for deployment to various **Azure** services. Learn how to package and upload files, configure authentication parameters and use **Azure** services for managing your operations. |
 
-### Chapter 5: Call Microsoft Graph from your protected API on behalf-of a user
+### Chapter 5: Control access to your protected API using App Roles and Security Groups
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./5-AdvancedGrants/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call a web API that calls Microsoft Graph on behalf of a user**](./5-AdvancedGrants/1-call-api-obo/README.md) </br> Enhance your protected web API to acquire an **Access Token** for Microsoft Graph **on-behalf-of** a user signed-in to your client app. |
+| <img src="./5-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Call a web API using App Roles**](./5-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. |
+| <img src="./5-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Security Groups**](/5-AccessControl/1-call-api-groups/README.md) </br> Create Security Groups and use groups claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. Handle overage scenarios.  |
 
-### Chapter 6: Control access to your protected API using App Roles and Security Groups
-
-|                 |               |
-|-----------------|---------------|
-| <img src="./6-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Call a web API using App Roles**](./6-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. |
-| <img src="./6-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Security Groups**](/6-AccessControl/1-call-api-groups/README.md) </br> Create Security Groups and use groups claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. Handle overage scenarios.  |
-
-### Chapter 7: Develop and provision a multi-tenant SaaS application
+### Chapter 6: Develop and provision a multi-tenant SaaS application
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./7-Multitenant/1-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./7-Multitenant/1-call-api-mt/README.md) </br> Understand multitenancy in Azure AD. Handle provisioning your app to other tenants and control who can access your resources. |
+| <img src="./6-Multitenancy/1-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-Multitenancy/1-call-api-mt/README.md) </br> Understand multitenancy in Azure AD. Handle provisioning your app to other tenants and control who can access your resources. |
 
 ## We'd love your feedback!
 

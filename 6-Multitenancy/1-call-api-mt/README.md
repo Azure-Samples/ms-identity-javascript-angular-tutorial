@@ -34,11 +34,11 @@ In order to grasp the relevant aspects of **multi-tenancy** covered in the sampl
 
 ## Contents
 
-| File/folder       | Description                                |
-|-------------------|--------------------------------------------|
-| `AppCreationScripts` | Contains Powershell scripts to automate app registrations. |
-| `TodoListAPI/appsettings.json` | Authentication configuration parameters. |
-| `TodoListSPA/src/app/auth-config.json` | Authentication configuration parameters. |
+| File/folder                  | Description                                |
+|------------------------------|--------------------------------------------|
+| `AppCreationScripts`         | Contains Powershell scripts to automate app registrations. |
+| `API/appsettings.json`       | Authentication configuration parameters. |
+| `SPA/src/app/auth-config.ts` | Authentication configuration parameters. |
 
 ## Prerequisites
 
@@ -56,25 +56,36 @@ Using a command line interface such as VS Code integrated terminal, follow the s
 ### Step 1. Install .NET Core API dependencies
 
 ```console
-   cd TodoListAPI
-   dotnet restore
+    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
 ```
 
-### Step 2. Trust development certificates
+or download and extract the repository .zip file.
+
+> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
+
+### Step 2. Install .NET Core API dependencies
 
 ```console
-   dotnet dev-certs https --clean
-   dotnet dev-certs https --trust
+    cd ms-identity-javascript-angular-tutorial
+    cd 6-Multitenancy/1-call-api-mt/API
+    dotnet restore
 ```
 
-Learn more about [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
-
-### Step 3. Install Angular SPA dependencies
+### Step 3. Trust development certificates
 
 ```console
-   cd ../
-   cd TodoListSPA
-   npm install
+    dotnet dev-certs https --clean
+    dotnet dev-certs https --trust
+```
+
+For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
+
+### Step 4. Install Angular SPA dependencies
+
+```console
+    cd ../
+    cd SPA
+    npm install
 ```
 
 ## Registration
@@ -109,12 +120,12 @@ There are two projects in this sample. Each needs to be separately registered in
 
 </details>
 
-### Register the service app (TodoListAPI)
+### Register the service app (msal-dotnet-api)
 
 1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
 1. Select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListAPI`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
    - Under **Supported account types**, select **Accounts in any organizational directory**.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -133,28 +144,28 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, use `access_as_user`.
         - Select **Admins and users** options for **Who can consent?**
-        - For **Admin consent display name** type `Access TodoListAPI`
-        - For **Admin consent description** type `Allows the app to access TodoListAPI as the signed-in user.`
-        - For **User consent display name** type `Access TodoListAPI`
-        - For **User consent description** type `Allow the application to access TodoListAPI on your behalf.`
+        - For **Admin consent display name** type `Access msal-dotnet-api`
+        - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
+        - For **User consent display name** type `Access msal-dotnet-api`
+        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
         - Keep **State** as **Enabled**
         - Select the **Add scope** button on the bottom to save this scope.
 
-#### Configure the  service app (TodoListAPI) to use your app registration
+#### Configure the service app (msal-dotnet-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio) to configure the code.
 >In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `TodoListAPI\appsettings.json` file.
+1. Open the `API\appsettings.json` file.
 1. Find the app key `Domain` and replace the existing value with your Azure AD tenant name.
-1. Find the app key `ClientId` and replace the existing value with the application ID (clientId) of the **TodoListAPI** application copied from the Azure portal.
+1. Find the app key `ClientId` and replace the existing value with the application ID (clientId) of the **msal-dotnet-api** application copied from the Azure portal.
 
-### Register the client app (TodoListSPA)
+### Register the client app (msal-angular-spa)
 
 1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
 1. Select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `TodoListSPA`.
+   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
    - Under **Supported account types**, select **Accounts in any organizational directory**.
    - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200`.
 1. Select **Register** to create the application.
@@ -162,7 +173,7 @@ Open the project in your IDE (like Visual Studio) to configure the code.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Click the **Add a permission** button and then,
      - Ensure that the **My APIs** tab is selected.
-     - In the list of APIs, select the API `TodoListAPI`.
+     - In the list of APIs, select the API `msal-dotnet-api`.
      - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
      - Select the **Add permissions** button at the bottom.
    - Click the **Add a permission** button and then:
@@ -171,22 +182,21 @@ Open the project in your IDE (like Visual Studio) to configure the code.
      - In the **Delegated permissions** section, select the **User.Read**, **User.Read.All** in the list. Use the search box if necessary.
      - Select the **Add permissions** button at the bottom.
 
-> :warning: The next step requires you to go back to your TodoListAPI registration.
+> :warning: The next step requires you to go back to your msal-dotnet-api registration.
 
-1. Now you need to leave the registration for **TodoListSPA** and *go back to your app registration* for **TodoListAPI**.
+1. Now you need to leave the registration for **msal-angular-spa** and *go back to your app registration* for **msal-dotnet-api**.
    - From the app's Overview page, select the Manifest section.
-   - Find the entry for `KnownClientApplications`, and add the Application (client) ID of the `TodoListSPA` application copied from the Azure portal. i.e. `KnownClientApplications: [ "your_client_id_for_TodoListSPA" ]`
+   - Find the entry for `KnownClientApplications`, and add the Application (client) ID of the `msal-angular-spa` application copied from the Azure portal. i.e. `KnownClientApplications: [ "your_client_id_for_TodoListSPA" ]`
 
-#### Configure the client app (TodoListSPA) to use your app registration
+#### Configure the client app (msal-angular-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `TodoListSPA\src\app\auth-config.json` file
-1. Find the app key `clientId` and replace the existing value with the application ID (clientId) of the **TodoListSPA** application copied from the Azure portal.
-1. Find the app key `webApi.resourceUri` and replace the existing value with the endpoint of the **TodoListAPI** (by default `https://localhost:44351/api/todolist`).
-1. Find the app key `webApi.resourceScopes` and replace the existing value with *scope* you created earlier e.g. `api://{clientId-of-TodoListAPI}/.default`.
+1. Open the `SPA\src\app\auth-config.ts` file
+1. Find the key `clientId` and replace the existing value with the application ID (clientId) of the **msal-angular-spa** application copied from the Azure portal.
+1. Find the key `protectedResources.scopes` and replace the existing value with *scope* you created earlier e.g. `api://{clientId-of-msal-dotnet-api}/.default`.
 
 ## Run the sample
 
@@ -194,14 +204,14 @@ Using a command line interface such as **VS Code** integrated terminal, locate t
 
 ```console
    cd ../
-   cd TodoListSPA
+   cd SPA
    npm start
 ```
 
 In a separate console window, execute the following commands
 
 ```console
-   cd TodoListAPI
+   cd API
    dotnet run
 ```
 
@@ -227,7 +237,7 @@ You can either consent as admin during initial sign-in, or if you miss this step
 
 ![assign](./ReadmeFiles/ch2_user_list.png)
 
-> :information_source: Consider taking a moment to [share your experience with us](INSERT_LINK_HERE)
+> :information_source: Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOU5PNlM4MzRRV0lETkk2ODBPT0NBTEY5MCQlQCN0PWcu)
 
 ## About the code
 
@@ -308,7 +318,7 @@ In your app, to send a tenant admin to the `/adminconsent` endpoint you would co
     GET https://login.microsoftonline.com/{tenant}/v2.0/adminconsent?
     client_id=6731de76-14a6-49ae-97bc-6eba6914391e
     &state=12345
-    &redirect_uri=http://localhost/myapp/permissions
+    &redirect_uri=http://localhost:4200
     &scope=calendars.read
 ```
 
@@ -377,7 +387,7 @@ This means that the user will be prompted for consent during sign-in. However, s
 
 ### Consenting to applications with distributed topology
 
-Consider the application suite in this chapter: **TodoListAPI** and **TodoListSPA**. From one perspective, they are two different applications (two different projects), each represented with their own **app registration** on Azure AD, but from another perspective, they really constitute one application together i.e. a todo list application. In practice, an application can have a many such components: one component for the front-end, another for a REST API, another for a database and etc. While these components should have their own separate representation on Azure AD, they should also somehow know one another.
+Consider the application suite in this chapter: **msal-dotnet-api** and **msal-angular-spa**. From one perspective, they are two different applications (two different projects), each represented with their own **app registration** on Azure AD, but from another perspective, they really constitute one application together i.e. a todo list application. In practice, an application can have a many such components: one component for the front-end, another for a REST API, another for a database and etc. While these components should have their own separate representation on Azure AD, they should also somehow know one another.
 
 From the perspective of **multi-tenancy**, the main challenge with such topologies is with providing admin-consent. This is due to the fact that some of their components, such as a web API or a background micro-service, do not have a front-end, and as such, has no user-interaction capability. The solution for this is to allow the user (in this case, an admin-user) to consent to web API at the same time they consent to the front-end application i.e. give a **combined consent**. In **Chapter 1**, we have seen that the `/.default` scope can be used to this effect, allowing you to consent to many different scopes at one step. However, unlike **Chapter 1**, our application suite here also has a back-end/web API component. But how could the web API know that the consent comes from a recognized front-end application, as opposed to some foreign application? The answer is to use the **KnownClientApplications** feature.
 
@@ -385,19 +395,19 @@ From the perspective of **multi-tenancy**, the main challenge with such topologi
 >
 > **KnownClientApplications** is an attribute in **application manifest**. It is used for bundling consent if you have a solution that contains two (or more) parts: a client app and a custom web API. If you enter the `appID` (clientID) of the client app into this array, the user will only have to consent only once to the client app. Azure AD will know that consenting to the client means implicitly consenting to the web API. It will automatically provision service principals for both the client and web API at the same time. Both the client and the web API app must be registered in the same tenant.
 
-If you remember the last step of the registration for the client app **TodoListSPA**, you were instructed to find the `KnownClientApplications` in application manifest, and add the **application ID** (client ID) of the `TodoListSPA` application `KnownClient witApplications: ["your-client-id-for-TodoListSPA"]`. Once you do that, your web API will be able to correctly identify your front-end and the combined consent will be successfully carried out.
+If you remember the last step of the registration for the client app **msal-angular-spa**, you were instructed to find the `KnownClientApplications` in application manifest, and add the **application ID** (client ID) of the `msal-angular-spa` application `KnownClient witApplications: ["your-client-id-for-msal-angular-spa"]`. Once you do that, your web API will be able to correctly identify your front-end and the combined consent will be successfully carried out.
 
 ### Provisioning your multi-tenant apps in another Azure AD tenant
 
-Often the user-based consent will be disabled in an Azure AD tenant or your application will be requesting permissions that requires a tenant-admin consent. In these scenarios, your application will need to utilize the `/adminconsent` endpoint to provision both the **TodoListSPA** and the **TodoListAPI** before the users from that tenant are able to sign-in to your app.
+Often the user-based consent will be disabled in an Azure AD tenant or your application will be requesting permissions that requires a tenant-admin consent. In these scenarios, your application will need to utilize the `/adminconsent` endpoint to provision both the **msal-angular-spa** and the **msal-dotnet-api** before the users from that tenant are able to sign-in to your app.
 
-When provisioning, you have to take care of the dependency in the topology where the **TodoListSPA** is dependent on **TodoListAPI**. So in such a case, you would provision the **TodoListAPI** before the **TodoListSPA**.
+When provisioning, you have to take care of the dependency in the topology where the **msal-angular-spa** is dependent on **msal-dotnet-api**. So in such a case, you would provision the **msal-dotnet-api** before the **msal-angular-spa**.
 
 ### Admin consent at different stages of application flow
 
-This application requires an **admin-user** to consent to scope `api://{clientId-of-TodoListAPI}/.default` in order to provision the **TodoListAPI** web API to a tenant. This means **Azure AD** will check if **admin-consent** is provided to the aforementioned scope during the initial sign-in. As such, only a user with admin privileges will be able to sign-in for the **first time**. After that, any user from that admin's tenant can sign-in and use the application. This allows you to control whether an ordinary users can provision a **multi-tenant** app into their tenants.
+This application requires an **admin-user** to consent to scope `api://{clientId-of-msal-dotnet-api}/.default` in order to provision the **msal-dotnet-api** web API to a tenant. This means **Azure AD** will check if **admin-consent** is provided to the aforementioned scope during the initial sign-in. As such, only a user with admin privileges will be able to sign-in for the **first time**. After that, any user from that admin's tenant can sign-in and use the application. This allows you to control whether an ordinary users can provision a **multi-tenant** app into their tenants.
 
-If you would like to change this behavior i.e. allow regular users to sign-in to the app before *admin-consent* you can modify the [app.module.ts](./TodoListSPA/src/app/app.module.ts) as below. Bear in mind, until *admin-consent* is provided, users won't be able to access the **TodoListAPI**, resulting in bad user experience.
+If you would like to change this behavior i.e. allow regular users to sign-in to the app before *admin-consent* you can modify the [app.module.ts](./msal-angular-spa/src/app/app.module.ts) as below. Bear in mind, until *admin-consent* is provided, users won't be able to access the **msal-dotnet-api**, resulting in bad user experience.
 
 ```typescript
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
@@ -414,7 +424,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
 
 By marking your application as multi-tenant, your application will be able to sign-in users from any Azure AD tenant out there. Now you would want to restrict the tenants you want to work with. For this, we will now extend token validation to only those Azure AD tenants registered in the application database.
 
-Below, the event handler `OnTokenValidated` was configured to grab the `tenantId` from the token claims and check if it has an entry on the records. If it doesn't, an exception is thrown, canceling the authentication. (See: [Startup.cs](./TodoListAPI/Startup.cs))
+Below, the event handler `OnTokenValidated` was configured to grab the `tenantId` from the token claims and check if it has an entry on the records. If it doesn't, an exception is thrown, canceling the authentication. (See: [Startup.cs](./msal-dotnet-api/Startup.cs))
 
 ```csharp
    services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -432,12 +442,6 @@ Below, the event handler `OnTokenValidated` was configured to grab the `tenantId
       };
    });
 ```
-
-## Next step
-
-Let's now proceed to [Chapter 3](../Chapter3/README.md) of this tutorial where we demonstrate how to deploy this project on **Azure Storage** (for TodoListSPA) and **Azure App Service** (for TodoListAPI).
-
-> : information_source: Did the sample not work for you as expected? Did you encounter issues trying this sample? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 ## Debugging the sample
 

@@ -64,7 +64,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 6-AccessControl/1-call-api-roles/API
+    cd 5-AccessControl/1-call-api-roles/API
     dotnet restore
 ```
 
@@ -232,8 +232,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `TodoListSPA\src\app\auth-config.json` file.
 1. Find the key `clientId` and replace the existing value with the application ID (clientId) of **msal-angular-spa** app copied from the Azure portal.
 1. Find the key `tenantId` and replace the existing value with your Azure AD tenant ID copied from the Azure portal.
-1. Find the key `resources.todoListApi.endpoint` and replace the existing value with the endpoint **msal-dotnet-api** (by default `https://localhost:44351/api/todolist`).
-1. Find the key `resources.todoListApi.scopes` and replace the existing value with scope you created during the app registration of `TodoListAPI`.
+1. Find the key `protectedResources.todoListApi.scopes` and replace the existing value with scope you created during the app registration of `TodoListAPI`.
 
 1. The number of **App Roles** that can be created for an app are limited by the [App Manifest limits](https://docs.microsoft.com/azure/active-directory/develop/reference-app-manifest#manifest-limits).
 

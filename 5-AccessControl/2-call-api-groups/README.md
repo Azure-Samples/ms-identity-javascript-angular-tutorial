@@ -62,7 +62,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 6-AccessControl/2-call-api-groups/API
+    cd 5-AccessControl/2-call-api-groups/API
     dotnet restore
 ```
 

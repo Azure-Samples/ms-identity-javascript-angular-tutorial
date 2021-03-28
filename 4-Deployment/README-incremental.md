@@ -143,6 +143,15 @@ Then follow the steps below:
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOU5PNlM4MzRRV0lETkk2ODBPT0NBTEY5MCQlQCN0PWcu).
 
+## Next Tutorial
+
+See how to control access to your apps using:
+
+- [App Roles](../5-AccessControl/1-call-api-roles/README.md)
+- [Security Groups](../5-AccessControl/1-call-api-groups/README.md)
+
+Or learn more about how to offer your apps to other tenants (SaaS): [Multitenancy](../6-Multitenancy/1-call-api-mt/README.md).
+
 ## More information
 
 - [Azure Blob Storage](https://docs.microsoft.com/azure/storage/blobs/)
