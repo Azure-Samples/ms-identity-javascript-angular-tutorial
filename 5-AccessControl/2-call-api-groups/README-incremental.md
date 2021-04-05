@@ -3,7 +3,6 @@
  1. [Overview](#overview)
  1. [Scenario](#scenario)
  1. [Contents](#contents)
- 1. [Prerequisites](#prerequisites)
  1. [Setup](#setup)
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
@@ -43,26 +42,9 @@ In the sample, a dashboard component allows signed-in users to see the tasks ass
 | `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
 | `API/Utils/GraphHelper.cs`          | Queries Microsoft Graph with Graph SDK in case groups overage occurs. |
 
-## Prerequisites
-
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
-- At least **two** user accounts in your Azure AD tenant.
-
 ## Setup
 
-Using a command line interface such as VS Code integrated terminal, follow the steps below:
-
 ### Step 1. Install .NET Core API dependencies
-
-```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
-```
-
-or download and extract the repository .zip file.
-
-> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
-
-### Step 2. Install .NET Core API dependencies
 
 ```console
     cd ms-identity-javascript-angular-tutorial
@@ -70,7 +52,7 @@ or download and extract the repository .zip file.
     dotnet restore
 ```
 
-### Step 3. Trust development certificates
+### Step 2. Trust development certificates
 
 ```console
     dotnet dev-certs https --clean
@@ -79,7 +61,7 @@ or download and extract the repository .zip file.
 
 For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
-### Step 4. Install Angular SPA dependencies
+### Step 3. Install Angular SPA dependencies
 
 ```console
     cd ../
@@ -119,17 +101,10 @@ There are two projects in this sample. Each needs to be registered separately in
 
 </details>
 
-### Register the service app (msal-dotnet-api)
+### Update the service app's registration (msal-dotnet-api)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
-1. Select the **App Registrations** blade on the left, then select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
-1. In the app's registration screen, select the **Certificates & secrets** blade in the left to open the page where we can generate secrets and upload certificates.
+1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-dotnet-api`).
 1. In the **Client secrets** section, select **New client secret**:
    - Type a key description (for instance `app secret`),
    - Select one of the available key durations (**In 1 year**, **In 2 years**, or **Never Expires**) as per your security posture.
@@ -142,20 +117,6 @@ There are two projects in this sample. Each needs to be registered separately in
        - In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
        - Select the **Add permissions** button at the bottom.
    - **GroupMember.Read.All** requires admin to consent. Select the **Grant/revoke admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
-1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
-The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
-   - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
-   - For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
-1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
-   - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        - For **Scope name**, use `access_as_user`.
-        - Select **Admins and users** options for **Who can consent?**.
-        - For **Admin consent display name** type `Access msal-dotnet-api`.
-        - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-dotnet-api`.
-        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
-        - Keep **State** as **Enabled**.
-        - Select the **Add scope** button on the bottom to save this scope.
 1. On the right side menu, select the `Manifest` blade.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
@@ -172,22 +133,18 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the app key `TenantId` and replace the existing value with your Azure AD tenant ID.
 1. Find the app key `ClientSecret` and replace the existing value with the key you saved during the creation of the `msal-dotnet-api` app, in the Azure portal.
 
-### Register the client app (msal-angular-spa)
+1. Open the `API\Controllers\TodoListController.cs` file.
+1. Find the variable `scopeRequiredByApi` and replace its value with the name of the API scope that you have just exposed (by default `access_as_user`).
+
+### Update the client app's registration (msal-angular-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
-1. Select the **App Registrations** blade on the left, then select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
+1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-angular-spa`).
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
    - Select the **Add a permission** button and then:
        - Ensure that the **Microsoft APIs** tab is selected.
        - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-       - In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+       - In the **Delegated permissions** section, select the **GroupMember.Read.All** in the list. Use the search box if necessary.
        - Select the **Add permissions** button at the bottom.
    - **GroupMember.Read.All** requires admin to consent. Select the **Grant/revoke admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
 
@@ -507,6 +464,10 @@ User.IsInRole("Group-object-id"); // In methods
 To debug the .NET Core web API that comes with this sample, install the [C# extension](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csharp) for Visual Studio Code.
 
 Learn more about using [.NET Core with Visual Studio Code](https://docs.microsoft.com/dotnet/core/tutorials/with-visual-studio-code).
+
+## Next Tutorial
+
+Learn more about how to offer your apps to other tenants (SaaS): [Multitenancy](../6-Multitenancy/1-call-api-mt/README-incremental.md).
 
 ## More information
 

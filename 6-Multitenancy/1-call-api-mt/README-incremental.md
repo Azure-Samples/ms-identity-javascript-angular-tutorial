@@ -42,25 +42,12 @@ In order to grasp the relevant aspects of **multi-tenancy** covered in the sampl
 
 ## Prerequisites
 
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 - You would need *at least* **two** Azure Active Directory (Azure AD) tenants to successfully run this sample. For more information on how to get an Azure AD tenant, see [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/).
 - On each tenant, *at least* **one** admin account (:warning: i.e. global admin) and **one** non-admin/user account should be present for testing purposes.
 
 ## Setup
 
-Using a command line interface such as VS Code integrated terminal, follow the steps below:
-
 ### Step 1. Install .NET Core API dependencies
-
-```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
-```
-
-or download and extract the repository .zip file.
-
-> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
-
-### Step 2. Install .NET Core API dependencies
 
 ```console
     cd ms-identity-javascript-angular-tutorial
@@ -68,7 +55,7 @@ or download and extract the repository .zip file.
     dotnet restore
 ```
 
-### Step 3. Trust development certificates
+### Step 2. Trust development certificates
 
 ```console
     dotnet dev-certs https --clean
@@ -77,7 +64,7 @@ or download and extract the repository .zip file.
 
 For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
-### Step 4. Install Angular SPA dependencies
+### Step 3. Install Angular SPA dependencies
 
 ```console
     cd ../
@@ -117,36 +104,10 @@ There are two projects in this sample. Each needs to be separately registered in
 
 </details>
 
-### Register the service app (msal-dotnet-api)
+### Update the service app's registration (msal-dotnet-api)
 
-1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
-1. Select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
-   - Under **Supported account types**, select **Accounts in any organizational directory**.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Click the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
-1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
-The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI, follow the following steps:
-   - Click `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
-   - For this sample, accept the proposed Application ID URI (api://{clientId}) by selecting **Save**.
-1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
-   - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        - For **Scope name**, use `access_as_user`.
-        - Select **Admins and users** options for **Who can consent?**
-        - For **Admin consent display name** type `Access msal-dotnet-api`
-        - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-dotnet-api`
-        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
-        - Keep **State** as **Enabled**
-        - Select the **Add scope** button on the bottom to save this scope.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-dotnet-api`).
 
 #### Configure the service app (msal-dotnet-api) to use your app registration
 
@@ -157,26 +118,15 @@ Open the project in your IDE (like Visual Studio) to configure the code.
 1. Find the app key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the app key `ClientId` and replace the existing value with the application ID (clientId) of the **msal-dotnet-api** application copied from the Azure portal.
 
-### Register the client app (msal-angular-spa)
+### Update the client app's registration (msal-angular-spa)
 
-1. Navigate to the Microsoft identity platform for developers [App registrations](https://go.microsoft.com/fwlink/?linkid=2083908) page.
-1. Select **New registration**.
-1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
-   - Under **Supported account types**, select **Accounts in any organizational directory**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-angular-spa`).
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Click the **Add a permission** button and then,
-     - Ensure that the **My APIs** tab is selected.
-     - In the list of APIs, select the API `msal-dotnet-api`.
-     - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
-     - Select the **Add permissions** button at the bottom.
    - Click the **Add a permission** button and then:
      - Ensure that the **Microsoft APIs** tab is selected.
      - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-     - In the **Delegated permissions** section, select the **User.Read**, **User.Read.All** in the list. Use the search box if necessary.
+     - In the **Delegated permissions** section, select the **User.Read.All** in the list. Use the search box if necessary.
      - Select the **Add permissions** button at the bottom.
 
 > :warning: The next step requires you to go back to your msal-dotnet-api registration.
