@@ -9,13 +9,12 @@
  1. [More information](#more-information)
  1. [Community Help and Support](#community-help-and-support)
  1. [Contributing](#contributing)
- 1. [Code of Conduct](#code-of-conduct)
 
 ## Overview
 
 This sample demonstrates how to deploy an Angular single-page application (SPA) coupled with a .NET Core web API to **Azure Cloud** using [Azure Storage](https://docs.microsoft.com/azure/storage/blobs/) and [Azure App Service](https://docs.microsoft.com/azure/app-service/), respectively. To do so, we will use the [same code sample from Chapter 3](../3-Authorization-II/1-call-api).
 
-> :information_source: You can choose to deploy the [B2C sample from Chapter 3](../3-Authorization-II/2-call-api-b2c/README.md) instead. Steps below are more or less the same.
+> :information_source: You may also choose to deploy the [B2C sample from Chapter 3](../3-Authorization-II/2-call-api-b2c/README.md) instead. Steps below are more or less the same.
 
 ## Scenario
 
@@ -27,7 +26,6 @@ This sample demonstrates how to deploy an Angular single-page application (SPA) 
 
 ## Prerequisites
 
-- [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with **Azure** through VS Code interface.
 - An **Azure subscription**. This sample uses **Azure Storage** and **Azure App Service**.
 
 ## Setup
@@ -167,7 +165,7 @@ Then follow the steps below:
 ## Explore the sample
 
 1. Open your browser and navigate to your deployed client app's URI, for instance: `https://angularspa1.z22.web.core.windows.net/`.
-1. Select the **Sign In** button on the top right corner.
+2. Select the **Sign In** button on the top right corner.
 3. Select the **TodoList** button on the navigation bar to access your todo list.
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
@@ -187,20 +185,14 @@ For more information about how OAuth 2.0 protocols work in this scenario and oth
 
 Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-ad` `azure-ad-b2c` `ms-identity` `msal`].
+Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, please raise the issue on [GitHub Issues](../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
 
-To provide a recommendation, visit the following [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 
-If you'd like to contribute to this sample, see [CONTRIBUTING.MD](../../CONTRIBUTING.md).
+If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
-
-## Code of Conduct
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

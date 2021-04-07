@@ -1,4 +1,4 @@
-# Angular single-page application calling a .NET Core web API using Security Groups to implement Role-Based Access Control
+# Angular single-page application calling .NET Core web API using Security Groups to implement Role-Based Access Control
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -15,9 +15,9 @@
 
 ## Overview
 
-This sample demonstrates a cross-platform application suite involving an Angular SPA (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **Security Groups**.
+This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **Security Groups**.
 
-Authorization in Azure AD can also be done with **App Roles**, as shown in the [previous tutorial](../1-call-api-roles/README.md). **Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Access control in Azure AD can also be done with **App Roles**, as shown in the [previous tutorial](../1-call-api-roles/README.md). **Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
 ## Scenario
 
@@ -33,8 +33,6 @@ In the sample, a dashboard component allows signed-in users to see the tasks ass
 
 | File/folder          | Description                                                |
 |----------------------|------------------------------------------------------------|
-| `AppCreationScripts`                | Contains Powershell scripts to automate app registration.  |
-| `ReadmeFiles`                       | Sample readme files.                                       |
 | `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
 | `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
 | `SPA/src/app/group-guard.service.ts`| This service protects other components that require user to be in a group. |
@@ -191,6 +189,12 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
        - Select the **Add permissions** button at the bottom.
    - **GroupMember.Read.All** requires admin to consent. Select the **Grant/revoke admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all account in the tenant. You need to be an Azure AD tenant admin to do this.
 
+> :warning: The next step requires you to go back to your msal-dotnet-api registration.
+
+1. Now you need to leave the registration for **msal-angular-spa** and *go back to your app registration* for **msal-dotnet-api**.
+   - From the app's Overview page, select the Manifest section.
+   - Find the entry for `KnownClientApplications`, and add the Application (client) ID of the `msal-angular-spa` application copied from the Azure portal. i.e. `KnownClientApplications: [ "your_client_id_for_TodoListSPA" ]`
+
 #### Configure the client app (msal-angular-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
@@ -201,23 +205,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the app key `clientId` and replace the existing value with the application ID (clientId) of the **msal-angular-spa** application copied from the Azure portal.
 1. Find the app key `todoListApi.resourceUri` and replace the existing value with the base address of the **msal-dotnet-api** project (by default `https://localhost:44351/api/todolist`).
 1. Find the app key `todoListApi.resourceScopes` and replace the existing value with *Scope* you created earlier `api://{clientId-of-service}/access_as_user`.
-
-#### Configure Known Client Applications for service (msal-dotnet-api)
-
-For a middle tier web API (`msal-dotnet-api`) to be able to call a downstream web API, the middle tier app needs to be granted the required permissions as well. However, since the middle tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle tier web API and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions.
-
-To achieve this, you need to add the **Application Id** of the client app, in the Manifest of the web API in the `knownClientApplications` property. Here's how:
-
-1. In the [Azure portal](https://portal.azure.com), navigate to your `msal-dotnet-api` app registration, and select **Manifest** section.
-1. In the manifest editor, change the `"knownClientApplications": []` line so that the array contains the Client ID of the client application (`msal-angular-spa`) as an element of the array.
-
-    For instance:
-
-    ```json
-    "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
-    ```
-
-1. **Save** the changes to the manifest.
 
 ### Configure Security Groups (msal-angular-spa and msal-dotnet-api)
 
@@ -530,22 +517,14 @@ For more information about how OAuth 2.0 protocols work in this scenario and oth
 
 Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`msal` `dotnet` `angular` `azure-active-directory`].
+Make sure that your questions or comments are tagged with [`azure-active-directory` `dotnet` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, please raise the issue on [GitHub Issues](../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
-To provide a recommendation, visit the following [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

@@ -29,8 +29,8 @@
                 },
                 {
                     "Resource": "Windows Azure Service Management API",
-                    "DelegatedPermissions": [ 
-                        "user_impersonation" 
+                    "DelegatedPermissions": [
+                        "user_impersonation"
                     ]
                 }
             ]

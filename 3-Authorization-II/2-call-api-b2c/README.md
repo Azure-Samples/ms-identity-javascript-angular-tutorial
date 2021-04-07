@@ -29,8 +29,6 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 | File/folder                         | Description                                                |
 |-------------------------------------|------------------------------------------------------------|
-| `AppCreationScripts`                | Contains Powershell scripts to automate app registration.  |
-| `ReadmeFiles`                       | Sample readme files.                                       |
 | `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
 | `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
 | `API/appsettings.json`              | Authentication parameters for API project reside here.     |
@@ -38,7 +36,6 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 ## Prerequisites
 
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 - An **Azure AD B2C** tenant. For more information see: [How to get an Azure AD B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
 - A user account in your **Azure AD B2C** tenant.
 
@@ -119,6 +116,9 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
+1. On the right side menu, select the `Manifest` blade.
+   - Set `accessTokenAcceptedVersion` property to **2**.
+   - Click on **Save**.
 
 #### Configure the service app (msal-dotnet-api) to use your app registration
 
@@ -194,9 +194,9 @@ In a separate console window, execute the following commands:
 2. Sign-in using the button on the top-right corner.
 3. Select the **TodoList** button on the navigation bar to access your todo list.
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../issues) page.
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
-> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory-b2c/support-options).
+> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/azure/active-directory-b2c/support-options).
 
 ## We'd love your feedback!
 

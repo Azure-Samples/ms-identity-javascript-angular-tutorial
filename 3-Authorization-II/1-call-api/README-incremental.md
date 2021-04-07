@@ -3,7 +3,6 @@
  1. [Overview](#overview)
  1. [Scenario](#scenario)
  1. [Contents](#contents)
- 1. [Prerequisites](#prerequisites)
  1. [Setup](#setup)
  1. [Registration](#registration)
  1. [Running the sample](#run-the-sample)
@@ -28,12 +27,10 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 | File/folder                         | Description                                                |
 |-------------------------------------|------------------------------------------------------------|
+| `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
+| `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
 | `API/appsettings.json`              | Authentication parameters for API project reside here.     |
 | `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
-
-## Prerequisites
-
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 
 ## Setup
 
@@ -122,6 +119,9 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
         - Keep **State** as **Enabled**
         - Click on the **Add scope** button on the bottom to save this scope.
+1. On the right side menu, select the `Manifest` blade.
+   - Set `accessTokenAcceptedVersion` property to **2**.
+   - Click on **Save**.
 
 #### Configure the service app (msal-dotnet-api) to use your app registration
 
@@ -155,7 +155,7 @@ Open the project in your IDE to configure the code.
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with *scope* you created earlier e.g. `api://{clientId}/access_as_user`.
+1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with *scope* you created earlier e.g. `api://{clientId_of_service_app}/access_as_user`.
 
 ## Run the sample
 
@@ -179,7 +179,7 @@ In a separate console window, execute the following commands:
 2. Sign-in using the button on the top-right corner.
 3. Select the **TodoList** button on the navigation bar to access your todo list.
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../issues) page.
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
 ## We'd love your feedback!
 
@@ -282,22 +282,14 @@ For more information about how OAuth 2.0 protocols work in this scenario and oth
 
 Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`msal` `dotnet` `angular` `azure-active-directory`].
+Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, please raise the issue on [GitHub Issues](../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
-To provide a recommendation, visit the following [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 
-This project welcomes contributions and suggestions.  Most contributions require you to agree to a
-Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
-the rights to use your contribution. For details, visit https://cla.opensource.microsoft.com.
+If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
 
-When you submit a pull request, a CLA bot will automatically determine whether you need to provide
-a CLA and decorate the PR appropriately (e.g., status check, comment). Simply follow the instructions
-provided by the bot. You will only need to do this once across all repos using our CLA.
-
-This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
-For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
-contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.

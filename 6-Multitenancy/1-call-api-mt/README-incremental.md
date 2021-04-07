@@ -1,4 +1,4 @@
-# multi-tenant (SaaS) Angular single-page application that authenticates users with Azure AD and calls a protected ASP.NET Core web API
+# Multi-tenant (SaaS) Angular single-page application that authenticates users with Azure AD and calls a protected ASP.NET Core web API
 
  1. [Overview](#overview)
  1. [Scenario](#scenario)
@@ -13,7 +13,7 @@
  1. [Community Help and Support](#community-help-and-support)
  1. [Contributing](#contributing)
 
-This sample demonstrates how to develop a multi-tenant, cross-platform application suite comprising of an Angular SPA (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with Azure Active Directory (Azure AD). Due to the topology of this application suite (*multi-tier*, *multi-tenant*), additional steps are needed for making the apps available to users in other tenants.
+This sample demonstrates how to develop a multi-tenant, cross-platform application suite comprising of an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with Azure Active Directory (Azure AD). Due to the topology of this application suite (*multi-tier*, *multi-tenant*), additional steps are needed for making the apps available to users in other tenants.
 
 When it comes to integrate Azure AD authentication in their apps, developers can choose to configure their app to be either **single-tenant** or **multi-tenant** while registering their app in the [Azure portal](https://portal.azure.com).
 
@@ -36,7 +36,6 @@ In order to grasp the relevant aspects of **multi-tenancy** covered in the sampl
 
 | File/folder                  | Description                                |
 |------------------------------|--------------------------------------------|
-| `AppCreationScripts`         | Contains Powershell scripts to automate app registrations. |
 | `API/appsettings.json`       | Authentication configuration parameters. |
 | `SPA/src/app/auth-config.ts` | Authentication configuration parameters. |
 
@@ -143,7 +142,7 @@ Open the project in your IDE (like Visual Studio) to configure the code.
 
 1. Open the `SPA\src\app\auth-config.ts` file
 1. Find the key `clientId` and replace the existing value with the application ID (clientId) of the **msal-angular-spa** application copied from the Azure portal.
-1. Find the key `protectedResources.scopes` and replace the existing value with *scope* you created earlier e.g. `api://{clientId-of-msal-dotnet-api}/.default`.
+1. Find the key `protectedResources.scopes` and replace the existing value with *scope* you created earlier e.g. `api://{clientId_of_service_app}/.default`.
 
 ## Run the sample
 

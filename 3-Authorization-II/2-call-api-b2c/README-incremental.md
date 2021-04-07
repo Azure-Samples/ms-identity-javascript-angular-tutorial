@@ -4,7 +4,6 @@
  1. [Overview](#overview)
  1. [Scenario](#scenario)
  1. [Contents](#contents)
- 1. [Prerequisites](#prerequisites)
  1. [Setup](#setup)
  1. [Registration](#registration)
  1. [Running the sample](#running-the-sample)
@@ -29,12 +28,10 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 | File/folder                         | Description                                                |
 |-------------------------------------|------------------------------------------------------------|
+| `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
+| `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
 | `API/appsettings.json`              | Authentication parameters for API project reside here.     |
 | `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
-
-## Prerequisites
-
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download) must be installed to run this sample.
 
 ## Setup
 
@@ -67,13 +64,6 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
 
 :warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps for [Running the sample](#running-the-sample).
 
-### Choose the Azure AD tenant where you want to create your applications
-
-As a first step you'll need to:
-
-1. Sign in to the [Azure portal](https://portal.azure.com).
-1. If your account is present in more than one Azure AD B2C tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD B2C tenant.
-
 ### Create User Flows and Custom Policies
 
 Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
@@ -103,6 +93,9 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
+1. On the right side menu, select the `Manifest` blade.
+   - Set `accessTokenAcceptedVersion` property to **2**.
+   - Click on **Save**.
 
 #### Configure the service app (msal-dotnet-api) to use your app registration
 
@@ -178,9 +171,9 @@ In a separate console window, execute the following commands:
 2. Sign-in using the button on the top-right corner.
 3. Select the **TodoList** button on the navigation bar to access your todo list.
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../issues) page.
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
-> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/en-us/azure/active-directory-b2c/support-options).
+> :information_source: if you believe your issue is with the B2C service itself rather than with the sample, please file a support ticket with the B2C team by following the instructions [here](https://docs.microsoft.com/azure/active-directory-b2c/support-options).
 
 ## We'd love your feedback!
 
