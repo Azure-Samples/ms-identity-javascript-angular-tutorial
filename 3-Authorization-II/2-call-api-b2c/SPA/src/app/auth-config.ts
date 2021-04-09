@@ -17,19 +17,15 @@
   */
  export const b2cPolicies = {
      names: {
-         signUpSignIn: "b2c_1_susi",
-         forgotPassword: "b2c_1_reset",
-         editProfile: "b2c_1_edit_profile"
+         signUpSignIn: "b2c_1_susi_reset_v2",
+         editProfile: "b2c_1_edit_profile_v2"
      },
      authorities: {
          signUpSignIn: {
-             authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi",
-         },
-         forgotPassword: {
-             authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_reset",
+             authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_susi_reset_v2",
          },
          editProfile: {
-             authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_edit_profile"
+             authority: "https://fabrikamb2c.b2clogin.com/fabrikamb2c.onmicrosoft.com/b2c_1_edit_profile_v2"
          }
      },
      authorityDomain: "fabrikamb2c.b2clogin.com"
@@ -56,7 +52,7 @@
              loggerCallback(logLevel: LogLevel, message: string) {
                  console.log(message);
              },
-             logLevel: LogLevel.Verbose,
+             logLevel: LogLevel.Error,
              piiLoggingEnabled: false
          }
      }

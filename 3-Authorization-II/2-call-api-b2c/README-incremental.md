@@ -109,7 +109,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name.
 
 1. Find the key `SignUpSignInPolicyId` and replace the existing value with your sign-up/sign-in user-flow string e.g. `b2c_1_susi`.
-1. Find the key `ResetPasswordPolicyId` and replace the existing value with your your password-reset user-flow string e.g. `b2c_1_reset`.
 1. Find the key `EditProfilePolicyId` and replace the existing value with your profile-edit user-flow string e.g. `b2c_1_edit`.
 
 1. Open the `API\Controllers\TodoListController.cs` file.
