@@ -1,0 +1,56 @@
+{
+    "Sample": {
+        "Title": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API",
+        "Level": 100,
+        "Client": "Angular SPA",
+        "Service": "Microsoft Graph",
+        "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+        "Endpoint": "AAD v2.0"
+    },
+    "AADApps": [
+        {
+            "Id": "spa",
+            "Name": "msal-angular-spa",
+            "Kind": "SinglePageApplication",
+            "HomePage": "http://localhost:4200/",
+            "ReplyUrls": "http://localhost:4200/",
+            "Audience": "AzureADMyOrg",
+            "ManualSteps": [
+                {
+                    "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
+                }
+            ],
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [
+                        "User.Read"
+                    ]
+                },
+                {
+                    "Resource": "Windows Azure Service Management API",
+                    "DelegatedPermissions": [
+                        "user_impersonation"
+                    ]
+                }
+            ]
+        }
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "spa",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                }
+            ]
+        }
+    ]
+}

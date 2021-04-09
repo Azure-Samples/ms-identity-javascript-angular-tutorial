@@ -1,0 +1,84 @@
+{
+    "Sample": {
+      "Title": "A multi-tenant Angular single-page application calling a .NET Core web API secured with Azure Active Directory",
+      "Level": 300,
+      "Client": "Angular SPA",
+      "Service": ".NET Core web API",
+      "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+      "Endpoint": "AAD v2.0"
+    },
+    "AADApps": [
+      {
+        "Id": "service",
+        "Name": "msal-dotnet-api",
+        "Kind": "WebApi",
+        "Audience": "AzureADMultipleOrgs",
+        "RequiredResourcesAccess": [
+          {
+            "Resource": "Microsoft Graph",
+            "DelegatedPermissions": [ "User.Read" ]
+          }
+        ],
+        "ManualSteps": [
+          {
+            "Comment":  "Navigate to the portal and set the 'accessTokenAcceptedVersion' to '2' in the application manifest"
+          }
+        ]        
+      },
+      {
+        "Id": "client",
+        "Name": "msal-angular-spa",
+        "Kind": "SinglePageApplication",
+        "Audience": "AzureADMultipleOrgs",
+        "HomePage": "http://localhost:4200",
+        "ReplyUrls": "http://localhost:4200",
+        "ManualSteps": [
+          {
+            "Comment":  "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest"
+          }
+        ],
+        "RequiredResourcesAccess": [
+          {
+            "Resource": "service",
+            "DelegatedPermissions": [ "access_as_user" ]
+          },
+          {
+            "Resource": "Microsoft Graph",
+            "DelegatedPermissions": [ "User.Read", "User.Read.All" ]
+          }
+        ]
+      }
+    ],
+    "CodeConfiguration": [
+      {
+        "App": "service",
+        "SettingKind": "Replace",
+        "SettingFile": "\\..\\API\\appsettings.json",
+        "Mappings": [
+          {
+            "key": "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com",
+            "value": "$tenantName"
+          },
+          {
+            "key": "Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal",
+            "value": "service.AppId"
+          }
+        ]
+      },
+      {
+        "App": "client",
+        "SettingKind": "Replace",
+        "SettingFile": "\\..\\SPA\\src\\app\\auth-config.json",
+        "Mappings": [
+          {
+            "key": "Enter the Client Id (aka 'Application ID')",
+            "value": "client.AppId"
+          },
+          {
+            "key": "Enter the API scopes as declared in the app registration 'Expose an API' blade in the form of api://{clientId}/.default",
+            "value": "service.Scope"
+          }
+        ]
+      }
+    ]
+  }

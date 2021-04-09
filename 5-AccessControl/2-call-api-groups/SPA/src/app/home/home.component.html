@@ -1,0 +1,27 @@
+<mat-card class="card-section" *ngIf="!loginDisplay">
+  <mat-card-title>Sign-in with Microsoft Azure AD</mat-card-title>
+  <mat-card-subtitle>Getting an access token with Azure AD and calling a web API</mat-card-subtitle>
+  <mat-card-content>This simple sample demonstrates how to use the Microsoft Authentication Library for Angular (MSAL Angular) to get an access token and call a web API secured by Azure AD.</mat-card-content>
+</mat-card>
+
+<mat-card-actions class="card-section">
+  <button mat-raised-button *ngIf="loginDisplay" [routerLink]="['todo-view']">Get My Tasks</button>
+  <button mat-raised-button *ngIf="loginDisplay" [routerLink]="['dashboard']">See All Tasks</button>
+</mat-card-actions>
+
+<table mat-table [dataSource]="dataSource" class="mat-elevation-z8" *ngIf="loginDisplay">
+  <!-- Claim Column -->
+  <ng-container matColumnDef="claim">
+    <th mat-header-cell *matHeaderCellDef> Claim </th>
+    <td mat-cell *matCellDef="let element"> {{element.claim}} </td>
+  </ng-container>
+
+  <!-- Value Column -->
+  <ng-container matColumnDef="value">
+    <th mat-header-cell *matHeaderCellDef> Value </th>
+    <td mat-cell *matCellDef="let element"> {{element.value}} </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

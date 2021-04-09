@@ -1,0 +1,42 @@
+{
+  "Sample": {
+    "Title": "Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C",
+    "Level": 100,
+    "Client": "Angular SPA",
+    "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+    "Endpoint": "AAD v2.0",
+    "Provider": "B2C"
+  },
+  "AADApps": [
+    {
+      "Id": "spa",
+      "Name": "msal-angular-spa",
+      "Kind": "SinglePageApplication",
+      "Audience": "AzureADandPersonalMicrosoftAccount",
+      "HomePage": "http://localhost:4200",
+      "ReplyUrls": "http://localhost:4200",
+      "ManualSteps": [
+        {
+          "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
+        }
+      ]
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "spa",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantName"
+        }
+      ]
+    }
+  ]
+}

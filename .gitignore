@@ -102,3 +102,13 @@ dist
 
 # TernJS port file
 .tern-port
+
+# .NET binaries
+bin/
+obj/
+
+# Visual Studio cache
+.vs
+
+# VS Code cache
+.vscode

@@ -1,0 +1,80 @@
+{
+  "Sample": {
+    "Title": "Angular single-page application that authenticates users with Azure AD and calls a protected .NET Core web API",
+    "Level": 200,
+    "Client": "Angular SPA",
+    "Service": ".NET Core web API",
+    "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+    "Endpoint": "AAD v2.0"
+  },
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "msal-dotnet-api",
+      "Kind": "WebApi",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "https://localhost:44351/api/todolist"
+    },
+    {
+      "Id": "client",
+      "Name": "msal-angular-spa",
+      "Kind": "SinglePageApplication",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "http://localhost:4200/",
+      "ReplyUrls": "http://localhost:4200/",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "service",
+          "DelegatedPermissions": [
+            "access_as_user"
+          ]
+        }
+      ],
+      "ManualSteps": [
+        {
+          "Comment": "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest"
+        }
+      ]
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\API\\appsettings.json",
+      "Mappings": [
+        {
+          "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
+          "value": "$tenantName"
+        },
+        {
+          "key": "Enter the Client ID (aka 'Application ID')",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter the tenant ID",
+          "value": "$tenantId"
+        }
+      ]
+    },
+    {
+      "App": "client",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": ".AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Web_Api_Scope_here",
+          "value": "service.Scope"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+    "Sample": {
+      "Title": "Angular single-page application calling a protected Core web API using Security Groups to implement Role-Based Access Control",
+      "Level": 300,
+      "Client": "Angular SPA",
+      "Service": ".NET Core web",
+      "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+      "Endpoint": "AAD v2.0"
+    },
+    "AADApps": [
+      {
+        "Id": "service",
+        "Name": "msal-dotnet-api",
+        "Kind": "WebApi",
+        "Audience": "AzureADMyOrg",
+        "GroupMembershipClaims": "SecurityGroup",
+        "PasswordCredentials": "Auto",
+        "RequiredResourcesAccess": [
+          {
+            "Resource": "Microsoft Graph",
+            "DelegatedPermissions": [ "User.Read", "GroupMember.Read.All" ]
+          }
+        ],
+        "ManualSteps": [
+          { "Comment": "This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." },
+          { "Comment": "This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." }
+        ]      
+      },
+      {
+        "Id": "client",
+        "Name": "msal-angular-spa",
+        "Kind": "SinglePageApplication",
+        "Audience": "AzureADMyOrg",
+        "HomePage": "http://localhost:4200/",
+        "ReplyUrls": "http://localhost:4200/",
+        "GroupMembershipClaims": "SecurityGroup",
+        "RequiredResourcesAccess": [
+          {
+            "Resource": "service",
+            "DelegatedPermissions": [ "access_as_user" ]
+          },
+          {
+            "Resource": "Microsoft Graph",
+            "DelegatedPermissions": [ "User.Read", "GroupMember.Read.All" ]
+          }
+        ],
+        "ManualSteps": [
+          { "Comment":  "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" },
+          { "Comment": "This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." },
+          { "Comment": "This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." }
+        ]  
+      }
+    ],
+    "CodeConfiguration": [
+      {
+        "App": "service",
+        "SettingKind": "Replace",
+        "SettingFile": "\\..\\API\\appsettings.json",
+        "Mappings": [
+          {
+            "key": "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com",
+            "value": "$tenantName"
+          },
+          {
+            "key": "Enter the ID of your Azure AD tenant copied from the Azure portal",
+            "value": "$tenantId"
+          },
+          {
+            "key": "Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal",
+            "value": "service.AppId"
+          },
+          {
+            "key": "Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal",
+            "value": "service.AppKey"
+          }
+        ]
+      },
+  
+      {
+        "App": "client",
+        "SettingKind": "Replace",
+        "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+        "Mappings": [
+          {
+            "key": "Enter_the_Application_Id_Here",
+            "value": "client.AppId"
+          },
+          {
+            "key": "Enter_the_Tenant_Info_Here",
+            "value": "$tenantId"
+          },
+          {
+            "key": "Enter_the_Web_Api_Scope_here",
+            "value": "service.Scope"
+          }
+        ]
+      }
+    ]
+  }
