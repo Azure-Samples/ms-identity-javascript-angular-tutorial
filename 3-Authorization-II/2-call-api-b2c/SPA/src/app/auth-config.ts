@@ -52,7 +52,7 @@
              loggerCallback(logLevel: LogLevel, message: string) {
                  console.log(message);
              },
-             logLevel: LogLevel.Error,
+             logLevel: LogLevel.Verbose,
              piiLoggingEnabled: false
          }
      }
