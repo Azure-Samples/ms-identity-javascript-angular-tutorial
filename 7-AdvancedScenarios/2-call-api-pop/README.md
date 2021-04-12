@@ -58,7 +58,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 3-Authorization-II/1-call-api/API/TodoListAPI
+    cd 7-AdvancedScenarios/2-call-api-pop/API/TodoListAPI
     dotnet restore
 ```
 
@@ -201,14 +201,17 @@ Using a command line interface such as VS Code integrated terminal, locate the a
 In a separate console window, execute the following commands:
 
 ```console
-    cd API
+    cd API/TodoListAPI
     dotnet run
 ```
 
 ## Explore the sample
 
-> Explain how to explore the sample.
-> Insert a screenshot of the client application.
+1. Open your browser and navigate to `http://localhost:4200`.
+2. Sign-in using the button on the top-right corner.
+3. Select the **TodoList** button on the navigation bar to access your todo list.
+
+![Screenshot](./ReadmeFiles/screenshot.png)
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 

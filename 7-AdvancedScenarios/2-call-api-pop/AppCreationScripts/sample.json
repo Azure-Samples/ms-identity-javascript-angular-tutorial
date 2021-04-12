@@ -13,7 +13,7 @@
         "Name": "msal-dotnet-api",
         "Kind": "WebApi",
         "Audience": "AzureADMyOrg",
-        "HomePage": "https://localhost::44372/api/todolist"
+        "HomePage": "https://localhost:44372/api/todolist"
       },
       {
         "Id": "client",

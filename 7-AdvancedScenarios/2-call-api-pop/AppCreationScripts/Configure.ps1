@@ -200,7 +200,7 @@ Function ConfigureApplications
    Write-Host "Creating the AAD application (msal-dotnet-api)"
    # create the application 
    $serviceAadApplication = New-AzureADApplication -DisplayName "msal-dotnet-api" `
-                                                   -HomePage "https://localhost::44372/api/todolist" `
+                                                   -HomePage "https://localhost:44372/api/todolist" `
                                                    -PublicClient $False
 
    $serviceIdentifierUri = 'api://'+$serviceAadApplication.AppId
