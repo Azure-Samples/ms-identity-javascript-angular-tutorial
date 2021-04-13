@@ -5,7 +5,7 @@
  * in app.module.ts file.
  */
 
-import { LogLevel, Configuration, BrowserCacheLocation, AuthenticationScheme } from '@azure/msal-browser';
+import { LogLevel, Configuration, BrowserCacheLocation } from '@azure/msal-browser';
 
 const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
 
@@ -29,7 +29,7 @@ export const msalConfig: Configuration = {
       loggerCallback(logLevel: LogLevel, message: string) {
         console.log(message);
       },
-      logLevel: LogLevel.Error,
+      logLevel: LogLevel.Verbose,
       piiLoggingEnabled: false
     }
   }
@@ -40,9 +40,9 @@ export const msalConfig: Configuration = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-  todoListApi: {
-    endpoint: "https://localhost:44372/api/todolist",
-    scopes: ["Enter_the_Web_Api_Scope_here"],
+  profileApi: {
+    endpoint: "https://localhost:44351/api/profile",
+    scopes: ["api://Enter_the_Application_Id_of_Service_Here/.default"],
   },
 }
 
@@ -53,8 +53,5 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-  scopes: [...protectedResources.todoListApi.scopes],
-  authenticationScheme: AuthenticationScheme.POP,
-  resourceRequestMethod: "GET",
-  resourceRequestUri: protectedResources.todoListApi.endpoint,
+  scopes: [...protectedResources.profileApi.scopes]
 };

@@ -41,14 +41,13 @@ export class TodoViewComponent implements OnInit {
 
   checkTodo(todo: Todo): void {
     this.service.editTodo(todo).then((observable) => {
-      observable.subscribe((rest) => console.log(rest));
+      observable.subscribe();
     });
   }
 
   removeTodo(id: string): void {
     this.service.deleteTodo(+id).then((observable) => {
-      observable.subscribe((result) => {
-        console.log(result);
+      observable.subscribe(() => {
         this.getTodos();
       })
     });

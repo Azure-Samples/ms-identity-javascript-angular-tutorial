@@ -16,15 +16,15 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { TodoEditComponent } from './todo-edit/todo-edit.component';
-import { TodoViewComponent } from './todo-view/todo-view.component';
-import { TodoService } from './todo.service';
+import { ProfileEditComponent } from './profile-edit/profile-edit.component';
+import { ProfileViewComponent } from './profile-view/profile-view.component';
+import { ProfileService } from './profile.service';
 
-import { HttpClientModule } from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
-import { MsalGuard, MsalBroadcastService, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
+import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
 
-import { msalConfig, loginRequest } from './auth-config';
+import { msalConfig, loginRequest, protectedResources } from './auth-config';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -36,13 +36,29 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 }
 
 /**
+ * MSAL Angular will automatically retrieve tokens for resources 
+ * added to protectedResourceMap. For more info, visit: 
+ * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/initialization.md#get-tokens-for-web-api-calls
+ */
+export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
+  const protectedResourceMap = new Map<string, Array<string>>();
+
+  protectedResourceMap.set(protectedResources.profileApi.endpoint, protectedResources.profileApi.scopes);
+
+  return {
+    interactionType: InteractionType.Redirect,
+    protectedResourceMap
+  };
+}
+
+/**
  * Set your default interaction type for MSALGuard here. If you have any
  * additional scopes you want the user to consent upon login, add them here as well.
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return { 
     interactionType: InteractionType.Redirect,
-    authRequest: loginRequest,
+    authRequest: loginRequest
   };
 }
 
@@ -50,8 +66,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   declarations: [
     AppComponent,
     HomeComponent,
-    TodoViewComponent,
-    TodoEditComponent
+    ProfileViewComponent,
+    ProfileEditComponent
   ],
   imports: [
     BrowserModule,
@@ -72,6 +88,11 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   ],
   providers: [
     {
+      provide: HTTP_INTERCEPTORS,
+      useClass: MsalInterceptor,
+      multi: true
+    },
+    {
       provide: MSAL_INSTANCE,
       useFactory: MSALInstanceFactory
     },
@@ -79,10 +100,14 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
       provide: MSAL_GUARD_CONFIG,
       useFactory: MSALGuardConfigFactory
     },
+    {
+      provide: MSAL_INTERCEPTOR_CONFIG,
+      useFactory: MSALInterceptorConfigFactory
+    },
     MsalService,
     MsalGuard,
     MsalBroadcastService,
-    TodoService
+    ProfileService
   ],
   bootstrap: [AppComponent, MsalRedirectComponent]
 })
