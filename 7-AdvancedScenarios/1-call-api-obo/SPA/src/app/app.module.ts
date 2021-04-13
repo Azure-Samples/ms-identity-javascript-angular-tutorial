@@ -8,10 +8,9 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatIconModule } from '@angular/material/icon'
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatSelectModule } from '@angular/material/select';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -80,8 +79,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MatCardModule,
     MatInputModule,
     MatFormFieldModule,
-    MatCheckboxModule,
-    MatIconModule,
+    MatSelectModule,
     HttpClientModule,
     FormsModule,
     MsalModule

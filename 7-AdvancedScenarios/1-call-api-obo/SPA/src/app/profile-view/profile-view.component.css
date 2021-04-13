@@ -13,14 +13,5 @@ table {
 }
 
 .card-section {
-    margin-top: 5%;
-}
-
-#submit-button {
-    margin-left: 1%;
-}
-
-.material-icons:hover {
-    color: orange !important;
-    cursor: pointer
+    margin: 5%;
 }

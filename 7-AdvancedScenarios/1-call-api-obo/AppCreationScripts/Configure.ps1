@@ -402,7 +402,7 @@ Function ConfigureApplications
    UpdateTextFile -configFilePath $configFile -dictionary $dictionary
 
    # Update config file for 'client'
-   $configFile = $pwd.Path + "\..\SPA\src\app\authConfig.ts"
+   $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
    Write-Host "Updating the sample code ($configFile)"
    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Application_Id_of_Service_Here" = $serviceAadApplication.AppId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary

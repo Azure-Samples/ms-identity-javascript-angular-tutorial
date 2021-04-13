@@ -57,7 +57,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 3-Authorization-II/1-call-api/API/TodoListAPI
+    cd 7-AdvancedScenarios/1-call-api-obo/API
     dotnet restore
 ```
 
@@ -201,28 +201,25 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `SPA\src\app\authConfig.ts` file.
+1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ProfileSPA` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Application_Id_of_Service_Here` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
 
 #### Configure Known Client Applications for service (ProfileAPI)
 
-For a middle tier Web API (`ProfileAPI`) to be able to call a downstream Web API, the middle tier app needs to be granted the required permissions as well.
-However, since the middle tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration.
-This binding merges the permissions required by both the client and the middle tier Web Api and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions.
+For a middle-tier Web API (`ProfileAPI`) to be able to call a downstream web API, the middle-tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle tier Web Api and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions.
 
-To achieve this, you need to add the **Application Id** of the client app, in the Manifest of the Web API in the `knownClientApplications` property. Here's how:
+To achieve this, you need to add the **Application Id** of the client app, in the Manifest of the web API in the `knownClientApplications` property. Here's how:
 
 1. In the [Azure portal](https://portal.azure.com), navigate to your `ProfileAPI` app registration, and select **Manifest** section.
-1. In the manifest editor, change the `"knownClientApplications": []` line so that the array contains 
-   the Client ID of the client application (`ProfileSPA`) as an element of the array.
+1. In the manifest editor, change the `"knownClientApplications": []` line so that the array contains the Client ID of the client application (`ProfileSPA`) as an element of the array.
 
-    For instance:
+For instance:
 
-    ```json
-    "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
-    ```
+   ```json
+   "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
+   ```
 
 1. **Save** the changes to the manifest.
 

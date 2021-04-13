@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { NgForm } from '@angular/forms';
 
-import { AuthenticationResult, AccountInfo } from '@azure/msal-browser';
+import { AccountInfo } from '@azure/msal-browser';
 import { MsalService } from '@azure/msal-angular';
 
 import { ProfileService } from '../profile.service';
@@ -31,7 +30,7 @@ export class ProfileViewComponent implements OnInit {
     firstLogin: true,
   };
 
-  userExists = true;
+  userExists = false;
   dataSource: any[] = [];
   displayedColumns = ['claim', 'value'];
 
@@ -49,6 +48,7 @@ export class ProfileViewComponent implements OnInit {
     this.profileService.getProfile(id)
       .subscribe({
         next: (profile: Profile) => {
+          this.userExists = true;
           this.profile = profile;
           this.dataSource = Object.entries(this.profile);
         },
@@ -72,6 +72,5 @@ export class ProfileViewComponent implements OnInit {
           this.userExists = false;
         }
       })
-    // add.resetForm();
   }
 }

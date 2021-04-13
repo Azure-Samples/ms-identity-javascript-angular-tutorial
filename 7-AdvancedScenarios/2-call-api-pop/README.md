@@ -188,7 +188,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with Scope.
+1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with the scope value you saved earlier (e.g., `api://{Client_Id_of_Web_Api}/access_as_user`.
 
 ## Running the sample
 

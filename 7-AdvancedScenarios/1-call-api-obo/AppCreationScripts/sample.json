@@ -1,7 +1,7 @@
 {
   "Sample": {
     "Title": "Angular single-page application authorizing .NET Core web API to call Microsoft Graph using on-behalf-of flow",
-    "Level": 200,
+    "Level": 300,
     "Client": "Angular SPA",
     "Service": ".NET Core web API",
     "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
@@ -74,7 +74,7 @@
     {
       "App": "client",
       "SettingKind": "Replace",
-      "SettingFile": "\\..\\SPA\\src\\app\\authConfig.ts",
+      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
       "Mappings": [
         {
           "key": "Enter_the_Application_Id_Here",
