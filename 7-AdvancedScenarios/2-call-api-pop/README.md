@@ -17,14 +17,15 @@
 
 This sample demonstrates a Angular SPA calling a .NET Core web API that is secured using [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD). The SPA project is secured with the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular), while the web API is secured with [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web).
 
-This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/access-token-proof-of-possession.md) (PoP) authentication scheme. This authentication scheme cryptographically binds the access tokens to the browser and client application from which they are requested, meaning they cannot be used from a different application or device. The resource that accepts the PoP token (i.e. a web API) needs to be able to decipher the incoming request for the PoP scheme to work properly. This is achieved by extending the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) package with [SignedHTTPRequest](./API/Microsoft.Identity.Web.Future/SignedHttpRequest) module.
+This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/access-token-proof-of-possession.md) (PoP) authentication scheme. This authentication scheme cryptographically binds the access tokens to the browser and client application from which they are requested, meaning they cannot be used from a different application or device. The resource server that accepts the PoP token (i.e. a web API) needs to be able to decipher the incoming request for the PoP scheme to work properly. This is achieved by extending the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) package with the [SignedHTTPRequest](./API/Microsoft.Identity.Web.Future/SignedHttpRequest) module.
 
 ## Scenario
 
 1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD**.
 1. The client Angular SPA wraps the access token in a secure *envelope* and stamps it with its signature.
-1. The access token then is used as a *PoP* token to authorize the user to call the .NET Core web API protected by **Azure AD**.
-1. The .NET Core web API decrypts the secure envelope to obtain the access token. Once validated, it responds with the protected resource.
+1. The access token then is used with *PoP* authentication scheme to authorize the user to call the .NET Core web API protected by **Azure AD**.
+1. The .NET Core web API decrypts the secure envelope to obtain the access token.
+1. Once the access token is validated, the .NET Core web API responds with the protected resource.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -221,11 +222,11 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-### App configuration
-
 ### Acquiring PoP tokens
 
-### Calling PoP API
+### Calling web API using PoP scheme
+
+### Validating PoP tokens
 
 ## More information
 

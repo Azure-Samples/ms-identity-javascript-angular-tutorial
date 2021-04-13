@@ -41,7 +41,8 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return { 
-    interactionType: InteractionType.Redirect
+    interactionType: InteractionType.Redirect,
+    authRequest: loginRequest,
   };
 }
 

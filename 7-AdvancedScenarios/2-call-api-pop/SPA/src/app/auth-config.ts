@@ -21,7 +21,7 @@ export const msalConfig: Configuration = {
     redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
   },
   cache: {
-    cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+    cacheLocation: BrowserCacheLocation.SessionStorage, // Configures cache location. "SessionStorage" is more secure, but "LocalStorage" gives you SSO between tabs.
     storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge
   },
   system: {
@@ -56,5 +56,5 @@ export const loginRequest = {
   scopes: [...protectedResources.todoListApi.scopes],
   authenticationScheme: AuthenticationScheme.POP,
   resourceRequestMethod: "GET",
-  resourceRequestUri: protectedResources.todoListApi.endpoint
+  resourceRequestUri: protectedResources.todoListApi.endpoint,
 };
