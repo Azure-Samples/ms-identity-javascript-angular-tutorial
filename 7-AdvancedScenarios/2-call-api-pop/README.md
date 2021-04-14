@@ -15,9 +15,9 @@
 
 ## Overview
 
-This sample demonstrates a Angular SPA calling a .NET Core web API that is secured using [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD). The SPA project is secured with the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular), while the web API is secured with [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web).
+This sample demonstrates an Angular SPA calling a .NET Core web API that is secured using [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD). The SPA project is secured with the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular), while the web API is secured with [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web).
 
-This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/access-token-proof-of-possession.md) (PoP) authentication scheme. This authentication scheme cryptographically binds the access tokens to the browser and client application from which they are requested, meaning they cannot be used from a different application or device. The resource server that accepts the PoP token (i.e. a web API) needs to be able to decipher the incoming request for the PoP scheme to work properly. This is achieved by extending the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) package with the [SignedHTTPRequest](./API/Microsoft.Identity.Web.Future/SignedHttpRequest) module.
+This sample demonstrates the [Proof of Possession](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/access-token-proof-of-possession.md) (PoP) authentication scheme. This authentication scheme cryptographically binds the access tokens to the browser and client application from which they are requested, meaning they cannot be used from a different application or device. This effectively prevents **token replay** attacks. The resource server that accepts the PoP token (i.e. a web API) needs to be able to decipher the incoming request for the PoP authentication scheme to work properly. This is achieved by extending the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) package with the [SignedHTTPRequest](./API/Microsoft.Identity.Web.Future/SignedHttpRequest) module.
 
 ## Scenario
 
@@ -188,7 +188,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with Scope.
+1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with the scope value you saved earlier (e.g., `api://{Client_Id_of_Web_Api}/access_as_user`.
 
 ## Running the sample
 
@@ -224,9 +224,84 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### Acquiring PoP tokens
 
+In [todo.service.ts](./SPA/src/app/todo.service.ts), an aysnc method is implemented to acquire tokens. The method first constructs a PoP token request, using the parameters provided. It then attempts to silently acquire a valid access token from the cache, or if that fails, using the popup window prompt. Once an access token is obtained, MSAL cryptographically signs the it with the browser and client app's signature.
+
+Important to notice that PoP token is binded to the HTTP method and full endpoint URL that the PoP token will be used for (e.g. accessing a protected resource). See below the `method` and `string` parameters.
+
+```typescript
+  async getToken(method: string, query?: string): Promise<string> {
+
+    const loginRequest = {
+      scopes: [...protectedResources.todoListApi.scopes],
+      authenticationScheme: AuthenticationScheme.POP,
+      resourceRequestMethod: method,
+      resourceRequestUri: query ? protectedResources.todoListApi.endpoint + query : protectedResources.todoListApi.endpoint,
+    }
+
+    return this.authService.acquireTokenSilent({
+      account: this.authService.instance.getActiveAccount() ? this.authService.instance.getActiveAccount()! : this.authService.instance.getAllAccounts()[0]!,
+      ...loginRequest,
+    }).toPromise()
+      .then((result) => {
+        return result.accessToken;
+      })
+      .catch((error) => {
+        console.log(error)
+        if (InteractionRequiredAuthError.isInteractionRequiredError(error.errorCode)) {
+          this.authService.acquireTokenPopup(loginRequest).toPromise().then((result) => {
+            return result.accessToken;
+          });
+        }
+      });
+  }
+```
+
 ### Calling web API using PoP scheme
 
+In [todo.service.ts](./SPA/src/app/todo.service.ts), `getTodo()` method returns an observable, which then you can subscribe in your components (see [todo-view.component.ts](./SPA/src/app/todo-view/todo-view.component.ts)).
+
+```typescript
+  async getTodo(id: number) {
+    const accessToken = await this.getToken("GET", `/${id}`); // method and full URL is used when acquiring a PoP token
+
+    return this.http.get<Todo>(this.url + '/' + id, {
+      headers: {
+        "Authorization": `PoP ${accessToken}`
+      },
+    });
+  }
+```
+
 ### Validating PoP tokens
+
+[Microsoft.Identity.Web.Future](./API/Microsoft.Identity.Web.Future) package contains a [SignedHttpRequest](./API/Microsoft.Identity.Web.Future/SignedHttpRequest) module, which then exposes the `AddProofOfPossession` service. Add this service to the container. This will validate the access tokens sent with PoP scheme using the `[Authorize]` decorator in controllers.
+
+```typescript
+// This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(Configuration);
+
+            services.AddProofOfPossession(Configuration);
+
+            // Creating policies that wraps the authorization requirements
+            services.AddAuthorization();
+
+            services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
+            
+            services.AddControllers();
+
+            // Allowing CORS for all domains and methods for the purpose of the sample
+            // In production, modify this with the actual domains you want to allow
+            services.AddCors(o => o.AddPolicy("default", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+        }
+```
 
 ## More information
 

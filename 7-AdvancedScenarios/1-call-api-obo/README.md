@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application which lets a user authenticate and obtain an access token to call an ASP.NET Core web API, protected by [Azure Active Directory (Azure AD)](https://azure.microsoft.com/services/active-directory/). The web API then calls the [Microsoft Graph API](https://developer.microsoft.com/graph) using the [on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
+This sample demonstrates an Angular single-page application which lets a user authenticate and obtain an access token to call an ASP.NET Core web API, protected by [Azure Active Directory (Azure AD)](https://azure.microsoft.com/services/active-directory/). The web API then calls the [Microsoft Graph API](https://developer.microsoft.com/graph) using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
 
 ## Scenario
 
@@ -57,7 +57,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 3-Authorization-II/1-call-api/API/TodoListAPI
+    cd 7-AdvancedScenarios/1-call-api-obo/API
     dotnet restore
 ```
 
@@ -201,28 +201,25 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `SPA\src\app\authConfig.ts` file.
+1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ProfileSPA` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Application_Id_of_Service_Here` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
 
 #### Configure Known Client Applications for service (ProfileAPI)
 
-For a middle tier Web API (`ProfileAPI`) to be able to call a downstream Web API, the middle tier app needs to be granted the required permissions as well.
-However, since the middle tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration.
-This binding merges the permissions required by both the client and the middle tier Web Api and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions.
+For a middle-tier Web API (`ProfileAPI`) to be able to call a downstream web API, the middle-tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle tier Web Api and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions.
 
-To achieve this, you need to add the **Application Id** of the client app, in the Manifest of the Web API in the `knownClientApplications` property. Here's how:
+To achieve this, you need to add the **Application Id** of the client app, in the Manifest of the web API in the `knownClientApplications` property. Here's how:
 
 1. In the [Azure portal](https://portal.azure.com), navigate to your `ProfileAPI` app registration, and select **Manifest** section.
-1. In the manifest editor, change the `"knownClientApplications": []` line so that the array contains 
-   the Client ID of the client application (`ProfileSPA`) as an element of the array.
+1. In the manifest editor, change the `"knownClientApplications": []` line so that the array contains the Client ID of the client application (`ProfileSPA`) as an element of the array.
 
-    For instance:
+For instance:
 
-    ```json
-    "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
-    ```
+   ```json
+   "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
+   ```
 
 1. **Save** the changes to the manifest.
 
@@ -260,8 +257,41 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-> - Describe where the code uses auth libraries, or calls the graph
-> - Describe specific aspects (e.g. caching, validation etc.)
+### Configuring the middle-tier web API (msal-dotnet-api)
+
+In [Startup.cs](./API/Startup.cs), add services for authentication, token validation, token caching and Graph SDK support using the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) APIs as shown below:
+
+```csharp
+public void ConfigureServices(IServiceCollection services)
+      {
+         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+               .AddMicrosoftIdentityWebApi(Configuration)
+                  .EnableTokenAcquisitionToCallDownstreamApi()
+                     .AddMicrosoftGraph(Configuration.GetSection("DownstreamAPI"))
+                     .AddInMemoryTokenCaches();
+
+         services.AddDbContext<ProfileContext>(opt => opt.UseInMemoryDatabase("Profile"));
+
+         services.AddControllers();
+
+         // Allowing CORS for all domains and methods for the purpose of sample
+         services.AddCors(o => o.AddPolicy("default", builder =>
+         {
+               builder.AllowAnyOrigin()
+                     .AllowAnyMethod()
+                     .AllowAnyHeader()
+                     .WithExposedHeaders("WWW-Authenticate");
+         }));
+      }
+```
+
+Notice the [WWW-Authenticate](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/WWW-Authenticate) header exposed in the CORS policy setup. This header tells the client app that authentication is needed for the middle-tier API, as middle-tier API has no user interface and cannot prompt the user itself.
+
+### Gaining consent for the middle-tier web API
+
+The middle-tier application adds the client to the `knownClientApplications` list in its manifest, and then the client app can trigger a combined consent flow for both itself and the middle-tier application. On the Microsoft identity platform, this is done using the `/.default` scope. When triggering a consent screen using known client applications and `/.default`, the consent screen will show permissions for both the client to the middle-tier API, and also request whatever permissions are required by the middle-tier API. The user provides consent for both applications, and then the OBO flow works.
+
+> :information_source: **KnownClientApplications** is an attribute in **application manifest**. It is used for bundling consent if you have a solution that contains two (or more) parts: a client app and a custom web API. If you enter the `appID` (clientID) of the client app into this array, the user will only have to consent only once to the client app. Azure AD will know that consenting to the client means implicitly consenting to the web API. It will automatically provision service principals for both the client and web API at the same time. Both the client and the web API app must be registered in the same tenant.
 
 ## Debugging the sample
 
