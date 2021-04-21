@@ -224,7 +224,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### Acquiring PoP tokens
 
-In [todo.service.ts](./SPA/src/app/todo.service.ts), an aysnc method is implemented to acquire tokens. The method first constructs a PoP token request, using the parameters provided. It then attempts to silently acquire a valid access token from the cache, or if that fails, using the popup window prompt. Once an access token is obtained, MSAL cryptographically signs the it with the browser and client app's signature.
+In [todo.service.ts](./SPA/src/app/todo.service.ts), an async method is implemented to acquire tokens. The method first constructs a PoP token request, using the parameters provided. It then attempts to silently acquire a valid access token from the cache, or if that fails, using the popup window prompt. Once an access token is obtained, MSAL cryptographically signs the it with the browser and client app's signature.
 
 Important to notice that PoP token is binded to the HTTP method and full endpoint URL that the PoP token will be used for (e.g. accessing a protected resource). See below the `method` and `string` parameters.
 
