@@ -1,0 +1,49 @@
+<mat-card class='card-section'>
+    <form #edit="ngForm" (ngSubmit)="editProfile(edit.value)">
+        <mat-label><b>userPrincipalName</b></mat-label>
+        <br>
+        <mat-form-field appearance="fill" class="form-field">
+            <input matInput type="text" name="userPrincipalName" class="input-field"
+                [(ngModel)]="profile.userPrincipalName">
+        </mat-form-field>
+        <br>
+        <mat-label><b>givenName</b></mat-label>
+        <br>
+        <mat-form-field appearance="fill" class="form-field">
+            <input matInput type="text" name="givenName" class="input-field"
+                [(ngModel)]="profile.givenName">
+        </mat-form-field>
+        <br>
+        <mat-label><b>surname</b></mat-label>
+        <br>
+        <mat-form-field appearance="fill" class="form-field">
+            <input matInput type="text" name="surname" class="input-field"
+                [(ngModel)]="profile.surname">
+        </mat-form-field>
+        <br>
+        <mat-label><b>jobTitle</b></mat-label>
+        <br>
+        <mat-form-field appearance="fill" class="form-field">
+            <input matInput type="text" name="jobTitle" class="input-field"
+                [(ngModel)]="profile.jobTitle">
+        </mat-form-field>
+        <br>
+        <mat-label><b>mobilePhone</b></mat-label>
+        <br>
+        <mat-form-field appearance="fill" class="form-field">
+            <input matInput type="text" name="mobilePhone" class="input-field"
+                [(ngModel)]="profile.mobilePhone">
+        </mat-form-field>
+        <br>
+        <mat-label><b>preferredLanguage</b></mat-label>
+        <br>
+        <mat-form-field appearance="fill" class="form-field">
+            <mat-select [(value)]="profile.preferredLanguage">
+              <mat-option value="en-us">English</mat-option>
+              <mat-option value="zh-cn">Chinese</mat-option>
+            </mat-select>
+        </mat-form-field>
+        <br>
+        <button mat-raised-button color="primary" type="submit" value="submit" class="submit-button">Submit</button>
+    </form>
+</mat-card>

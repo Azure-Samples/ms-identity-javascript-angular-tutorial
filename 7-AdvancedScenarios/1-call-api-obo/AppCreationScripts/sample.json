@@ -1,0 +1,94 @@
+{
+  "Sample": {
+    "Title": "Angular single-page application authorizing .NET Core web API to call Microsoft Graph using on-behalf-of flow",
+    "Level": 300,
+    "Client": "Angular SPA",
+    "Service": ".NET Core web API",
+    "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+    "Endpoint": "AAD v2.0"
+  },
+  "AADApps": [
+    {
+      "Id": "service",
+      "Name": "ProfileAPI",
+      "Kind": "WebApi",
+      "PasswordCredentials": "Auto",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "https://localhost:44351/api/profile",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "User.Read", "offline_access" ]
+        }
+      ]
+    },
+    {
+      "Id": "client",
+      "Name": "ProfileSPA",
+      "Kind": "SinglePageApplication",
+      "Audience": "AzureADMyOrg",
+      "HomePage": "http://localhost:4200",
+      "ReplyUrls": "http://localhost:4200",
+      "RequiredResourcesAccess": [
+        {
+          "Resource": "Microsoft Graph",
+          "DelegatedPermissions": [ "User.Read" ]
+        },
+        {
+					"Resource": "service",
+					"DelegatedPermissions": [ "access_as_user" ]
+				}
+      ],
+      "ManualSteps": [
+        {
+          "Comment": "Navigate to the Manifest page and set the value 'replyUrlsWithType' as 'Spa'."
+        }
+      ]
+    }
+  ],
+  "CodeConfiguration": [
+    {
+      "App": "service",
+      "SettingKind": "JSON",
+      "SettingFile": "\\..\\API\\appsettings.json",
+      "Mappings": [
+        {
+          "key": "Domain",
+          "value": "$tenantName"
+        },
+        {
+          "key": "ClientId",
+          "value": "service.AppId"
+        },
+        {
+          "key": "ClientSecret",
+          "value": "service.AppKey"
+        },
+        {
+          "key": "TenantId",
+          "value": "$tenantId"
+        }
+      ]
+    },
+
+    {
+      "App": "client",
+      "SettingKind": "Replace",
+      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+      "Mappings": [
+        {
+          "key": "Enter_the_Application_Id_Here",
+          "value": "client.AppId"
+        },
+        {
+          "key": "Enter_the_Tenant_Info_Here",
+          "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Application_Id_of_Service_Here",
+          "value": "service.AppId"
+        }
+      ]
+    }
+  ]
+}

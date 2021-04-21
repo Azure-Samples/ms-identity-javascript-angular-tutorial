@@ -1,0 +1,17 @@
+table {
+    min-width: 100px;
+    width: 100%;
+}
+
+.form-field {
+    min-width: 100px;
+    width: 90%;
+}
+  
+.input-field {
+    width: 90%;
+}
+
+.card-section {
+    margin: 5%;
+}

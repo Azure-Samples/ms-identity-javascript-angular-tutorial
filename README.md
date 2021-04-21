@@ -90,6 +90,13 @@ Alternatively, choose below the sample you want to review.
 |-----------------|---------------|
 | <img src="./6-Multitenancy/1-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-Multitenancy/1-call-api-mt/README.md) </br> Understand multitenancy in Azure AD. Handle provisioning your app to other tenants and control who can access your resources. |
 
+### Chapter 7: Dive into advanced scenarios
+
+|                 |               |
+|-----------------|---------------|
+| <img src="./7-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./7-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
+| <img src="./7-AdvancedScenarios/2-call-api-pop/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Proof of Possession tokens**](./7-AdvancedScenarios/2-call-api-pop/README.md) </br> Acquire proof of possession (PoP) tokens. Learn how to prevent token replay attacks with PoP authentication scheme. Learn how to validate PoP tokens.|
+
 ## We'd love your feedback!
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOU5PNlM4MzRRV0lETkk2ODBPT0NBTEY5MCQlQCN0PWcu).
