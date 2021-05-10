@@ -276,31 +276,31 @@ In [todo.service.ts](./SPA/src/app/todo.service.ts), `getTodo()` method returns 
 
 [Microsoft.Identity.Web.Future](./API/Microsoft.Identity.Web.Future) package contains a [SignedHttpRequest](./API/Microsoft.Identity.Web.Future/SignedHttpRequest) module, which then exposes the `AddProofOfPossession` service. Add this service to the container. This will validate the access tokens sent with PoP scheme using the `[Authorize]` decorator in controllers.
 
-```typescript
+```csharp
 // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(Configuration);
+  public void ConfigureServices(IServiceCollection services)
+  {
+      services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+              .AddMicrosoftIdentityWebApi(Configuration);
 
-            services.AddProofOfPossession(Configuration);
+      services.AddProofOfPossession(Configuration);
 
-            // Creating policies that wraps the authorization requirements
-            services.AddAuthorization();
+      // Creating policies that wraps the authorization requirements
+      services.AddAuthorization();
 
-            services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
-            
-            services.AddControllers();
+      services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 
-            // Allowing CORS for all domains and methods for the purpose of the sample
-            // In production, modify this with the actual domains you want to allow
-            services.AddCors(o => o.AddPolicy("default", builder =>
-            {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            }));
-        }
+      services.AddControllers();
+
+      // Allowing CORS for all domains and methods for the purpose of the sample
+      // In production, modify this with the actual domains you want to allow
+      services.AddCors(o => o.AddPolicy("default", builder =>
+      {
+          builder.AllowAnyOrigin()
+                 .AllowAnyMethod()
+                 .AllowAnyHeader();
+      }));
+  }
 ```
 
 ## More information
