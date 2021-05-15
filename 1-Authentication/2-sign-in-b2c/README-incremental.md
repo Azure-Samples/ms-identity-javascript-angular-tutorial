@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with [Azure AD B2C](https://azure.microsoft.com/services/active-directory/external-identities/b2c/) using the [Microsoft Authentication Library for Angular (Preview)](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). 
+This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with [Azure AD B2C](https://azure.microsoft.com/services/active-directory/external-identities/b2c/) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). 
 
 Here you'll learn about [ID Tokens](https://docs.microsoft.com/azure/active-directory-b2c/tokens-overview#token-types), [OIDC Scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes), [external identity providers](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#external-identity-providers), [consumer social accounts](https://docs.microsoft.com/azure/active-directory-b2c/technical-overview#consumer-accounts), [single-sign on (SSO)](https://docs.microsoft.com/azure/active-directory-b2c/session-overview), **silent requests** and more.
 

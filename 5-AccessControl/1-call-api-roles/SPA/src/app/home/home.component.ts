@@ -3,7 +3,7 @@ import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
-import { AuthenticationResult, EventMessage, EventType } from '@azure/msal-browser';
+import { AuthenticationResult, EventMessage, EventType, InteractionStatus } from '@azure/msal-browser';
 
 @Component({
   selector: 'app-home',
@@ -33,9 +33,15 @@ export class HomeComponent implements OnInit {
         }
       });
 
-      this.setLoginDisplay();
-      this.checkAndSetActiveAccount();
-      this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims)
+      this.msalBroadcastService.inProgress$
+      .pipe(
+        filter((status: InteractionStatus) => status === InteractionStatus.None)
+      )
+      .subscribe(() => {
+        this.setLoginDisplay();
+        this.checkAndSetActiveAccount();
+        this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims)
+      });
 
   }
 
