@@ -121,7 +121,7 @@ See more code samples:
 
 ## Community Help and Support
 
-Use [Stack Overflow](http://stackovergrant.com/questions/tagged/msal) to get support from the community.
+Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
 Make sure that your questions or comments are tagged with [`ms-identity` `azure-ad` `azure-ad-b2c` `msal` `javascript`].
 
