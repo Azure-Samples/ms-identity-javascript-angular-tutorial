@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { InteractionType } from "@azure/msal-browser";
+import { MsalService } from '@azure/msal-angular';
+
+import { GraphService, ProviderOptions } from '../graph.service';
 import { protectedResources } from '../auth-config';
 
 type ProfileType = {
@@ -20,23 +23,32 @@ export class ProfileComponent implements OnInit {
   displayedColumns: string[] = ['claim', 'value'];
   dataSource: any =[];
   
-  constructor(
-    private http: HttpClient
-  ) { }
+  constructor(private graphService: GraphService, private authService: MsalService) { }
 
   ngOnInit() {
-    this.getProfile();
+
+    const providerOptions: ProviderOptions = {
+      account: this.authService.instance.getActiveAccount()!, 
+      scopes: protectedResources.graphMe.scopes, 
+      interactionType: InteractionType.Popup
+    };
+
+    this.getProfile(providerOptions);
   }
 
-  getProfile() {
-    this.http.get(protectedResources.graphMe.endpoint)
-      .subscribe((profile: ProfileType) => {
-        this.dataSource = [
-          {id: 1, claim: "Name", value: profile ? profile['givenName'] : null},
-          {id: 2, claim: "Surname", value: profile ? profile['surname'] : null},
-          {id: 3, claim: "User Principal Name (UPN)", value: profile ? profile['userPrincipalName'] : null},
-          {id: 4, claim: "ID", value: profile ? profile['id']: null}
-        ];
-      });
+  getProfile(providerOptions: ProviderOptions) {
+    this.graphService.getGraphClient(providerOptions)
+    .api('/me').get()
+    .then((profileResponse: ProfileType) => {
+      this.dataSource = [
+        {id: 1, claim: "Name", value: profileResponse ? profileResponse['givenName'] : null},
+        {id: 2, claim: "Surname", value: profileResponse ? profileResponse['surname'] : null},
+        {id: 3, claim: "User Principal Name (UPN)", value: profileResponse ? profileResponse['userPrincipalName'] : null},
+        {id: 4, claim: "ID", value: profileResponse ? profileResponse['id']: null}
+      ];
+    })
+    .catch((error) => {
+      console.log(error);
+    });
   }
 }
