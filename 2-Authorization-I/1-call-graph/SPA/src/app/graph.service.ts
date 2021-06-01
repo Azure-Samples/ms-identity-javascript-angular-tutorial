@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
-import { AccountInfo, AuthenticationResult, InteractionRequiredAuthError, InteractionType, EventType, EventMessage } from "@azure/msal-browser";
-import { MsalService, MsalBroadcastService } from '@azure/msal-angular';
+import { AccountInfo, AuthenticationResult, InteractionRequiredAuthError, InteractionType } from "@azure/msal-browser";
+import { MsalService } from '@azure/msal-angular';
 import { Client, AuthenticationProvider, AuthenticationProviderOptions } from '@microsoft/microsoft-graph-client';
 
 
@@ -17,7 +15,7 @@ export interface ProviderOptions extends AuthenticationProviderOptions {
 })
 export class GraphService {
 
-  constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
+  constructor(private authService: MsalService) { }
 
   /**
  * Returns a graph client object with the provided token acquisition options
@@ -32,7 +30,7 @@ export class GraphService {
      * For more information, visit: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md
      */
     let clientOptions = {
-      authProvider: new MyAuthenticationProvider(providerOptions, this.authService, this.msalBroadcastService),
+      authProvider: new MsalAuthenticationProvider(providerOptions, this.authService),
     };
 
     const graphClient = Client.initWithMiddleware(clientOptions);
@@ -45,15 +43,13 @@ export class GraphService {
  * This class implements the IAuthenticationProvider interface, which allows a custom auth provider to be
  * used with the Graph client. See: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts
  */
-class MyAuthenticationProvider implements AuthenticationProvider {
+class MsalAuthenticationProvider implements AuthenticationProvider {
 
   account;
   scopes;
   interactionType;
 
-  private readonly _destroying$ = new Subject<void>();
-
-  constructor(providerOptions: ProviderOptions, private authService: MsalService, private msalBroadcastService: MsalBroadcastService) {
+  constructor(providerOptions: ProviderOptions, private authService: MsalService) {
     this.account = providerOptions.account;
     this.scopes = providerOptions.scopes;
     this.interactionType = providerOptions.interactionType;
@@ -97,21 +93,13 @@ class MyAuthenticationProvider implements AuthenticationProvider {
               break;
 
             case InteractionType.Redirect:
+              /**
+               * This will cause the app to leave the current page and redirect to the consent screen.
+               * Once consent is provided, the app will return back to the current page and then the 
+               * silent token acquisition will succeed. 
+               */
               this.authService.instance.acquireTokenRedirect({
                 scopes: this.scopes
-              });
-
-              this.msalBroadcastService.msalSubject$.pipe(
-                filter((msg: EventMessage) => msg.eventType === EventType.ACQUIRE_TOKEN_SUCCESS),
-                takeUntil(this._destroying$)
-              ).subscribe((result: EventMessage) => {
-                response = result.payload as AuthenticationResult;
-
-                if (response.accessToken) {
-                  resolve(response.accessToken);
-                } else {
-                  reject(Error('Failed to acquire an access token'));
-                }
               });
               break;
 
