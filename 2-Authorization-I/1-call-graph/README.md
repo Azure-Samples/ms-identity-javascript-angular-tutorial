@@ -307,7 +307,7 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 ```typescript
 export class GraphService {
 
-  constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
+  constructor(private authService: MsalService) { }
 
   getGraphClient = (providerOptions: ProviderOptions) => {
 
@@ -316,7 +316,7 @@ export class GraphService {
      * For more information, visit: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md
      */
     let clientOptions = {
-      authProvider: new MyAuthenticationProvider(providerOptions, this.authService, this.msalBroadcastService),
+      authProvider: new MyAuthenticationProvider(providerOptions, this.authService),
     };
 
     const graphClient = Client.initWithMiddleware(clientOptions);
@@ -335,9 +335,7 @@ class MyAuthenticationProvider implements AuthenticationProvider {
   scopes;
   interactionType;
 
-  private readonly _destroying$ = new Subject<void>();
-
-  constructor(providerOptions: ProviderOptions, private authService: MsalService, private msalBroadcastService: MsalBroadcastService) {
+  constructor(providerOptions: ProviderOptions, private authService: MsalService) {
     this.account = providerOptions.account;
     this.scopes = providerOptions.scopes;
     this.interactionType = providerOptions.interactionType;
@@ -377,25 +375,11 @@ class MyAuthenticationProvider implements AuthenticationProvider {
               } else {
                 reject(Error('Failed to acquire an access token'));
               }
-
               break;
 
             case InteractionType.Redirect:
               this.authService.instance.acquireTokenRedirect({
                 scopes: this.scopes
-              });
-
-              this.msalBroadcastService.msalSubject$.pipe(
-                filter((msg: EventMessage) => msg.eventType === EventType.ACQUIRE_TOKEN_SUCCESS),
-                takeUntil(this._destroying$)
-              ).subscribe((result: EventMessage) => {
-                response = result.payload as AuthenticationResult;
-
-                if (response.accessToken) {
-                  resolve(response.accessToken);
-                } else {
-                  reject(Error('Failed to acquire an access token'));
-                }
               });
               break;
 
