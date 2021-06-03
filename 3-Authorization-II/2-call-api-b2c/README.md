@@ -154,6 +154,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
    - In the list of APIs, select the API `msal-dotnet-api`.
    - In the **Delegated permissions** section, select the **Access 'msal-dotnet-api'** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
+   - Finally, click on the **Grant admin consent** button at the top.
 
 #### Configure the client app (msal-angular-spa) to use your app registration
 
