@@ -1,0 +1,36 @@
+﻿@model TodoListService.Models.AuthContext
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete Data From Database</h1>
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>AuthContext-Operation Mapping</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.AuthContextDisplayName)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.AuthContextDisplayName)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Operation)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Operation)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="TenantId" />
+        <input type="hidden" asp-for="AuthContextId" />
+        <input type="hidden" asp-for="AuthContextDisplayName" />
+        <input type="hidden" asp-for="Operation" />
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="ViewDetails">Back to List</a>
+    </form>
+</div>

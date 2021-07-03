@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewData["Title"] = "Index";
+}
+
+@if (!User.Identity.IsAuthenticated) { 
+<p>
+    To create Auth Context, user need to sign-in.
+    Selecting @Html.ActionLink("Admin", "Index", "Admin") link will redirect to sign-in.
+</p>
+}
+else
+{
+    <p>Welcome @User.Identity.Name!</p>
+    <p>Select @Html.ActionLink("Admin", "Index", "Admin") to create Auth Context.</p>
+}
+

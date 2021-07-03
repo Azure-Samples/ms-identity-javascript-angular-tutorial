@@ -115,3 +115,5 @@ obj/
 
 # NPM cache
 package-lock.json
+.fake
+.ionide

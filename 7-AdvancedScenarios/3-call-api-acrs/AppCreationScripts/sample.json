@@ -1,0 +1,95 @@
+{
+    "Sample": {
+        "Title": "Use the Conditional Access auth context to perform step-up authentication for high-privilege operations in a Web API",
+        "Level": 400,
+        "Client": "Angular SPA",
+        "Service": "ASP.NET Core web API",
+        "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+        "Endpoint": "AAD v2.0"
+    },
+    "AADApps": [
+        {
+            "Id": "service",
+            "Name": "msal-dotnet-api-acrs",
+            "Kind": "WebApi",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:44351",
+            "ReplyUrls": "https://localhost:44351/, https://localhost:44351/signin-oidc",
+            "PasswordCredentials": "Auto",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [
+                        "Policy.Read.ConditionalAccess",
+                        "Policy.ReadWrite.ConditionalAccess"
+                    ]
+                }
+            ],
+            "ManualSteps": [
+                {
+                    "Comment": "Navigate to the API Permissions page and select 'Grant admin consent for (your tenant)'"
+                }
+            ]
+        },
+        {
+            "Id": "client",
+            "Name": "msal-angular-spa-acrs",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "https://localhost:4200",
+            "ReplyUrls": "https://localhost:4200",
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "service",
+                    "DelegatedPermissions": [
+                        "access_as_user"
+                    ]
+                }
+            ]
+        }
+    ],
+    "CodeConfiguration": [
+        {
+            "App": "service",
+            "SettingKind": "JSON",
+            "SettingFile": "\\..\\API\\appsettings.json",
+            "Mappings": [
+                {
+                    "key": "Domain",
+                    "value": "$tenantName"
+                },
+                {
+                    "key": "TenantId",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "ClientId",
+                    "value": "service.AppId"
+                },
+                {
+                    "key": "ClientSecret",
+                    "value": ".AppKey"
+                }
+            ]
+        },
+        {
+            "App": "client",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": "client.AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                },
+                {
+                    "key": "Enter_the_Web_Api_Scope_here",
+                    "value": "service.Scope"
+                }
+            ]
+        }
+    ]
+}

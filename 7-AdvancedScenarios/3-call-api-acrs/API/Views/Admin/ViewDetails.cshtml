@@ -1,0 +1,57 @@
+﻿@model IEnumerable<TodoListService.Models.AuthContext>;
+@{
+    ViewData["Title"] = "ViewDetails";
+}
+
+<h2>Details From Database</h2>
+@if (Model?.Count() > 0)
+{
+    <table id="tblAuthContext" class="table">
+        <thead>
+            <tr>
+                <th align="left">
+                    TenantId
+                </th>
+                <th align="left">
+                    AuthContextId
+                </th>
+                <th align="left">
+                    AuthContextValue
+                </th>
+                <th align="left">
+                    Operation
+                </th>
+                <th align="left">
+                    Action
+                </th>
+            </tr>
+        </thead>
+        @foreach (var item in Model)
+        {
+            <tbody>
+                <tr>
+                    <td>
+                        @item.TenantId
+                    </td>
+                    <td>
+                        @item.AuthContextId
+                    </td>
+                    <td>
+                        @item.AuthContextDisplayName
+                    </td>
+                    <td>
+                        @item.Operation
+                    </td>
+                    <td>
+                        @Html.ActionLink("Delete", "Delete", new { id = @item.AuthContextId })
+
+                    </td>
+                </tr>
+            </tbody>
+        }
+    </table>
+}
+else
+{
+<p>No value exist in database.</p>
+}
