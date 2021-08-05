@@ -112,6 +112,3 @@ obj/
 
 # VS Code cache
 .vscode
-
-# NPM cache
-package-lock.json
