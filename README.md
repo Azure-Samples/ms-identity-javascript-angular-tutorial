@@ -21,6 +21,9 @@ urlFragment: "ms-identity-javascript-angular-tutorial"
 
 # Tutorial: Enable your Angular single-page application to sign-in users and call APIs with the Microsoft identity platform
 
+[![Node Build](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/actions/workflows/node.js.yml/badge.svg)](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/actions/workflows/node.js.yml)
+[![.NET Build](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/actions/workflows/dotnet.yml/badge.svg)](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/actions/workflows/dotnet.yml)
+[![Code Scan](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/actions/workflows/codeql.yml/badge.svg)](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/actions/workflows/codeql.yml)
 ![GitHub issues](https://img.shields.io/github/issues/Azure-Samples/ms-identity-javascript-angular-tutorial)
 ![npm](https://img.shields.io/npm/v/@azure/msal-browser?label=msal-browser)
 ![npm](https://img.shields.io/npm/v/@azure/msal-angular?label=msal-angular)
