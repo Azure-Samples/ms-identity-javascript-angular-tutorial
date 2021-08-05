@@ -7,9 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\appsettings.json" Link="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="..\TodoListAPI\appsettings.json" Link="appsettings.json" />
   </ItemGroup>
 
   <ItemGroup>
