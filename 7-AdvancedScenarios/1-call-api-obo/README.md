@@ -11,7 +11,7 @@
  1. [About the code](#about-the-code)
  1. [More information](#more-information)
  1. [Community Help and Support](#community-help-and-support)
- 1. [Contributing](#contributing)
+ 1. [Contributing](#contributing)Ft
 
 ## Overview
 
@@ -33,8 +33,8 @@ This sample demonstrates an Angular single-page application which lets a user au
 |-------------------------------------|------------------------------------------------------------|
 | `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
 | `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
-| `API/appsettings.json`              | Authentication parameters for API project reside here.     |
-| `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
+| `API/ProfileAPI/appsettings.json`   | Authentication parameters for API project reside here.     |
+| `API/ProfileAPI/Startup.cs`         | Microsoft.Identity.Web is initialized here.                |
 
 ## Prerequisites
 
@@ -57,7 +57,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 7-AdvancedScenarios/1-call-api-obo/API
+    cd 7-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
     dotnet restore
 ```
 
@@ -73,7 +73,7 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
 ### Step 4. Install Angular SPA dependencies
 
 ```console
-    cd ../
+    cd ../../
     cd SPA
     npm install
 ```
@@ -163,13 +163,13 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
-1. Open the `API\appsettings.json` file.
+1. Open the `API\ProfileAPI\appsettings.json` file.
 1. Find the key `Domain` and replace the existing value with your Azure AD tenant name.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
 1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `ProfileAPI` copied from the Azure portal.
 1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
 
-1. Open the `API\Controllers\TodoListController.cs` file.
+1. Open the `API\Controllers\ProfileController.cs` file.
 1. Find the variable `scopeRequiredByApi` and replace its value with the name of the API scope that you have just exposed (by default `access_as_user`).
 
 ### Register the client app (ProfileSPA)
@@ -235,7 +235,7 @@ Using a command line interface such as VS Code integrated terminal, locate the a
 In a separate console window, execute the following commands:
 
 ```console
-    cd API
+    cd API/ProfileAPI
     dotnet run
 ```
 
@@ -259,7 +259,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ### Configuring the middle-tier web API (msal-dotnet-api)
 
-In [Startup.cs](./API/Startup.cs), add services for authentication, token validation, token caching and Graph SDK support using the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) APIs as shown below:
+In [Startup.cs](./API/ProfileAPI/Startup.cs), add services for authentication, token validation, token caching and Graph SDK support using the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) APIs as shown below:
 
 ```csharp
 public void ConfigureServices(IServiceCollection services)
