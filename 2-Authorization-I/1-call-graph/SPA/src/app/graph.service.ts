@@ -4,10 +4,17 @@ import { MsalService } from '@azure/msal-angular';
 import { Client, AuthenticationProvider, AuthenticationProviderOptions } from '@microsoft/microsoft-graph-client';
 
 
+/**
+ * The code below demonstrates how you can use MSAL as a custom authentication provider for the Microsoft Graph JavaScript SDK. 
+ * You do NOT need to implement a custom provider. Microsoft Graph JavaScript SDK v3.0 (preview) offers AuthCodeMSALBrowserAuthenticationProvider 
+ * which handles token acquisition and renewal for you automatically. For more information on how to use it, visit: 
+ * https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/AuthCodeMSALBrowserAuthenticationProvider.md
+ */
+
 export interface ProviderOptions extends AuthenticationProviderOptions {
-  account: AccountInfo,
-  scopes: string[],
-  interactionType: InteractionType
+  account: AccountInfo, // user account object to be used when attempting silent token acquisition  
+  scopes: string[], // array of scopes required for this resource endpoint
+  interactionType: InteractionType // type of interaction to fallback to when silent token acquisition fails 
 }
 
 @Injectable({
@@ -17,11 +24,9 @@ export class GraphService {
 
   constructor(private authService: MsalService) { }
 
-  /**
+/**
  * Returns a graph client object with the provided token acquisition options
- * @param {AccountInfo} account: user account object to be used when attempting silent token acquisition  
- * @param {array} scopes: array of scopes required for this resource endpoint
- * @param {InteractionType} interactionType: type of interaction to fallback to when silent token acquisition fails 
+ * @param {ProviderOptions} providerOptions: object containing user account, required scopes and interaction type
  */
   getGraphClient = (providerOptions: ProviderOptions) => {
 
