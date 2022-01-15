@@ -16,7 +16,7 @@
       "HomePage": "https://localhost:44351/api/todolist"
     },
     {
-      "Id": "client",
+      "Id": "spa",
       "Name": "msal-angular-spa",
       "Kind": "SinglePageApplication",
       "Audience": "AzureADMyOrg",
@@ -29,11 +29,6 @@
             "access_as_user"
           ]
         }
-      ],
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest"
-        }
       ]
     }
   ],
@@ -41,7 +36,7 @@
     {
       "App": "service",
       "SettingKind": "Replace",
-      "SettingFile": "\\..\\API\\appsettings.json",
+      "SettingFile": "\\..\\API\\TodoListAPI\\appsettings.json",
       "Mappings": [
         {
           "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
@@ -58,7 +53,7 @@
       ]
     },
     {
-      "App": "client",
+      "App": "spa",
       "SettingKind": "Replace",
       "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
       "Mappings": [
@@ -73,6 +68,10 @@
         {
           "key": "Enter_the_Web_Api_Scope_here",
           "value": "service.Scope"
+        },
+        {
+          "key": "Enter_the_Redirect_Uri_Here",
+          "value": "spa.Spa.RedirectUris"
         }
       ]
     }

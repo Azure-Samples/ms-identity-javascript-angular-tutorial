@@ -32,7 +32,7 @@
       ]
     },
     {
-      "Id": "client",
+      "Id": "spa",
       "Name": "msal-angular-spa",
       "Kind": "SinglePageApplication",
       "Audience": "AzureADMyOrg",
@@ -57,7 +57,6 @@
         }
       ],
       "ManualSteps": [
-        { "Comment":  "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest" },
         { "Comment": "To receive the `roles` claim with the name of the app roles this user is assigned to, make sure that the user accounts you plan to sign-in to this app is assigned to the app roles of this SPA app. The guide, https://aka.ms/userassignmentrequired provides step by step instructions." },
         { "Comment": "Or you can run the ..\\CreateUsersAndAssignRoles.ps1 command to automatically create a number of users, and assign these users to the app roles of this app." }
       ]
@@ -67,10 +66,10 @@
     {
       "App": "service",
       "SettingKind": "Replace",
-      "SettingFile": "\\..\\API\\appsettings.json",
+      "SettingFile": "\\..\\API\\TodoListAPI\\appsettings.json",
       "Mappings": [
         {
-          "key": "Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com",
+          "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
           "value": "$tenantName"
         },
         {
@@ -85,13 +84,13 @@
     },
 
     {
-      "App": "client",
+      "App": "spa",
       "SettingKind": "Replace",
       "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
       "Mappings": [
         {
           "key": "Enter_the_Application_Id_Here",
-          "value": "client.AppId"
+          "value": ".AppId"
         },
         {
           "key": "Enter_the_Tenant_Info_Here",
@@ -100,7 +99,12 @@
         {
           "key": "Enter_the_Web_Api_Scope_here",
           "value": "service.Scope"
+        },
+        {
+          "key": "Enter_the_Redirect_Uri_Here",
+          "value": "spa.Spa.RedirectUris"
         }
+
       ]
     }
   ]

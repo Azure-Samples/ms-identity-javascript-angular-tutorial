@@ -18,7 +18,7 @@ export const msalConfig: Configuration = {
     auth: {
         clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+        redirectUri: 'Enter_the_Redirect_Uri_Here', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
     },
     cache: {
         cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.

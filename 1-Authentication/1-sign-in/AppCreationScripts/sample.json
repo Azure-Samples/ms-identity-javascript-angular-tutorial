@@ -13,12 +13,7 @@
       "Kind": "SinglePageApplication",
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:4200",
-      "ReplyUrls": "http://localhost:4200",
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
-        }
-      ]
+      "ReplyUrls": "http://localhost:4200"
     }
   ],
   "CodeConfiguration": [
@@ -34,6 +29,10 @@
         {
           "key": "Enter_the_Tenant_Info_Here",
           "value": "$tenantId"
+        },
+        {
+          "key": "Enter_the_Redirect_Uri_Here",
+          "value": "spa.Spa.RedirectUris"
         }
       ]
     }

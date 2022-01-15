@@ -58,7 +58,7 @@
         ]
       },
       {
-        "App": "client",
+        "App": "spa",
         "SettingKind": "Replace",
         "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
         "Mappings": [
@@ -73,6 +73,10 @@
           {
             "key": "Enter_the_Web_Api_Scope_here",
             "value": "service.Scope"
+          },
+          {
+            "key": "Enter_the_Redirect_Uri_Here",
+            "value": "spa.Spa.RedirectUris"
           }
         ]
       }
