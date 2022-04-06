@@ -45,10 +45,3 @@ jobs:
         dotnet build --no-restore
         cd ProfileAPI.Tests
         dotnet test --no-build --verbosity normal
-  
-    - run: |
-        cd 7-AdvancedScenarios/2-call-api-pop/API
-        dotnet restore
-        dotnet build --no-restore
-        cd TodoListAPI.Tests
-        dotnet test --no-build --verbosity normal
