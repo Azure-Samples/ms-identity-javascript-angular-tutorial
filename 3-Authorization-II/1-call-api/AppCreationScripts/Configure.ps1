@@ -301,7 +301,7 @@ Function ConfigureApplications
    Write-Host "Granted permissions."
 
    # Update config file for 'service'
-   $configFile = $pwd.Path + "\..\API\appsettings.json"
+    $configFile = $pwd.Path + "\..\API\TodoListAPI\appsettings.json"
    Write-Host "Updating the sample code ($configFile)"
    $dictionary = @{ "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'" = $tenantName;"Enter the Client ID (aka 'Application ID')" = $serviceAadApplication.AppId;"Enter the tenant ID" = $tenantId };
    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary

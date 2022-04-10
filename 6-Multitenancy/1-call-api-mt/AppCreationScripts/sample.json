@@ -68,7 +68,7 @@
       {
         "App": "client",
         "SettingKind": "Replace",
-        "SettingFile": "\\..\\SPA\\src\\app\\auth-config.json",
+        "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
         "Mappings": [
           {
             "key": "Enter the Client Id (aka 'Application ID')",
