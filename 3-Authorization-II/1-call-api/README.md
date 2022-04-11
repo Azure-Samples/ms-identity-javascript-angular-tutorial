@@ -191,7 +191,7 @@ Using a command line interface such as VS Code integrated terminal, locate the a
 In a separate console window, execute the following commands:
 
 ```console
-    cd API
+    cd API\TodoListAPI
     dotnet run
 ```
 

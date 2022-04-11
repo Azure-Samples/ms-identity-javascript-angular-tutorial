@@ -277,15 +277,14 @@ You have two different options available to you on how you can further configure
 Using a command line interface such as VS Code integrated terminal, locate the application directory. Then:  
 
 ```console
-   cd ../
-   cd msal-angular-spa
+   cd SPA
    npm start
 ```
 
 In a separate console window, execute the following commands:
 
 ```console
-   cd msal-dotnet-api
+   cd API\TodoListAPI
    dotnet run
 ```
 
