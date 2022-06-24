@@ -3,9 +3,10 @@
 
   <div class="toolbar-spacer"></div>
   <a mat-button [routerLink]="['guarded']">Guarded Component</a>
-  
+
   <button mat-button *ngIf="loginDisplay" (click)="editProfile()">Edit Profile</button>
-  <button mat-raised-button *ngIf="!loginDisplay" (click)="login()">Login</button>
+  <button mat-raised-button *ngIf="!loginDisplay" (click)="loginWithPolicy1()">Login 1</button>
+  <button mat-raised-button *ngIf="!loginDisplay" (click)="loginWithPolicy2()">Login 2</button>
   <button mat-raised-button color="accent" *ngIf="loginDisplay" (click)="logout()">Logout</button>
 </mat-toolbar>
 <div class="container">
