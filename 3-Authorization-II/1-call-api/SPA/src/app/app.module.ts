@@ -37,8 +37,8 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 }
 
 /**
- * MSAL Angular will automatically retrieve tokens for resources 
- * added to protectedResourceMap. For more info, visit: 
+ * MSAL Angular will automatically retrieve tokens for resources
+ * added to protectedResourceMap. For more info, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/initialization.md#get-tokens-for-web-api-calls
  */
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
@@ -57,7 +57,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
  * additional scopes you want the user to consent upon login, add them here as well.
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return { 
+  return {
     interactionType: InteractionType.Redirect,
     authRequest: loginRequest
   };

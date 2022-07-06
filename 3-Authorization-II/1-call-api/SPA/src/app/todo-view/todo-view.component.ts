@@ -10,7 +10,7 @@ import { Todo } from '../todo';
   styleUrls: ['./todo-view.component.css']
 })
 export class TodoViewComponent implements OnInit {
-  
+
   todo?: Todo;
 
   todos: Todo[] = [];
@@ -46,5 +46,4 @@ export class TodoViewComponent implements OnInit {
       this.getTodos();
     })
   }
-
 }

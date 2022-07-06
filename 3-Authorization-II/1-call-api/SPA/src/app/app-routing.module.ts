@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { MsalGuard } from '@azure/msal-angular';
+import { BrowserUtils } from '@azure/msal-browser';
 
 import { HomeComponent } from './home/home.component';
 import { TodoViewComponent } from './todo-view/todo-view.component';
@@ -47,13 +48,10 @@ const routes: Routes = [
   }
 ];
 
-const isIframe = window !== window.parent && !window.opener;
-
 @NgModule({
   imports: [RouterModule.forRoot(routes, {
-    useHash: true,
-    // Don't perform initial navigation in iframes
-    initialNavigation: !isIframe ? 'enabled' : 'disabled'
+    // Don't perform initial navigation in iframes or popups
+    initialNavigation: !BrowserUtils.isInIframe() && !BrowserUtils.isInPopup() ? 'enabledNonBlocking' : 'disabled' // Set to enabledBlocking to use Angular Universal
   })],
   exports: [RouterModule]
 })
