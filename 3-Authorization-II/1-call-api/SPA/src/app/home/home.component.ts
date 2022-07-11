@@ -4,6 +4,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { EventMessage, EventType, AuthenticationResult, InteractionStatus } from '@azure/msal-browser';
+import { createClaimsTable } from '../utils/claim-utils';
 
 @Component({
   selector: 'app-home',
@@ -13,10 +14,8 @@ import { EventMessage, EventType, AuthenticationResult, InteractionStatus } from
 export class HomeComponent implements OnInit {
 
   loginDisplay = false;
-  displayedColumns: string[] = ['claim', 'value'];
-  dataSource: any =[];
-
-  private readonly _destroying$ = new Subject<void>();
+  displayedColumns: string[] = ['claim', 'value', 'description'];
+  dataSource: any = [];
 
   constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
 
@@ -24,7 +23,6 @@ export class HomeComponent implements OnInit {
     this.msalBroadcastService.msalSubject$
       .pipe(
         filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
-        takeUntil(this._destroying$)
       )
       .subscribe((result: EventMessage) => {
         console.log(result);
@@ -32,30 +30,14 @@ export class HomeComponent implements OnInit {
         this.authService.instance.setActiveAccount(payload.account);
       });
 
-      this.msalBroadcastService.inProgress$
+    this.msalBroadcastService.inProgress$
       .pipe(
         filter((status: InteractionStatus) => status === InteractionStatus.None)
       )
       .subscribe(() => {
         this.setLoginDisplay();
-        this.checkAndSetActiveAccount();
-        this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims)
-      });
-
-  }
-
-  checkAndSetActiveAccount() {
-    /**
-     * If no active account set but there are accounts signed in, sets first account to active account
-     * To use active account set here, subscribe to inProgress$ first in your component
-     * Note: Basic usage demonstrated. Your app may require more complicated account selection logic
-     */
-    let activeAccount = this.authService.instance.getActiveAccount();
-
-    if (!activeAccount && this.authService.instance.getAllAccounts().length > 0) {
-      let accounts = this.authService.instance.getAllAccounts();
-      this.authService.instance.setActiveAccount(accounts[0]);
-    }
+        this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims);
+      })
   }
 
   setLoginDisplay() {
@@ -63,15 +45,7 @@ export class HomeComponent implements OnInit {
   }
 
   getClaims(claims: any) {
-    this.dataSource = [
-      {id: 1, claim: "Display Name", value: claims ? claims['name'] : null},
-      {id: 2, claim: "User Principal Name (UPN)", value: claims ? claims['preferred_username'] : null},
-      {id: 2, claim: "OID", value: claims ? claims['oid']: null}
-    ];
-  }
-
-  ngOnDestroy(): void {
-    this._destroying$.next(undefined);
-    this._destroying$.complete();
+    const claimsTable = createClaimsTable(claims);
+    this.dataSource = [...claimsTable];
   }
 }

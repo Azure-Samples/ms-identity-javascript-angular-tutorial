@@ -1,80 +1,113 @@
 {
   "Sample": {
-    "Title": "Angular single-page application that authenticates users with Azure AD and calls a protected .NET Core web API",
-    "Level": 200,
-    "Client": "Angular SPA",
-    "Service": ".NET Core web API",
-    "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
-    "Endpoint": "AAD v2.0"
+      "Author": "derisen",
+      "Title": "Angular single-page application that authenticates users with Azure AD and calls a protected .NET Core web API",
+      "Level": 200,
+      "Client": "Angular SPA",
+      "Service": ".NET Core web API",
+      "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+      "Endpoint": "AAD v2.0",
+      "Languages": [
+          "TypeScript",
+          "C#"
+      ],
+      "Description": "Angular single-page application that authenticates users with Azure AD and calls a protected .NET Core web API",
+      "Products": [
+          "Angular",
+          "ASP.NET Core"
+      ]
   },
   "AADApps": [
-    {
-      "Id": "service",
-      "Name": "msal-dotnet-api",
-      "Kind": "WebApi",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "https://localhost:44351/api/todolist"
-    },
-    {
-      "Id": "client",
-      "Name": "msal-angular-spa",
-      "Kind": "SinglePageApplication",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "http://localhost:4200/",
-      "ReplyUrls": "http://localhost:4200/",
-      "RequiredResourcesAccess": [
-        {
-          "Resource": "service",
-          "DelegatedPermissions": [
-            "access_as_user"
+      {
+          "Id": "service",
+          "Name": "msal-dotnet-api",
+          "Kind": "WebApi",
+          "Audience": "AzureADMyOrg",
+          "Sample": {
+              "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
+              "ProjectDirectory": "\\1-call-api\\API"
+          },
+          "Scopes": [
+              "Todolist.Read",
+              "Todolist.ReadWrite"
+          ],
+          "AppRoles": [
+              {
+                  "Types": [
+                      "Application"
+                  ],
+                  "Name": "Todolist.Read.All",
+                  "Description": "Allow this application to read every users Todo list items"
+              },
+              {
+                  "Types": [
+                      "Application"
+                  ],
+                  "Name": "Todolist.ReadWrite.All",
+                  "Description": "Allow this application to read and write every users Todo list items"
+              }
           ]
-        }
-      ],
-      "ManualSteps": [
-        {
-          "Comment": "Navigate to the portal and set the 'replyUrlsWithType' to 'Spa' in the application manifest"
-        }
-      ]
-    }
+      },
+      {
+          "Id": "client",
+          "Name": "msal-angular-spa",
+          "Kind": "SinglePageApplication",
+          "Audience": "AzureADMyOrg",
+          "HomePage": "https://localhost:4200",
+          "ReplyUrls": "http://localhost:4200/redirect",
+          "Sample": {
+              "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
+              "ProjectDirectory": "\\1-call-api\\SPA"
+          },
+          "RequiredResourcesAccess": [
+              {
+                  "Resource": "service",
+                  "DelegatedPermissions": [
+                      "Todolist.Read",
+                      "Todolist.ReadWrite"
+                  ]
+              }
+          ]
+      }
   ],
   "CodeConfiguration": [
-    {
-      "App": "service",
-      "SettingKind": "Replace",
-      "SettingFile": "\\..\\API\\TodoListAPI\\appsettings.json",
-      "Mappings": [
-        {
-          "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
-          "value": "$tenantName"
-        },
-        {
-          "key": "Enter the Client ID (aka 'Application ID')",
-          "value": ".AppId"
-        },
-        {
-          "key": "Enter the tenant ID",
-          "value": "$tenantId"
-        }
-      ]
-    },
-    {
-      "App": "client",
-      "SettingKind": "Replace",
-      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
-      "Mappings": [
-        {
-          "key": "Enter_the_Application_Id_Here",
-          "value": ".AppId"
-        },
-        {
-          "key": "Enter_the_Tenant_Info_Here",
-          "value": "$tenantId"
-        },
-        {
-          "key": "Enter_the_Web_Api_Scope_here",
-          "value": "service.Scope"
-        }
-      ]
-    }
+      {
+          "App": "service",
+          "SettingKind": "Replace",
+          "SettingFile": "\\..\\API\\TodoListAPI\\appsettings.json",
+          "Mappings": [
+            {
+              "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
+              "value": "$tenantName"
+            },
+            {
+              "key": "Enter the Client ID (aka 'Application ID')",
+              "value": ".AppId"
+            },
+            {
+              "key": "Enter the tenant ID",
+              "value": "$tenantId"
+            }
+          ]
+      },
+      {
+          "App": "client",
+          "SettingKind": "Replace",
+          "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+          "Mappings": [
+              {
+                  "key": "Enter_the_Application_Id_Here",
+                  "value": ".AppId"
+              },
+              {
+                  "key": "Enter_the_Tenant_Info_Here",
+                  "value": "$tenantId"
+              },
+              {
+                  "key": "Enter_the_Web_Api_Application_Id_Here",
+                  "value": "service.AppId"
+              }
+          ]
+      }
   ]
 }

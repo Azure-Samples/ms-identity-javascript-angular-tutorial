@@ -6,8 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
+using System.IdentityModel.Tokens.Jwt;
+
 using TodoListAPI.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace TodoListAPI
 {
@@ -23,9 +24,14 @@ namespace TodoListAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
+            // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
+            // 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles'
+            // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
             // Setting configuration for protected web api
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration);
+            services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
             // Creating policies that wraps the authorization requirements
             services.AddAuthorization();
@@ -33,9 +39,9 @@ namespace TodoListAPI
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 
             services.AddControllers();
-            
-            // Allowing CORS for all domains and methods for the purpose of the sample
-            // In production, modify this with the actual domains you want to allow
+
+            // Allowing CORS for all domains and HTTP methods for the purpose of the sample
+            // In production, modify this with the actual domains and HTTP methods you want to allow
             services.AddCors(o => o.AddPolicy("default", builder =>
             {
                 builder.AllowAnyOrigin()

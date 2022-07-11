@@ -19,6 +19,7 @@ export const msalConfig: Configuration = {
     clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
     authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
     redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+    clientCapabilities: ['CP1'] // This lets the resource server know that this client can handle claim challenges.
   },
   cache: {
     cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -42,7 +43,7 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
   todoListApi: {
     endpoint: "https://localhost:44351/api/todolist",
-    scopes: ["api://Enter_the_Web_Api_Scope_here/Todolist.Read"],
+    scopes: ["api://Enter_the_Web_Api_Application_Id_Here/Todolist.Read"],
   },
 }
 
