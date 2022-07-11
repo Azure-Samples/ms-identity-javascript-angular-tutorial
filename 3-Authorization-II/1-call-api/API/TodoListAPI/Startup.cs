@@ -30,11 +30,8 @@ namespace TodoListAPI
             // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-            // Setting configuration for protected web api
+            // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
-
-            // Creating policies that wraps the authorization requirements
-            services.AddAuthorization();
 
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 

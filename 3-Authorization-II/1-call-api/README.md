@@ -15,7 +15,7 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (M.I.W) for the web API.
+This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (MIW) for the web API.
 
 ## Scenario
 
@@ -30,8 +30,9 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 |-------------------------------------|------------------------------------------------------------|
 | `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
 | `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
-| `API/appsettings.json`              | Authentication parameters for API project reside here.     |
-| `API/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
+| `API/TodoListAPI/appsettings.json`              | Authentication parameters for API project reside here.     |
+| `API/TodoListAPI/Startup.cs`                    | Microsoft.Identity.Web is initialized here.                |
+| `API/TodoListAPI/Controllers/TodoListController.cs`                    | Microsoft.Identity.Web is initialized here.                |
 
 ## Prerequisites
 
@@ -89,7 +90,10 @@ There are two projects in this sample. Each needs to be separately registered in
 <details>
   <summary>Expand this section if you want to use this automation:</summary>
 
-1. On Windows, run PowerShell and navigate to the root of the cloned directory
+> :warning: If you have never used **Microsoft Graph Powershell SDK** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+
+1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
+1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
 1. In PowerShell run:
 
    ```PowerShell
@@ -107,8 +111,6 @@ There are two projects in this sample. Each needs to be separately registered in
    > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
    > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
-1. Follow the section on "Running the sample" below.
-
 </details>
 
 ### Register the service app (msal-dotnet-api)
@@ -121,23 +123,36 @@ There are two projects in this sample. Each needs to be separately registered in
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Select **Save** to save your changes.
-1. In the app's registration screen, click on the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
-The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI, follow the following steps:
-   - Click `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
-   - For this sample, accept the proposed Application ID URI (api://{clientId}) by selecting **Save**.
-1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
+1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can declare the parameters to expose this app as an API for which client applications can obtain [access tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) for.
+The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
+   - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
+   - For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
+1. All APIs have to publish a minimum of two [scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [delegated permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token successfully. To publish a scope, follow these steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        - For **Scope name**, use `access_as_user`.
-        - Select **Admins and users** options for **Who can consent?**
-        - For **Admin consent display name** type `Access msal-dotnet-api`
-        - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
-        - For **User consent display name** type `Access msal-dotnet-api`
-        - For **User consent description** type `Allow the application to access msal-dotnet-api on your behalf.`
-        - Keep **State** as **Enabled**
-        - Click on the **Add scope** button on the bottom to save this scope.
-1. On the right side menu, select the `Manifest` blade.
+        - For **Scope name**, enter `TodoList.Read`.
+        - Select **Admins and users** options for **Who can consent?**.
+        - For **Admin consent display name** type `Access msal-node-api`.
+        - For **Admin consent description** type `Allows the app to access msal-node-api to read todo list.`
+        - For **User consent display name** type `Access msal-node-api`.
+        - For **User consent description** type `Allows the app to access msal-node-api to read todo list.`
+        - Keep **State** as **Enabled**.
+        - Select the **Add scope** button on the bottom to save this scope.
+   - Repeat the steps above for publishing another scope named `TodoList.ReadWrite`.
+1. APIs should also publish scopes that can only be consumed by applications (not users), also known as [application permissions](https://docs.microsoft.com/azure/active-directory/develop/permissions-consent-overview#types-of-permissions). To do so, select the **App roles** blade to the left.
+   - Select **Create app role**:
+        - For **Display name**, enter a suitable name, for instance **TodoList.Read.All**.
+        - For **Allowed member types**, choose **Application**.
+        - For **Value**, enter **TodoList.Read.All**.
+        - For **Description**, enter **Application can only read ToDo list**.
+        - Select **Apply** to save your changes.
+   - Repeat the steps above for permission **TodoList.ReadWrite.All**
+1. Select the `Manifest` blade on the left.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
+
+> :information_source: Be aware of [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+
+> :information_source: See how to use **application permissions** in a client app here: [Node.js console application acquiring tokens using OAuth 2.0 Client Credentials Grant](https://github.com/Azure-Samples/ms-identity-javascript-nodejs-console).
 
 #### Configure the service app (msal-dotnet-api) to use your app registration
 
@@ -162,12 +177,12 @@ Open the project in your IDE to configure the code.
    - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/`.
 1. Select **Register** to create the application.
 1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. In the app's registration screen, click on the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Click the **Add a permission** button and then,
-   - Ensure that the **My APIs** tab is selected.
-   - In the list of APIs, select the API `msal-dotnet-api`.
-   - In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
-   - Click on the **Add permissions** button at the bottom.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
+   - Select the **Add a permission** button and then,
+     - Ensure that the **My APIs** tab is selected.
+     - In the list of APIs, select the API `msal-node-api`.
+     - In the **Delegated permissions** section, select the **TodoList.Read** and **TodoList.ReadWrite** in the list. Use the search box if necessary.
+     - Select the **Add permissions** button at the bottom.
 
 #### Configure the client app (msal-angular-spa) to use your app registration
 
@@ -177,7 +192,7 @@ Open the project in your IDE to configure the code.
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with *scope* you created earlier e.g. `api://{clientId_of_service_app}/access_as_user`.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://<msal-node-api-client-id>/Todolist.Read`
 
 ## Run the sample
 
@@ -198,10 +213,10 @@ In a separate console window, execute the following commands:
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:4200`.
-2. Sign-in using the button on the top-right corner.
-3. Select the **TodoList** button on the navigation bar to access your todo list.
+1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
+1. Select the **Todolist** button on the navigation bar. This will make a call to the Todolist web API.
 
-> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
+> :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
 
 ## We'd love your feedback!
 
@@ -209,59 +224,9 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## About the code
 
-### Access token validation
+### CORS settings
 
-On the SPA side, clients should treat access tokens as opaque strings, as the contents of the token are intended for the resource only (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
-
-On the web API side, token validation is handled by [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web), using `JwtBearerDefaults.AuthenticationScheme`. Simply initialize `AddMicrosoftIdentityWebApi()` with your configuration and add `AddAuthorization()` to the service;
-
-```csharp
-        public void ConfigureServices(IServiceCollection services)
-        {
-            // Setting configuration for protected web api
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration);
-
-            // Creating policies that wraps the authorization requirements
-            services.AddAuthorization();
-        }
-```
-
-In your controller, add [Authorize] decorator, which will make sure all incoming requests have an authentication bearer:
-
-```csharp
-    [Authorize]
-    [Route("api/[controller]")]
-    [ApiController]
-    public class TodoListController : ControllerBase
-    {
-        // The Web API will only accept tokens 1) for users, and 
-        // 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
-
-        private readonly TodoContext _context;
-
-        public TodoListController(TodoContext context)
-        {
-            _context = context;
-        }
-
-        // GET: api/TodoItems
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
-        {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return await _context.TodoItems.Where(item => item.Owner == owner).ToListAsync();
-        }
-        
-        // ...
-    }
-```
-
-### CORS configuration
-
-You need to set **CORS** policy to be able to call the **TodoListAPI** in [Startup.cs](./API/Startup.cs). For the purpose of this sample, we are setting it to allow *any* domain and methods. In production, you should modify this to allow only the domains and methods you designate.
+You need to set **CORS** policy to be able to call the **TodoListAPI** in [Startup.cs](./API/Startup.cs). For the purpose of the sample, **cross-origin resource sharing** (CORS) is enabled for **all** domains and methods. This is insecure and only used for demonstration purposes here. In production, you should modify this as to allow only the domains that you designate. If your web API is going to be hosted on **Azure App Service**, we recommend configuring CORS on the App Service itself.
 
 ```csharp
     services.AddCors(o => o.AddPolicy("default", builder =>
@@ -271,6 +236,160 @@ You need to set **CORS** policy to be able to call the **TodoListAPI** in [Start
                 .AllowAnyHeader();
     }));
 ```
+
+### Access token validation
+
+On the web API side, [passport-azure-ad](https://github.com/AzureAD/passport-azure-ad) verifies the incoming access token's signature and validates it's payload against the `issuer` and `audience` claims (defined in `BearerStrategy` constructor) using the `passport.authenticate()` API. In the `BearerStrategy` callback, you can add further validation steps as shown below:
+
+```javascript
+const express = require('express');
+const passport = require('passport');
+const passportAzureAd = require('passport-azure-ad');
+
+const app = express();
+
+const bearerStrategy = new passportAzureAd.BearerStrategy({
+    identityMetadata: `https://${authConfig.metadata.authority}/${authConfig.credentials.tenantID}/${authConfig.metadata.version}/${authConfig.metadata.discovery}`,
+    issuer: `https://${authConfig.metadata.authority}/${authConfig.credentials.tenantID}/${authConfig.metadata.version}`,
+    clientID: authConfig.credentials.clientID,
+    audience: authConfig.credentials.clientID, // audience is this application
+    validateIssuer: authConfig.settings.validateIssuer,
+    passReqToCallback: authConfig.settings.passReqToCallback,
+    loggingLevel: authConfig.settings.loggingLevel,
+    loggingNoPII: authConfig.settings.loggingNoPII,
+}, (req, token, done) => {
+    /**
+     * Below you can do extended token validation and check for additional claims, such as:
+     * - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
+     * - check if the caller's account is homed or guest via the 'acct' optional claim
+     * - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
+     *
+     * Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
+     * For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
+     */
+
+
+    /**
+     * Below we verify if the caller's tenant ID is in the list of allowed tenants.
+     * Since this app is not configured to be multi-tenant, this is only for illustration
+     */
+    const myAllowedTenantsList = [
+        authConfig.credentials.tenantID,
+        // ...
+    ]
+
+    if (!myAllowedTenantsList.includes(authConfig.credentials.tenantID)) {
+        return done(new Error('Unauthorized'), {}, "Tenant not allowed");
+    }
+
+    /**
+     * Below we verify if there's at least one allowed permission in the access token
+     * to be considered valid.
+     */
+    if (!requiredScopeOrAppPermission(token, [
+        ...authConfig.protectedRoutes.todolist.delegatedPermissions.read,
+        ...authConfig.protectedRoutes.todolist.delegatedPermissions.write,
+        ...authConfig.protectedRoutes.todolist.applicationPermissions.read,
+        ...authConfig.protectedRoutes.todolist.applicationPermissions.write,
+    ])) {
+        return done(new Error('Unauthorized'), {}, "No delegated or app permission found");
+    }
+
+    /**
+     * If needed, pass down additional user info to route using the second argument below.
+     * This information will be available in the req.user object.
+     */
+    done(null, {}, token);
+});
+
+app.use(passport.initialize());
+
+passport.use(bearerStrategy);
+
+// exposed API endpoint
+app.use('/api',
+    passport.authenticate('oauth-bearer', {
+        session: false,
+    }),
+    router
+);
+```
+
+For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using [jwt.ms](https://jwt.ms).
+
+### Verifying permissions
+
+Access tokens that have neither the **scp** (for delegated permissions) nor **roles** (for application permissions) claim should not be accepted. In the sample, this is illustrated via the `requiredScopeOrAppPermission` method in [permissionUtils.js](./API/auth/permissionUtils.js)
+
+```JavaScript
+exports.requiredScopeOrAppPermission = (accessTokenPayload, listOfPermissions) => {
+    /**
+     * Access tokens that have neither the 'scp' (for delegated permissions) nor
+     * 'roles' (for application permissions) claim are not to be honored.
+     *
+     * An access token issued by Azure AD will have at least one of the two claims. Access tokens
+     * issued to a user will have the 'scp' claim. Access tokens issued to an application will have
+     * the roles claim. Access tokens that contain both claims are issued only to users, where the scp
+     * claim designates the delegated permissions, while the roles claim designates the user's role.
+     *
+     * To determine whether an access token was issued to a user (i.e delegated) or an application
+     * more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
+     * https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
+     */
+
+    if (!accessTokenPayload.hasOwnProperty('scp') && !accessTokenPayload.hasOwnProperty('roles')) {
+        return false;
+    } else if (accessTokenPayload.hasOwnProperty('roles') && !accessTokenPayload.hasOwnProperty('scp')) {
+        return this.hasApplicationPermissions(accessTokenPayload, listOfPermissions);
+    } else if (accessTokenPayload.hasOwnProperty('scp')) {
+        return this.hasDelegatedPermissions(accessTokenPayload, listOfPermissions);
+    }
+}
+```
+
+### Access to data
+
+Web API endpoints should be prepared to accept calls from both users and applications, and should have control structures in place to respond each accordingly. This is illustrated in the [todolist](./API/controllers/todolist.js) controller:
+
+```JavaScript
+exports.getTodo = (req, res, next) => {
+    if (hasDelegatedPermissions(req.authInfo, authConfig.protectedRoutes.todolist.delegatedPermissions.read)) {
+        try {
+            /**
+             * The 'oid' (object id) is the only claim that should be used to uniquely identify
+             * a user in an Azure AD tenant.
+             */
+            const owner = req.authInfo['oid'];
+            const id = req.params.id;
+
+            const todo = db.get('todos')
+                .filter({ owner: owner })
+                .find({ id: id })
+                .value();
+
+            res.status(200).send(todo);
+        } catch (error) {
+            next(error);
+        }
+    } else if (hasApplicationPermissions(req.authInfo, authConfig.protectedRoutes.todolist.applicationPermissions.read)) {
+        try {
+            const id = req.params.id;
+
+            const todo = db.get('todos')
+                .find({ id: id })
+                .value();
+
+            res.status(200).send(todo);
+        } catch (error) {
+            next(error);
+        }
+    } else (
+        next(new Error('The user or application does not have the required permission(s)'))
+    )
+}
+```
+
+When granting access to data based on scopes, be sure to follow [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access).
 
 ### Debugging the sample
 
@@ -284,15 +403,12 @@ Learn more about using [.NET Core with Visual Studio Code](https://docs.microsof
 - [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
 - [Quickstart: Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
 - [Quickstart: Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
-- [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
 - [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
 - [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
 - [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
 - [Logging in MSAL.js applications](https://docs.microsoft.com/azure/active-directory/develop/msal-logging?tabs=javascript)
 - [Pass custom state in authentication requests using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-pass-custom-state-authentication-request)
 - [Prompt behavior in MSAL.js interactive requests](https://docs.microsoft.com/azure/active-directory/develop/msal-js-prompt-behavior)
-- [Use MSAL.js to work with Azure AD B2C](https://docs.microsoft.com/azure/active-directory/develop/msal-b2c-overview)
 
 For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
 
@@ -302,7 +418,7 @@ Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get supp
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
 Make sure that your questions or comments are tagged with [`azure-active-directory` `dotnet` `ms-identity` `adal` `msal`].
 
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
+If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
 
 To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
