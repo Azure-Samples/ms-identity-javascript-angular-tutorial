@@ -23,7 +23,10 @@ import { TodoService } from './todo.service';
 
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
-import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService, MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent } from '@azure/msal-angular';
+import {
+  MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService,
+  MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent
+} from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 
@@ -44,7 +47,8 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
 
-  protectedResourceMap.set(protectedResources.todoListApi.endpoint, protectedResources.todoListApi.scopes);
+  protectedResourceMap.set(protectedResources.apiTodoList.endpoint, protectedResources.apiTodoList.scopes.read);
+  protectedResourceMap.set(protectedResources.apiTodoList.endpoint, protectedResources.apiTodoList.scopes.write);
 
   return {
     interactionType: InteractionType.Redirect,

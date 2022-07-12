@@ -26,6 +26,10 @@ export const msalConfig: Configuration = {
     storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge. Remove this line to use Angular Universal
   },
   system: {
+    /**
+     * Below you can configure MSAL.js logs. For more information, visit:
+     * https://docs.microsoft.com/azure/active-directory/develop/msal-logging-js
+     */
     loggerOptions: {
       loggerCallback(logLevel: LogLevel, message: string) {
         console.log(message);
@@ -41,10 +45,13 @@ export const msalConfig: Configuration = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-  todoListApi: {
-    endpoint: "https://localhost:44351/api/todolist",
-    scopes: ["api://Enter_the_Web_Api_Application_Id_Here/TodoList.Read", "api://Enter_the_Web_Api_Application_Id_Here/TodoList.ReadWrite"],
-  },
+  apiTodoList: {
+      endpoint: "https://localhost:44351/api/todolist",
+      scopes: {
+          read: [ "api://Enter_the_Web_Api_Application_Id_Here/TodoList.Read" ],
+          write: [ "api://Enter_the_Web_Api_Application_Id_Here/TodoList.ReadWrite" ]
+      }
+  }
 }
 
 /**
