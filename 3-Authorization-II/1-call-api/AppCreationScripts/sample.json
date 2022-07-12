@@ -1,7 +1,7 @@
 {
   "Sample": {
       "Author": "derisen",
-      "Title": "Angular single-page application that authenticates users with Azure AD and calls a protected .NET Core web API",
+      "Title": "An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API",
       "Level": 200,
       "Client": "Angular SPA",
       "Service": ".NET Core web API",
@@ -11,7 +11,7 @@
           "TypeScript",
           "C#"
       ],
-      "Description": "Angular single-page application that authenticates users with Azure AD and calls a protected .NET Core web API",
+      "Description": "An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API",
       "Products": [
           "Angular",
           "ASP.NET Core"

@@ -69,9 +69,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     if (!activeAccount && this.authService.instance.getAllAccounts().length > 0) {
       let accounts = this.authService.instance.getAllAccounts();
+      // add your code for handling multiple accounts here
       this.authService.instance.setActiveAccount(accounts[0]);
-
-      // TODO: multiple accounts support here
     }
   }
 

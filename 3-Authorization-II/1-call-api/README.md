@@ -147,6 +147,14 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - For **Description**, enter **Application can only read ToDo list**.
         - Select **Apply** to save your changes.
    - Repeat the steps above for permission **TodoList.ReadWrite.All**
+1. APIs should also publish at least one [App role](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-app-roles-to-applications), also called [Application Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for *another application* successfully. **Application permissions** are the type of permissions that APIs would publish when they want to enable client applications to successfully authenticate as themselves and not need to sign-in users. To do so, select the **App roles** blade to the left:
+   - Select **Create app role**:
+        - For **Display name**, enter a suitable name, for instance **TodoList.Read.All**.
+        - For **Allowed member types**, choose **Application**.
+        - For **Value**, enter **TodoList.Read.All**.
+        - For **Description**, enter **Application can only read ToDo list**.
+        - Select **Apply** to save your changes.
+   - Repeat the steps above for permission **TodoList.ReadWrite.All**
 1. Select the `Manifest` blade on the left.
    - Set `accessTokenAcceptedVersion` property to **2**.
    - Click on **Save**.
@@ -247,11 +255,6 @@ On the web API side, the `AddMicrosoftIdentityWebApiAuthentication` method in [S
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
-    // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
-    // 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles'
-    // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
-    JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
     // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
     services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
