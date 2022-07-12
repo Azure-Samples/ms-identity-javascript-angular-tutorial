@@ -1,28 +1,13 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using TodoListAPI.Models;
-using System.Security.Claims;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
-
-
-
-// using Microsoft.AspNetCore.Authorization;
-// using Microsoft.AspNetCore.Http;
-// using Microsoft.AspNetCore.Mvc;
-// using Microsoft.Identity.Web;
-// using Microsoft.Identity.Web.Resource;
-// using System;
-// using System.Collections.Generic;
-// using System.Linq;
-// using System.Security.Claims;
-// using TodoListClient.Models;
+using TodoListAPI.Models;
 
 namespace TodoListAPI.Controllers
 {
@@ -31,11 +16,12 @@ namespace TodoListAPI.Controllers
     [ApiController]
     public class TodoListController : ControllerBase
     {
-        // The Web API will only accept tokens 1) for users, and
-        // 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
-
         private readonly TodoContext _context;
+
+        private const string _todoListRead = "TodoList.Read";
+        private const string _todoListReadWrite = "TodoList.ReadWrite";
+        private const string _todoListReadAll = "TodoList.Read.All";
+        private const string _todoListReadWriteAll = "TodoList.ReadWrite.All";
 
         public TodoListController(TodoContext context)
         {
@@ -44,17 +30,42 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
+        /// <summary>
+        /// Access tokens that have neither the 'scp' (for delegated permissions) nor
+        /// 'roles' (for application permissions) claim are not to be honored.
+        ///
+        /// An access token issued by Azure AD will have at least one of the two claims. Access tokens
+        /// issued to a user will have the 'scp' claim. Access tokens issued to an application will have
+        /// the roles claim. Access tokens that contain both claims are issued only to users, where the scp
+        /// claim designates the delegated permissions, while the roles claim designates the user's role.
+        ///
+        /// To determine whether an access token was issued to a user (i.e delegated) or an application
+        /// more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
+        /// https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
+        /// </summary>
         [RequiredScopeOrAppPermission(
-          AcceptedScope = new string[] { "TodoList.Read", "TodoList.ReadWrite" },
-          AcceptedAppPermission = new string[] { "TodoList.Read.All", "TodoList.ReadWrite.All" }
+            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
         )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-            if (HasDelegatedPermissions(new string[] { "TodoList.Read", "TodoList.ReadWrite" }))
+            if (HasDelegatedPermissions(new string[] { _todoListRead, _todoListReadWrite }))
             {
+                /// <summary>
+                /// The 'oid' (object id) is the only claim that should be used to uniquely identify
+                /// a user in an Azure AD tenant. The token might have one or more of the following claim,
+                /// that might seem like a unique identifier, but is not and should not be used as such:
+                ///
+                /// - upn (user principal name): might be unique amongst the active set of users in a tenant
+                /// but tend to get reassigned to new employees as employees leave the organization and others
+                /// take their place or might change to reflect a personal change like marriage.
+                ///
+                /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
+                /// to new employees as employees leave the organization and others take their place.
+                /// </summary>
                 return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
             }
-            else if (HasApplicationPermissions(new string[] { "TodoList.Read.All", "TodoList.ReadWrite.All" }))
+            else if (HasApplicationPermissions(new string[] { _todoListReadAll, _todoListReadWriteAll }))
             {
                 return await _context.TodoItems.ToListAsync();
             }
@@ -64,55 +75,49 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-            var todoItem = await _context.TodoItems.FindAsync(id);
-
-            if (todoItem == null)
+            // if it only has delegated permissions, then it will be t.id==id && x.Owner == owner
+            // if it has app permissions the it will return t.id==id
+            if (HasDelegatedPermissions(new string[] { _todoListRead, _todoListReadWrite }))
             {
-                return NotFound();
+                return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == HttpContext.User.GetObjectId());
+            }
+            else if (HasApplicationPermissions(new string[] { _todoListReadAll, _todoListReadWriteAll }))
+            {
+                return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id);
             }
 
-            return todoItem;
+            return null;
         }
-
-        // [HttpGet("{id}", Name = "Get")]
-        // [RequiredScopeOrAppPermission(
-        //     AcceptedScope = new string[] { "ToDoList.Read", "ToDoList.ReadWrite" },
-        //     AcceptedAppPermission = new string[] { "ToDoList.Read.All", "ToDoList.ReadWrite.All" })]
-        // public Todo Get(int id)
-        // {
-        //     //if it only has delegated permissions
-        //     //then it will be t.id==id && x.Owner == owner
-        //     //if it has app permissions the it will return  t.id==id
-
-        //     if (HasDelegatedPermissions(new string[] { "ToDoList.Read", "ToDoList.ReadWrite" }))
-        //     {
-        //         return TodoStore.Values.FirstOrDefault(t => t.Id == id && t.Owner == _contextAccessor.HttpContext.User.GetObjectId());
-        //     }
-        //     else if (HasApplicationPermissions(new string[] { "ToDoList.Read.All", "ToDoList.ReadWrite.All" }))
-        //     {
-        //         return TodoStore.Values.FirstOrDefault(t => t.Id == id);
-        //     }
-
-        //     return null;
-        // }
 
         // PUT: api/TodoItems/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+        )]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-            if (id != todoItem.Id)
+            if (id != todoItem.Id  || !_context.TodoItems.Any(x => x.Id == id))
             {
-                return BadRequest();
+                return NotFound();
             }
 
+
+        if (HasDelegatedPermissions(new string[] { _todoListReadWrite })
+            && _context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId())
+            && todoItem.Owner == HttpContext.User.GetObjectId()
+            ||
+            HasApplicationPermissions(new string[] { _todoListReadWriteAll })
+        )
+        {
             _context.Entry(todoItem).State = EntityState.Modified;
 
             try
@@ -121,7 +126,7 @@ namespace TodoListAPI.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!TodoItemExists(id))
+                if (!_context.TodoItems.Any(e => e.Id == id))
                 {
                     return NotFound();
                 }
@@ -130,49 +135,29 @@ namespace TodoListAPI.Controllers
                     throw;
                 }
             }
+        }
 
             return NoContent();
         }
-
-        // [HttpPatch("{id}")]
-        //     [RequiredScopeOrAppPermission(
-        //         AcceptedScope = new string[] { "ToDoList.ReadWrite" },
-        //         AcceptedAppPermission = new string[] { "ToDoList.ReadWrite.All" })]
-        //     public IActionResult Patch(int id, [FromBody] Todo todo)
-        //     {
-        //         if (id != todo.Id || !TodoStore.Values.Any(x => x.Id == id))
-        //         {
-        //             return NotFound();
-        //         }
-
-        //         if (
-        //             HasDelegatedPermissions(new string[] { "ToDoList.ReadWrite" })
-        //             && TodoStore.Values.Any(x => x.Id == id && x.Owner == _contextAccessor.HttpContext.User.GetObjectId())
-        //             && todo.Owner == _contextAccessor.HttpContext.User.GetObjectId()
-
-        //             ||
-
-        //             HasApplicationPermissions(new string[] { "ToDoList.ReadWrite.All" })
-
-        //             )
-        //         {
-        //             TodoStore.Remove(id);
-        //             TodoStore.Add(id, todo);
-
-        //             return Ok(todo);
-        //         }
-
-        //         return BadRequest();
-        //     }
 
         // POST: api/TodoItems
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string owner = HttpContext.User.GetObjectId();
+
+            if (HasApplicationPermissions(new string[] { _todoListReadWriteAll }))
+            {
+                // with such a permission any owner name is accepted
+                owner = todoItem.Owner;
+            }
+
             todoItem.Owner = owner;
             todoItem.Status = false;
 
@@ -182,83 +167,48 @@ namespace TodoListAPI.Controllers
             return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
         }
 
-        // [HttpPost]
-        //     [RequiredScopeOrAppPermission(
-        //         AcceptedScope = new string[] { "ToDoList.ReadWrite" },
-        //         AcceptedAppPermission = new string[] { "ToDoList.ReadWrite.All" })]
-        //     public IActionResult Post([FromBody] Todo todo)
-        //     {
-        //         var owner = _contextAccessor.HttpContext.User.GetObjectId();
-
-        //         if (HasApplicationPermissions(new string[] { "ToDoList.ReadWrite.All" }))
-        //         {
-        //             //with such a permission any owner name is accepted from UI
-        //             owner = todo.Owner;
-        //         }
-
-        //         int id = TodoStore.Values.OrderByDescending(x => x.Id).FirstOrDefault().Id + 1;
-        //         Todo todonew = new Todo() { Id = id, Owner = owner, Title = todo.Title };
-        //         TodoStore.Add(id, todonew);
-
-        //         return Ok(todo);
-        //     }
-
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            TodoItem todoItem = await _context.TodoItems.FindAsync(id);
 
-            var todoItem = await _context.TodoItems.FindAsync(id);
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
-
-            return todoItem;
+            if ((HasDelegatedPermissions(new string[] { _todoListReadWrite })
+                && _context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+                || HasApplicationPermissions(new string[] { _todoListReadWriteAll }))
+            {
+                _context.TodoItems.Remove(todoItem);
+                await _context.SaveChangesAsync();
+                return todoItem;
+            }
+            else
+            {
+                return BadRequest();
+            }
         }
 
-        //     [HttpDelete("{id}")]
-        // [RequiredScopeOrAppPermission(
-        //     AcceptedScope = new string[] { "ToDoList.ReadWrite" },
-        //     AcceptedAppPermission = new string[] { "ToDoList.ReadWrite.All" })]
-        // public void Delete(int id)
-        // {
-        //     if (
-        //         (
-
-        //         HasDelegatedPermissions(new string[] { "ToDoList.ReadWrite" }) && TodoStore.Values.Any(x => x.Id == id && x.Owner == _contextAccessor.HttpContext.User.GetObjectId()))
-
-        //         ||
-
-        //         HasApplicationPermissions(new string[] { "ToDoList.ReadWrite.All" })
-        //         )
-        //     {
-        //         TodoStore.Remove(id);
-        //     }
-        // }
-
-        private bool TodoItemExists(int id)
-        {
-            return _context.TodoItems.Any(e => e.Id == id);
-        }
-
-        //Checks if the presented token has application permissions
+        // Checks if the presented token has application permissions
         private bool HasApplicationPermissions(string[] permissionsNames)
         {
             var rolesClaim = User.Claims.Where(
-              c => c.Type == ClaimConstants.Roles || c.Type == ClaimConstants.Role)
-              .SelectMany(c => c.Value.Split(' '));
+            c => c.Type == ClaimConstants.Roles || c.Type == ClaimConstants.Role)
+            .SelectMany(c => c.Value.Split(' '));
 
             var result = rolesClaim.Any(v => permissionsNames.Any(p => p.Equals(v)));
 
             return result;
         }
 
-        //Checks if the presented token has delegated permissions
+        // Checks if the presented token has delegated permissions
         private bool HasDelegatedPermissions(string[] scopesNames)
         {
             var result = (User.FindFirst(ClaimConstants.Scp) ?? User.FindFirst(ClaimConstants.Scope))?
