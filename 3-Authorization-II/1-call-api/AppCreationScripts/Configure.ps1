@@ -194,9 +194,9 @@ Function ConfigureApplications
 
     # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
-    $newRole = CreateAppRole -types "Application" -name "Todolist.Read.All" -description "Allow this application to read every users Todo list items"
+    $newRole = CreateAppRole -types "Application" -name "TodoList.Read.All" -description "Allow this application to read every users Todo list items"
     $appRoles.Add($newRole)
-    $newRole = CreateAppRole -types "Application" -name "Todolist.ReadWrite.All" -description "Allow this application to read and write every users Todo list items"
+    $newRole = CreateAppRole -types "Application" -name "TodoList.ReadWrite.All" -description "Allow this application to read and write every users Todo list items"
     $appRoles.Add($newRole)
     Update-MgApplication -ApplicationId $serviceAadApplication.Id -AppRoles $appRoles
 
@@ -219,14 +219,14 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value Todolist.Read  `
+    $scope = CreateScope -value TodoList.Read  `
     -userConsentDisplayName "Access msal-dotnet-api"  `
     -userConsentDescription "Allow the application to access msal-dotnet-api on your behalf."  `
     -adminConsentDisplayName "Access msal-dotnet-api"  `
     -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
 
     $scopes.Add($scope)
-    $scope = CreateScope -value Todolist.ReadWrite  `
+    $scope = CreateScope -value TodoList.ReadWrite  `
     -userConsentDisplayName "Access msal-dotnet-api"  `
     -userConsentDescription "Allow the application to access msal-dotnet-api on your behalf."  `
     -adminConsentDisplayName "Access msal-dotnet-api"  `
@@ -280,7 +280,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'service')
     Write-Host "Getting access from 'client' to 'service'"
     $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-dotnet-api" `
-        -requiredDelegatedPermissions "Todolist.Read|Todolist.ReadWrite" `
+        -requiredDelegatedPermissions "TodoList.Read|TodoList.ReadWrite" `
 
 
     $requiredResourcesAccess.Add($requiredPermissions)
