@@ -28,22 +28,22 @@
               "ProjectDirectory": "\\1-call-api\\API"
           },
           "Scopes": [
-              "Todolist.Read",
-              "Todolist.ReadWrite"
+              "TodoList.Read",
+              "TodoList.ReadWrite"
           ],
           "AppRoles": [
               {
                   "Types": [
                       "Application"
                   ],
-                  "Name": "Todolist.Read.All",
+                  "Name": "TodoList.Read.All",
                   "Description": "Allow this application to read every users Todo list items"
               },
               {
                   "Types": [
                       "Application"
                   ],
-                  "Name": "Todolist.ReadWrite.All",
+                  "Name": "TodoList.ReadWrite.All",
                   "Description": "Allow this application to read and write every users Todo list items"
               }
           ]
@@ -63,8 +63,8 @@
               {
                   "Resource": "service",
                   "DelegatedPermissions": [
-                      "Todolist.Read",
-                      "Todolist.ReadWrite"
+                      "TodoList.Read",
+                      "TodoList.ReadWrite"
                   ]
               }
           ]
