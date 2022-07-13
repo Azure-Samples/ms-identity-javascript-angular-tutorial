@@ -28,6 +28,10 @@ const routes: Routes = [
     ]
   },
   {
+    path: 'redirect',
+    component: TodoViewComponent,
+  },
+  {
     // Needed for hash routing
     path: 'error',
     component: HomeComponent

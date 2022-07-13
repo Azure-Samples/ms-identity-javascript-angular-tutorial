@@ -6,7 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
-using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 using TodoListAPI.Models;
 
@@ -25,7 +25,36 @@ namespace TodoListAPI
         public void ConfigureServices(IServiceCollection services)
         {
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
-            services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
+            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                    .AddMicrosoftIdentityWebApi(options =>
+                    {
+                        Configuration.Bind("AzureAd", options);
+                        options.Events = new JwtBearerEvents();
+
+                        /// <summary>
+                        /// Below you can do extended token validation and check for additional claims, such as:
+                        ///
+                        /// - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
+                        /// - check if the caller's account is homed or guest via the 'acct' optional claim
+                        /// - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
+                        ///
+                        /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
+                        /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
+                        /// </summary>
+                        options.Events.OnTokenValidated = async context =>
+                        {
+                            // Uncomment the lines below to validate the caller's tenant ID.
+
+                            // string[] allowedTenants = {/* add a list of tenant IDs */ };
+                            // string tenantId = context.Principal.Claims.FirstOrDefault(x => x.Type == "tid")?.Value;
+
+                            // if (!allowedTenants.Contains(tenantId))
+                            // {
+                            //     throw new Exception("This tenant is not authorized");
+                            // }
+
+                        };
+                    }, options => { Configuration.Bind("AzureAd", options); });
 
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 

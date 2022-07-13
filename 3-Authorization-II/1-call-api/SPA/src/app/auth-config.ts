@@ -18,7 +18,7 @@ export const msalConfig: Configuration = {
   auth: {
     clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
     authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-    redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+    redirectUri: '/redirect', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
     clientCapabilities: ['CP1'] // This lets the resource server know that this client can handle claim challenges.
   },
   cache: {

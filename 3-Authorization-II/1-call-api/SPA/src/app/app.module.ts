@@ -17,6 +17,7 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
+import { RedirectComponent } from './redirect/redirect.component';
 import { TodoEditComponent } from './todo-edit/todo-edit.component';
 import { TodoViewComponent } from './todo-view/todo-view.component';
 import { TodoService } from './todo.service';
@@ -29,7 +30,6 @@ import {
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
  * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
@@ -62,7 +62,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
   return {
-    interactionType: InteractionType.Redirect,
+    interactionType: InteractionType.Popup,
     authRequest: loginRequest
   };
 }
@@ -72,7 +72,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     AppComponent,
     HomeComponent,
     TodoViewComponent,
-    TodoEditComponent
+    TodoEditComponent,
+    RedirectComponent
   ],
   imports: [
     BrowserModule,
