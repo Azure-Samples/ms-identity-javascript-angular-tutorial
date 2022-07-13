@@ -15,11 +15,11 @@
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure Active Directory](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-whatis) (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (MIW) for the web API.
+This sample demonstrates an Angular single-page application (SPA) to sign-in users and call a ASP.NET Core web API secured with [Azure Active Directory](https://aka.ms/identityplatform) (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (MIW) for the web API.
 
 ## Scenario
 
-1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD**.
+1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT [access token](https://aka.ms/access-tokens) from **Azure AD**.
 2. The access token is used as a bearer token to authorize the user to call the .NET Core web API protected by **Azure AD**.
 3. The web API responds with the currently signed-in user's todolist.
 
@@ -128,7 +128,7 @@ There are two projects in this sample. Each needs to be separately registered in
 The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this Api. To declare an resource URI, follow the following steps:
    - Select `Set` next to the **Application ID URI** to generate a URI that is unique for this app.
    - For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
-1. All APIs have to publish a minimum of two [scopes](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [delegated permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token successfully. To publish a scope, follow these steps:
+1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [delegated permissions](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token successfully. To publish a scope, follow these steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
         - For **Scope name**, enter `TodoList.Read`.
         - Select **Admins and users** options for **Who can consent?**.
@@ -139,14 +139,6 @@ The first thing that we need to do is to declare the unique [resource](https://d
         - Keep **State** as **Enabled**.
         - Select the **Add scope** button on the bottom to save this scope.
    - Repeat the steps above for publishing another scope named `TodoList.ReadWrite`.
-1. APIs should also publish scopes that can only be consumed by applications (not users), also known as [application permissions](https://docs.microsoft.com/azure/active-directory/develop/permissions-consent-overview#types-of-permissions). To do so, select the **App roles** blade to the left.
-   - Select **Create app role**:
-        - For **Display name**, enter a suitable name, for instance **TodoList.Read.All**.
-        - For **Allowed member types**, choose **Application**.
-        - For **Value**, enter **TodoList.Read.All**.
-        - For **Description**, enter **Application can only read ToDo list**.
-        - Select **Apply** to save your changes.
-   - Repeat the steps above for permission **TodoList.ReadWrite.All**
 1. APIs should also publish at least one [App role](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps#assign-app-roles-to-applications), also called [Application Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for *another application* successfully. **Application permissions** are the type of permissions that APIs would publish when they want to enable client applications to successfully authenticate as themselves and not need to sign-in users. To do so, select the **App roles** blade to the left:
    - Select **Create app role**:
         - For **Display name**, enter a suitable name, for instance **TodoList.Read.All**.
@@ -196,9 +188,9 @@ Open the project in your IDE to configure the code.
 >In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (client ID) of `msal-angular-spa` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with APP ID URI of the web API project that you've registered earlier, e.g. `api://<msal-dotnet-api-client-id>/TodoList.Read`
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value(s) with the application ID (client ID) of the web API project that you've registered earlier, e.g. `api://<msal-dotnet-api-client-id>/TodoList.Read`
 
 ## Run the sample
 
@@ -212,6 +204,7 @@ Using a command line interface such as VS Code integrated terminal, locate the a
 In a separate console window, execute the following commands:
 
 ```console
+    cd ..
     cd API\TodoListAPI
     dotnet run
 ```
@@ -219,8 +212,10 @@ In a separate console window, execute the following commands:
 ## Explore the sample
 
 1. Open your browser and navigate to `http://localhost:4200`.
-1. Select the **Sign In** button on the top right corner. Choose either **Popup** or **Redirect** flows.
+1. Select the **Sign In** button on the top right corner.
 1. Select the **Todolist** button on the navigation bar. This will make a call to the TodoList web API.
+
+![Screenshot](./ReadmeFiles/screenshot.png)
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../issues) page.
 
@@ -255,7 +250,6 @@ On the web API side, the `AddMicrosoftIdentityWebApiAuthentication` method in [S
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-
     // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
     services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 

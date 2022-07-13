@@ -35,8 +35,8 @@ We recommend following the chapters in successive order. However, the code sampl
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/en/download/)
-- [Dotnet Core SDK](https://dotnet.microsoft.com/download)
+- [Node.js v14 LTS or later](https://nodejs.org/en/download/)
+- [Dotnet Core SDK v6 or later](https://dotnet.microsoft.com/download)
 - [Visual Studio Code](https://code.visualstudio.com/download)
 - [VS Code Azure Tools Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack)
 - A modern web browser
