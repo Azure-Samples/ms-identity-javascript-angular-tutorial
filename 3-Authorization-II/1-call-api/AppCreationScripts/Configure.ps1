@@ -250,7 +250,7 @@ Function ConfigureApplications
    $clientAadApplication = New-MgApplication -DisplayName "msal-angular-spa" `
                                                       -Spa `
                                                       @{ `
-                                                          RedirectUris = "http://localhost:4200", "http://localhost:4200/redirect"; `
+                                                          RedirectUris = "http://localhost:4200"; `
                                                         } `
                                                        -SignInAudience AzureADMyOrg `
                                                       #end of command

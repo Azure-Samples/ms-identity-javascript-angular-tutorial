@@ -16,7 +16,6 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { RedirectComponent } from './redirect/redirect.component';
 import { TodoEditComponent } from './todo-edit/todo-edit.component';
 import { TodoViewComponent } from './todo-view/todo-view.component';
 import { TodoService } from './todo.service';
@@ -51,7 +50,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 
     return {
         interactionType: InteractionType.Popup,
-        protectedResourceMap
+        protectedResourceMap,
     };
 }
 
@@ -71,8 +70,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         AppComponent,
         HomeComponent,
         TodoViewComponent,
-        TodoEditComponent,
-        RedirectComponent
+        TodoEditComponent
     ],
     imports: [
         BrowserModule,

@@ -6,7 +6,6 @@ import { BrowserUtils } from '@azure/msal-browser';
 import { HomeComponent } from './home/home.component';
 import { TodoViewComponent } from './todo-view/todo-view.component';
 import { TodoEditComponent } from './todo-edit/todo-edit.component';
-import { RedirectComponent } from './redirect/redirect.component';
 
 /**
  * MSAL Angular can protect routes in your application using MsalGuard. For more info, visit:
@@ -26,10 +25,6 @@ const routes: Routes = [
         canActivate: [
             MsalGuard
         ]
-    },
-    {
-        path: 'redirect',
-        component: RedirectComponent,
     },
     {
         // Needed for hash routing
