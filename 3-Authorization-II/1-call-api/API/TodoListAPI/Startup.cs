@@ -1,4 +1,6 @@
 
+using System.Linq;
+using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
@@ -7,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Logging;
 
 using TodoListAPI.Models;
 
@@ -41,20 +44,23 @@ namespace TodoListAPI
                         /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
                         /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
                         /// </summary>
-                        options.Events.OnTokenValidated = async context =>
-                        {
-                            // Uncomment the lines below to validate the caller's tenant ID.
+                        
+                        //options.Events.OnTokenValidated = async context =>
+                        //{
+                        //    string[] allowedClientApps = { /* list of client ids to allow */ };
 
-                            // string[] allowedTenants = {/* add a list of tenant IDs */ };
-                            // string tenantId = context.Principal.Claims.FirstOrDefault(x => x.Type == "tid")?.Value;
+                        //    string clientappId = context?.Principal?.Claims
+                        //        .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
-                            // if (!allowedTenants.Contains(tenantId))
-                            // {
-                            //     throw new Exception("This tenant is not authorized");
-                            // }
-
-                        };
+                        //    if (!allowedClientApps.Contains(clientappId))
+                        //    {
+                        //        throw new System.Exception("This client is not authorized");
+                        //    }
+                        //};
                     }, options => { Configuration.Bind("AzureAd", options); });
+
+            // The following flag can be used to get more descriptive errors in development environments
+            IdentityModelEventSource.ShowPII = false;
 
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 

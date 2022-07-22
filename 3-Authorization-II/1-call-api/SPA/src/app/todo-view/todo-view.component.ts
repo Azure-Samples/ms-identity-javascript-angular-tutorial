@@ -5,45 +5,45 @@ import { TodoService } from './../todo.service';
 import { Todo } from '../todo';
 
 @Component({
-  selector: 'app-todo-view',
-  templateUrl: './todo-view.component.html',
-  styleUrls: ['./todo-view.component.css']
+    selector: 'app-todo-view',
+    templateUrl: './todo-view.component.html',
+    styleUrls: ['./todo-view.component.css']
 })
 export class TodoViewComponent implements OnInit {
 
-  todo?: Todo;
+    todo?: Todo;
 
-  todos: Todo[] = [];
+    todos: Todo[] = [];
 
-  displayedColumns = ['status', 'description', 'edit', 'remove'];
+    displayedColumns = ['status', 'description', 'edit', 'remove'];
 
-  constructor(private service: TodoService) { }
+    constructor(private service: TodoService) { }
 
-  ngOnInit(): void {
-    this.getTodos();
-  }
+    ngOnInit(): void {
+        this.getTodos();
+    }
 
-  getTodos(): void {
-    this.service.getTodos()
-      .subscribe((todos: Todo[]) => {
-        this.todos = todos;
-      });
-  }
+    getTodos(): void {
+        this.service.getTodos()
+            .subscribe((todos: Todo[]) => {
+                this.todos = todos;
+            });
+    }
 
-  addTodo(add: NgForm): void {
-    this.service.postTodo(add.value).subscribe(() => {
-      this.getTodos();
-    })
-    add.resetForm();
-  }
+    addTodo(add: NgForm): void {
+        this.service.postTodo(add.value).subscribe(() => {
+            this.getTodos();
+        })
+        add.resetForm();
+    }
 
-  checkTodo(todo: Todo): void {
-    this.service.editTodo(todo).subscribe();
-  }
+    checkTodo(todo: Todo): void {
+        this.service.editTodo(todo).subscribe();
+    }
 
-  removeTodo(id: string): void {
-    this.service.deleteTodo(+id).subscribe(() => {
-      this.getTodos();
-    })
-  }
+    removeTodo(id: string): void {
+        this.service.deleteTodo(+id).subscribe(() => {
+            this.getTodos();
+        })
+    }
 }
