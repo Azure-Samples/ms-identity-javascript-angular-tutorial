@@ -137,6 +137,19 @@ Function CreateAppRole([string] $types, [string] $name, [string] $description)
     $appRole.Value = $name;
     return $appRole
 }
+Function CreateOptionalClaim([string] $name)
+{
+    <#.Description
+    This function creates a new Azure AD optional claims  with default and provided values
+    #>  
+
+    $appClaim = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim
+    $appClaim.AdditionalProperties =  New-Object System.Collections.Generic.List[string]
+    $appClaim.Source =  $null
+    $appClaim.Essential = $false
+    $appClaim.Name = $name
+    return $appClaim
+}
 
 
 Function ConfigureApplications
@@ -191,6 +204,20 @@ Function ConfigureApplications
         New-MgApplicationOwnerByRef -ApplicationId $serviceAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
+
+    # Add Claims
+
+    $optionalClaims = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaims
+    $optionalClaims.AccessToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.IdToken = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+    $optionalClaims.Saml2Token = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphOptionalClaim]
+
+
+    # Add Optional Claims
+
+    $newClaim =  CreateOptionalClaim  -name "idtyp" 
+    $optionalClaims.AccessToken += ($newClaim)
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -OptionalClaims $optionalClaims
     
     # Add application Roles
     $appRoles = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole]
