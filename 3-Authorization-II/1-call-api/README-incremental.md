@@ -37,19 +37,7 @@ This sample demonstrates an Angular single-page application (SPA) to sign-in use
 
 ## Setup the sample
 
-### Step 1: Clone or download this repository
-
-From your shell or command line:
-
-```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
-```
-
-or download and extract the repository *.zip* file.
-
-> :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
-
-### Step 2. Install .NET Core API dependencies
+### Step 1. Install .NET Core API dependencies
 
 ```console
     cd ms-identity-javascript-angular-tutorial
@@ -66,7 +54,7 @@ The .NET Core project runs on HTTPS. You might need to trust the development cer
 
 For more information and potential issues, see: [HTTPS in .NET Core](https://docs.microsoft.com/aspnet/core/security/enforcing-ssl).
 
-### Step 3. Install Angular SPA dependencies
+### Step 2. Install Angular SPA dependencies
 
 ```console
     cd ../
@@ -74,7 +62,7 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
     npm install
 ```
 
-### Step 4: Register the sample application(s) in your tenant
+### Step 3: Register the sample application(s) in your tenant
 
 There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
 
@@ -192,7 +180,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value(s) with the application ID (client ID) of the web API project that you've registered earlier, e.g. `api://<msal-dotnet-api-client-id>/TodoList.Read`
 
-### Step 5: Running the sample
+### Step 4: Running the sample
 
 From your shell or command line, execute the following commands:
 
