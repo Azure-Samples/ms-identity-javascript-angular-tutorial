@@ -355,6 +355,10 @@ To debug the .NET Core web API that comes with this sample, install the [C# exte
 
 Learn more about using [.NET Core with Visual Studio Code](https://docs.microsoft.com/dotnet/core/tutorials/with-visual-studio-code).
 
+## Next Tutorial
+
+Continue with the next tutorial: [Deploy your apps to Azure](../../4-Deployment/README-incremental.md).
+
 ## Contributing
 
 If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
