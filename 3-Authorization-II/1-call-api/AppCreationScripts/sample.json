@@ -8,14 +8,19 @@
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
         "Languages": [
-            "TypeScript",
-            "C#"
+            "typescript",
+            "csharp"
         ],
-        "Description": "An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API",
         "Products": [
-            "Angular",
-            "ASP.NET Core"
-        ]
+            "azure-active-directory",
+            "aspnet-core",
+            "msal-angular"
+        ],
+        "Description": "An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API"
+    },
+    "ReadmeScenario": {
+        "UseNewSetup": "1",
+        "CertificateOption": "0"
     },
     "AADApps": [
         {

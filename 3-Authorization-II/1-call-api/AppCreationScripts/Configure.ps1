@@ -151,7 +151,6 @@ Function CreateOptionalClaim([string] $name)
     return $appClaim
 }
 
-
 Function ConfigureApplications
 {
     <#.Description
@@ -250,14 +249,14 @@ Function ConfigureApplications
     -userConsentDisplayName "Access msal-dotnet-api"  `
     -userConsentDescription "Allow the application to access msal-dotnet-api on your behalf."  `
     -adminConsentDisplayName "Access msal-dotnet-api"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
+    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
             
     $scopes.Add($scope)
     $scope = CreateScope -value TodoList.ReadWrite  `
     -userConsentDisplayName "Access msal-dotnet-api"  `
     -userConsentDescription "Allow the application to access msal-dotnet-api on your behalf."  `
     -adminConsentDisplayName "Access msal-dotnet-api"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of the signed-in user."
+    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
             
     $scopes.Add($scope)
     
@@ -329,7 +328,13 @@ Function ConfigureApplications
     Write-Host "Updating the sample code ($configFile)"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-    if($isOpenSSL -eq 'Y')
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
+    Write-Host "- For service"
+    Write-Host "  - Navigate to $servicePortalUrl"
+    Write-Host "  - Application 'service' publishes application permissions. Do remember to navigate to any client app(s) registration in the app portal and consent for those, if required" -ForegroundColor Red 
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+       if($isOpenSSL -eq 'Y')
     {
         Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
         Write-Host "You have generated certificate using OpenSSL so follow below steps: "
