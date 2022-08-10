@@ -2,6 +2,7 @@
 page_type: sample
 name: An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
 services: ms-identity
+platform: javascript
 languages:
  - typescript
  - csharp
@@ -13,7 +14,7 @@ urlFragment: ms-identity-javascript-angular-tutorial
 description: An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
 ---
 
-# Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API
+# An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -95,7 +96,7 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
     npm install
 ```
 
-### Step 4: Register the sample application(s) in your tenant
+### Step 3: Register the sample application(s) in your tenant
 
 There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
 
@@ -130,7 +131,7 @@ There are two projects in this sample. Each needs to be separately registered in
 
 #### Choose the Azure AD tenant where you want to create your applications
 
-As a first step you'll need to:
+To manually register the apps, as a first step you'll need to:
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
@@ -154,10 +155,10 @@ As a first step you'll need to:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
     1. For **Scope name**, use `TodoList.Read`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in the details, `e.g. Allows to read Todolist items`.
-    1. For **Admin consent description** type in the details `e.g. Allow the app to read Todolist items on your behalf.`
-    1. For **User consent display name** type in the details `e.g. Allows to read Todolist items`.
-    1. For **User consent description** type in the details `e.g. Allow the app to read Todolist items on your behalf.`
+    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-dotnet-api to read ToDo list items`.
+    1. For **Admin consent description** type in the details `e.g. Allows the app msal-dotnet-api to read the signed-in users ToDo list items.`
+    1. For **User consent display name** type in the details `e.g. Read ToDo list items as yourself`.
+    1. For **User consent description** type in the details `e.g. Allow the app msal-dotnet-api to read ToDo list items on your behalf.`
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
     > Repeat the steps above for another scope named **TodoList.ReadWrite**
@@ -165,7 +166,7 @@ As a first step you'll need to:
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
-> :information_source: Be aware of [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+    > :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
 
 ##### Publish Application Permissions
 
@@ -210,7 +211,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-  1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then,
     1. Ensure that the **My APIs** tab is selected.
     1. In the list of APIs, select the API `msal-dotnet-api`.
@@ -228,7 +229,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value(s) with the application ID (client ID) of the web API project that you've registered earlier, e.g. `api://<msal-dotnet-api-client-id>/TodoList.Read`
 
-### Step 5: Running the sample
+### Step 4: Running the sample
 
 From your shell or command line, execute the following commands:
 

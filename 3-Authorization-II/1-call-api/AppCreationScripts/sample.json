@@ -7,6 +7,7 @@
         "Service": ".NET Core web API",
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
+        "Platform": "javascript",
         "Languages": [
             "typescript",
             "csharp"
@@ -38,14 +39,14 @@
             ],
             "AppRoles": [
                 {
-                    "Types": [
+                    "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "TodoList.Read.All",
                     "Description": "Allow this application to read every users Todo list items"
                 },
                 {
-                    "Types": [
+                    "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "TodoList.ReadWrite.All",
