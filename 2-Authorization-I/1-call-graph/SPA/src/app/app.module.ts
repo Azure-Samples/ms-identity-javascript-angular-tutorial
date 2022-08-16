@@ -20,6 +20,8 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 
+import { getClaimsFromStorage } from "./util/storage.utils"
+
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
  * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
@@ -36,13 +38,37 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  */
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
-
-  protectedResourceMap.set(protectedResources.graphMe.endpoint, protectedResources.graphMe.scopes);
+  
+  protectedResourceMap.set(
+    protectedResources.graphMe.endpoint,
+    protectedResources.graphMe.scopes,
+  );
   protectedResourceMap.set(protectedResources.armTenants.endpoint, protectedResources.armTenants.scopes);
 
   return {
     interactionType: InteractionType.Redirect,
-    protectedResourceMap
+    protectedResourceMap,
+    authRequest: (msalService, httpReq, originalAuthRequest) => {
+      let claim =
+        msalService.instance.getActiveAccount()! &&
+        getClaimsFromStorage(
+          `cc.${msalConfig.auth.clientId}.${
+            msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+          }`
+        )
+          ? window.atob(
+              getClaimsFromStorage(
+                `cc.${msalConfig.auth.clientId}.${
+                  msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+                }`
+              )
+            )
+          : '';
+      return {
+        ...originalAuthRequest,
+        claims: claim,
+      };
+    },
   };
 }
 
