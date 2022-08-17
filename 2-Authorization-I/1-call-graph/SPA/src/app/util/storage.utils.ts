@@ -1,4 +1,7 @@
-import { msalConfig } from "../auth-config";
+import {
+  msalConfig,
+  protectedResources,
+} from '../auth-config';
 /**
  *  This method stores the claim challenge to the localStorage in the browser to be used when acquiring a token
  * @param {String} claimsChallenge
@@ -27,3 +30,17 @@ export const clearStorage = (account: any): void => {
         if (key === `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`) sessionStorage.removeItem(key);
     }
 };
+
+export const getStorageSchema = (endpoint: string) => {
+  
+  if(endpoint.includes(protectedResources.graphMe.resource)){
+    return protectedResources.graphMe.resource
+  }else if(endpoint.includes(protectedResources.armTenants.resource)){
+     return protectedResources.armTenants.resource;
+  }
+  return '';
+
+}
+
+
+

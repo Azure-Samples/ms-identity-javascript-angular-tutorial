@@ -41,15 +41,17 @@ export const msalConfig: Configuration = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-    graphMe: {
-        endpoint: "https://graph.microsoft.com/v1.0/me",
-        scopes: ["User.Read"],
-    },
-    armTenants: {
-        endpoint: "https://management.azure.com/tenants",
-        scopes: ["https://management.azure.com/user_impersonation"],
-    }
-}
+  graphMe: {
+    endpoint: 'https://graph.microsoft.com/v1.0/me',
+    scopes: ['User.Read'],
+    resource: 'graph'
+  },
+  armTenants: {
+    endpoint: 'https://management.azure.com/tenants',
+    scopes: ['https://management.azure.com/user_impersonation'],
+    resource: 'management.azure'
+  },
+};
 
 /**
  * Scopes you add here will be prompted for user consent during sign-in.

@@ -20,7 +20,7 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 
-import { getClaimsFromStorage } from "./util/storage.utils"
+import { getClaimsFromStorage, getStorageSchema } from './util/storage.utils';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -49,21 +49,22 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
     interactionType: InteractionType.Redirect,
     protectedResourceMap,
     authRequest: (msalService, httpReq, originalAuthRequest) => {
+      const resource = getStorageSchema(httpReq.url);
       let claim =
-        msalService.instance.getActiveAccount()! &&
-        getClaimsFromStorage(
-          `cc.${msalConfig.auth.clientId}.${
-            msalService.instance.getActiveAccount()?.idTokenClaims?.oid
-          }`
-        )
-          ? window.atob(
-              getClaimsFromStorage(
-                `cc.${msalConfig.auth.clientId}.${
-                  msalService.instance.getActiveAccount()?.idTokenClaims?.oid
-                }`
+          msalService.instance.getActiveAccount()! &&
+          getClaimsFromStorage(
+            `cc.${msalConfig.auth.clientId}.${
+              msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+            }.${resource}`
+          )
+            ? window.atob(
+                getClaimsFromStorage(
+                  `cc.${msalConfig.auth.clientId}.${
+                    msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+                  }.${resource}`
+                )
               )
-            )
-          : '';
+            : '';
       return {
         ...originalAuthRequest,
         claims: claim,
