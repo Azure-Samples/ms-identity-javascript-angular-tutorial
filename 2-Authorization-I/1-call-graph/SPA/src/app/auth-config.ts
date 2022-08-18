@@ -15,40 +15,41 @@ const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigato
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
  */
 export const msalConfig: Configuration = {
-    auth: {
-        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+  auth: {
+    clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+    authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
+    redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
+    clientCapabilities: ['CP1'], // this lets the resource owner know that this client is capable of handling claims challenge.
+  },
+  cache: {
+    cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+    storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge
+  },
+  system: {
+    loggerOptions: {
+      loggerCallback(logLevel: LogLevel, message: string) {
+        console.log(message);
+      },
+      logLevel: LogLevel.Verbose,
+      piiLoggingEnabled: false,
     },
-    cache: {
-        cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
-        storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge
-    },
-    system: {
-        loggerOptions: {
-            loggerCallback(logLevel: LogLevel, message: string) {
-                console.log(message);
-            },
-            logLevel: LogLevel.Verbose,
-            piiLoggingEnabled: false
-        }
-    }
-}
+  },
+};
 
 /**
  * Add here the endpoints and scopes when obtaining an access token for protected web APIs. For more information, see:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-    graphMe: {
-        endpoint: "https://graph.microsoft.com/v1.0/me",
-        scopes: ["User.Read"],
-    },
-    armTenants: {
-        endpoint: "https://management.azure.com/tenants",
-        scopes: ["https://management.azure.com/user_impersonation"],
-    }
-}
+  graphMe: {
+    endpoint: 'https://graph.microsoft.com/v1.0/me',
+    scopes: ['User.Read'],
+  },
+  armTenants: {
+    endpoint: 'https://management.azure.com/tenants',
+    scopes: ['https://management.azure.com/user_impersonation'],
+  },
+};
 
 /**
  * Scopes you add here will be prompted for user consent during sign-in.

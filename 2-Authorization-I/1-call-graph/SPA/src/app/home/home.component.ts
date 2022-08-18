@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
 
   loginDisplay = false;
   displayedColumns: string[] = ['claim', 'value'];
-  dataSource: any =[];
+  dataSource: any = [];
 
   private readonly _destroying$ = new Subject<void>();
 
@@ -32,7 +32,7 @@ export class HomeComponent implements OnInit {
         this.authService.instance.setActiveAccount(payload.account);
       });
 
-      this.msalBroadcastService.inProgress$
+    this.msalBroadcastService.inProgress$
       .pipe(
         filter((status: InteractionStatus) => status === InteractionStatus.None)
       )
@@ -64,9 +64,9 @@ export class HomeComponent implements OnInit {
 
   getClaims(claims: any) {
     this.dataSource = [
-      {id: 1, claim: "Display Name", value: claims ? claims['name'] : null},
-      {id: 2, claim: "User Principal Name (UPN)", value: claims ? claims['preferred_username'] : null},
-      {id: 2, claim: "OID", value: claims ? claims['oid']: null}
+      { id: 1, claim: "Display Name", value: claims ? claims['name'] : null },
+      { id: 2, claim: "User Principal Name (UPN)", value: claims ? claims['preferred_username'] : null },
+      { id: 2, claim: "OID", value: claims ? claims['oid'] : null }
     ];
   }
 

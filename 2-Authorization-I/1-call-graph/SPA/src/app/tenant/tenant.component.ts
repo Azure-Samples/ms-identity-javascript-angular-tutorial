@@ -10,7 +10,7 @@ import { protectedResources } from '../auth-config';
 export class TenantComponent implements OnInit {
 
   displayedColumns: string[] = ['claim', 'value'];
-  dataSource: any =[];
+  dataSource: any = [];
 
   constructor(
     private http: HttpClient
@@ -24,10 +24,10 @@ export class TenantComponent implements OnInit {
     this.http.get(protectedResources.armTenants.endpoint + '?api-version=2020-01-01')
       .subscribe((tenant: any) => {
         this.dataSource = [
-          {id: 1, claim: "Display Name", value: tenant ? tenant.value[0]['displayName'] : null},
-          {id: 2, claim: "Default Domain", value: tenant ? tenant.value[0]['defaultDomain'] : null},
-          {id: 3, claim: "Tenant Id", value: tenant ? tenant.value[0]['tenantId'] : null},
-          {id: 3, claim: "Tenant Type", value: tenant ? tenant.value[0]['tenantType'] : null},
+          { id: 1, claim: "Display Name", value: tenant ? tenant.value[0]['displayName'] : null },
+          { id: 2, claim: "Default Domain", value: tenant ? tenant.value[0]['defaultDomain'] : null },
+          { id: 3, claim: "Tenant Id", value: tenant ? tenant.value[0]['tenantId'] : null },
+          { id: 3, claim: "Tenant Type", value: tenant ? tenant.value[0]['tenantType'] : null },
         ];
       });
   }

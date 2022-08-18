@@ -20,6 +20,8 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 
+import { getClaimsFromStorage } from './utils/storageUtils';
+
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
  * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
@@ -42,7 +44,23 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 
   return {
     interactionType: InteractionType.Redirect,
-    protectedResourceMap
+    protectedResourceMap,
+    authRequest: (msalService, httpReq, originalAuthRequest) => {
+      const resource = new URL(httpReq.url).hostname;
+
+      let claim = msalService.instance.getActiveAccount()! &&
+          getClaimsFromStorage(
+            `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid}.${resource}`
+          ) ? window.atob(
+            getClaimsFromStorage(
+              `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid}.${resource}`
+            ))
+          : undefined;
+      return {
+        ...originalAuthRequest,
+        claims: claim,
+      };
+    },
   };
 }
 
@@ -51,7 +69,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
  * additional scopes you want the user to consent upon login, add them here as well.
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return { 
+  return {
     interactionType: InteractionType.Redirect,
     authRequest: loginRequest
   };
