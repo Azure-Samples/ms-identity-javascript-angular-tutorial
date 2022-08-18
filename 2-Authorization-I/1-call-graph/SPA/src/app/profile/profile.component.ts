@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { protectedResources } from '../auth-config';
 import { GraphService } from '../graph.service';
+import { Profile } from '../profile';
 
 @Component({
   selector: 'app-profile',
@@ -13,39 +14,37 @@ export class ProfileComponent implements OnInit {
 
   constructor(
     private graphService: GraphService,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.graphService
       .getData(protectedResources.graphMe.endpoint)
-      .then((profileResponse: any) => {
+      .then((profileResponse: Profile) => {
         this.dataSource = [
           {
             id: 1,
             claim: 'Name',
-            value: profileResponse ? profileResponse['givenName'] : null,
+            value: profileResponse ? profileResponse.givenName : null,
           },
           {
             id: 2,
             claim: 'Surname',
-            value: profileResponse ? profileResponse['surname'] : null,
+            value: profileResponse ? profileResponse.surname : null,
           },
           {
             id: 3,
             claim: 'User Principal Name (UPN)',
-            value: profileResponse
-              ? profileResponse['userPrincipalName']
-              : null,
+            value: profileResponse ? profileResponse.userPrincipalName : null,
           },
           {
             id: 4,
             claim: 'ID',
-            value: profileResponse ? profileResponse['id'] : null,
+            value: profileResponse ? profileResponse.id : null,
           },
         ];
       })
       .catch((error) => {
         console.log(error);
-      });      
+      });
   }
 }

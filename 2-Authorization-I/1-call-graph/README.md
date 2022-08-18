@@ -46,7 +46,7 @@ Here you'll learn about [Access Tokens](https://docs.microsoft.com/azure/active-
 | `src/app/auth-config.ts`        | Authentication parameters reside here.                                |
 | `src/app/app.module.ts`         | MSAL-Angular configuration parameters reside here.                    |
 | `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                                       |
-| `src/app/graph.service.ts`      | class to call graph API.                                              |
+| `src/app/graph.service.ts`      | Class to call graph API.                                              |
 
 ## Prerequisites
 
@@ -131,13 +131,11 @@ To manually register the apps, as a first step you'll need to:
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
    1. Select the **Add a permission** button and then:
-
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
    1. In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
    1. Select the **Add a permission** button and then:
-
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the list of APIs, select the API `Windows Azure Service Management API`.
    1. In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.

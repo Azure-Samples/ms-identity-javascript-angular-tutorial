@@ -20,7 +20,7 @@ import { MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfig
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 
-import { getClaimsFromStorage, getStorageSchema } from './util/storage.utils';
+import { getClaimsFromStorage } from './utils/storageUtils';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -38,33 +38,24 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  */
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
   const protectedResourceMap = new Map<string, Array<string>>();
-  
-  protectedResourceMap.set(
-    protectedResources.graphMe.endpoint,
-    protectedResources.graphMe.scopes,
-  );
+
+  protectedResourceMap.set(protectedResources.graphMe.endpoint, protectedResources.graphMe.scopes);
   protectedResourceMap.set(protectedResources.armTenants.endpoint, protectedResources.armTenants.scopes);
 
   return {
     interactionType: InteractionType.Redirect,
     protectedResourceMap,
     authRequest: (msalService, httpReq, originalAuthRequest) => {
-      const resource = getStorageSchema(httpReq.url);
-      let claim =
-          msalService.instance.getActiveAccount()! &&
+      const resource = new URL(httpReq.url).hostname;
+
+      let claim = msalService.instance.getActiveAccount()! &&
           getClaimsFromStorage(
-            `cc.${msalConfig.auth.clientId}.${
-              msalService.instance.getActiveAccount()?.idTokenClaims?.oid
-            }.${resource}`
-          )
-            ? window.atob(
-                getClaimsFromStorage(
-                  `cc.${msalConfig.auth.clientId}.${
-                    msalService.instance.getActiveAccount()?.idTokenClaims?.oid
-                  }.${resource}`
-                )
-              )
-            : '';
+            `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid}.${resource}`
+          ) ? window.atob(
+            getClaimsFromStorage(
+              `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid}.${resource}`
+            ))
+          : undefined;
       return {
         ...originalAuthRequest,
         claims: claim,
@@ -78,7 +69,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
  * additional scopes you want the user to consent upon login, add them here as well.
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return { 
+  return {
     interactionType: InteractionType.Redirect,
     authRequest: loginRequest
   };

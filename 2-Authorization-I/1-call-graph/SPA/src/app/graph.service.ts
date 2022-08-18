@@ -3,13 +3,14 @@ import { MsalService } from '@azure/msal-angular';
 import { HttpClient } from '@angular/common/http';
 
 import { protectedResources, msalConfig } from './auth-config';
-import { addClaimsToStorage, getClaimsFromStorage } from './util/storage.utils';
+import { addClaimsToStorage, getClaimsFromStorage } from './utils/storageUtils';
+import { AccountInfo } from '@azure/msal-browser';
 
 @Injectable({
   providedIn: 'root',
 })
 export class GraphService {
-  constructor(private authService: MsalService, private http: HttpClient) {}
+  constructor(private authService: MsalService, private http: HttpClient) { }
 
   /**
    * Makes a GET request using authorization header For more, visit:
@@ -25,7 +26,9 @@ export class GraphService {
         },
         (error: any) => {
           if (error.status === 401) {
-            this.handleClaimsChallenge(error);
+            if (error.headers.get('www-authenticate')) {
+              this.handleClaimsChallenge(error, endpoint);
+            }
           }
           reject(error);
         }
@@ -39,48 +42,43 @@ export class GraphService {
    * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
    * @param response
    */
-  handleClaimsChallenge(response: any): void {
-    if (response.headers.get('www-authenticate')) {
-      const authenticateHeader: string =
-        response.headers.get('www-authenticate');
+  handleClaimsChallenge(response: any, endpoint: string): void {
+      const authenticateHeader: string = response.headers.get('www-authenticate');
+
       const claimsChallenge: any = authenticateHeader
         ?.split(' ')
         ?.find((entry) => entry.includes('claims='))
         ?.split('claims="')[1]
         ?.split('",')[0];
-      let account: any = this.authService.instance.getActiveAccount();
+
+      let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+
       addClaimsToStorage(
         claimsChallenge,
-        `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${protectedResources.graphMe.resource}`
+        `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${new URL(endpoint).hostname}`
       );
 
-      this.getAccessTokenInteractively();
-    }
+      this.getAccessTokenInteractively(endpoint);
   }
 
   /**
    * This method fetches a new access token interactively
    */
-  getAccessTokenInteractively(): void {
+  getAccessTokenInteractively(endpoint: string): void {
     this.authService.instance.acquireTokenRedirect({
       account: this.authService.instance.getActiveAccount()!,
-      scopes: protectedResources.graphMe.scopes,
-      claims:
-        this.authService.instance.getActiveAccount()! &&
+      scopes: Object.values(protectedResources).find((resource: { endpoint: string, scopes: string[]}) => resource.endpoint === endpoint)?.scopes || [],
+      claims: this.authService.instance.getActiveAccount()! &&
         getClaimsFromStorage(
-          `cc.${msalConfig.auth.clientId}.${
-            this.authService.instance.getActiveAccount()?.idTokenClaims?.oid
-          }.${protectedResources.graphMe.resource}`
+          `cc.${msalConfig.auth.clientId}.${this.authService.instance.getActiveAccount()?.idTokenClaims?.oid
+          }.${new URL(endpoint).hostname}`
+        ) ? 
+        window.atob(
+          getClaimsFromStorage(
+            `cc.${msalConfig.auth.clientId}.${this.authService.instance.getActiveAccount()?.idTokenClaims?.oid}.${new URL(endpoint).hostname}`
+          )
         )
-          ? window.atob(
-              getClaimsFromStorage(
-                `cc.${msalConfig.auth.clientId}.${
-                  this.authService.instance.getActiveAccount()?.idTokenClaims
-                    ?.oid
-                }.${protectedResources.graphMe.resource}`
-              )
-            )
-          : '',
+        : undefined,
     });
   }
 }
