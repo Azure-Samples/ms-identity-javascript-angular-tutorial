@@ -34,7 +34,7 @@ Here you'll learn about [Access Tokens](https://docs.microsoft.com/azure/active-
 | `src/app/auth-config.ts`        | Authentication parameters reside here.                                |
 | `src/app/app.module.ts`         | MSAL-Angular configuration parameters reside here.                    |
 | `src/app/app-routing.module.ts` | Configure your MSAL-Guard here.                                       |
-| `src/app/graph.service.ts`      | Instantiates Graph SDK client using a custom authentication provider. |
+| `src/app/graph.service.ts`      | Class to call graph API.                                              |
 
 ## Setup
 
@@ -89,13 +89,7 @@ There is one project in this sample. To register it, you can:
    - Select the **Add a permission** button and then,
    - Ensure that the **Microsoft APIs** tab is selected.
    - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
-1. Still in the **API permissions** blade,
-   - Select the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Azure Service Management**
-   - In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
+   - In the **Delegated permissions** section, select the **User.Read**, **Contacts.Read** in the list. Use the search box if necessary.
    - Select the **Add permissions** button at the bottom.
 
 #### Configure the app (msal-angular-spa) to use your app registration
@@ -119,13 +113,14 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open your browser and navigate to `http://localhost:4200`.
 1. Click the **sign-in** button on the top right corner.
-1. Once you authenticate, click the **Call API** button at the center.
+1. Once you authenticate, click the **Profile** button on the navigation bar.This will make a call to the Graph API
+1. click the **Contacts** button on the navigation bar. This will make a call to the Graph API.(:warning: the user needs to have an Office subscription for this call to work).
 
 ![Screenshot](./ReadmeFiles/screenshot.png)
 
 > :information_source: Did the sample not work for you as expected? Then please reach out to us using the [GitHub Issues](../../../../issues) page.
 
-## We'd love your feedback!
+## We'd love your feedback
 
 Were we successful in addressing your learning objective? Consider taking a moment to [share your experience with us](https://forms.office.com/Pages/ResponsePage.aspx?id=v4j5cvGGr0GRqy180BHbR73pcsbpbxNJuZCMKN0lURpUOU5PNlM4MzRRV0lETkk2ODBPT0NBTEY5MCQlQCN0PWcu).
 
@@ -212,6 +207,111 @@ export class AppComponent implements OnInit {
 
 > :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
+### Handle Continuous Access Evaluation (CAE) challenge from Microsoft Graph
+
+Continuous access evaluation (CAE) enables applications to do just-in time token validation, for instance enforcing user session revocation in the case of password change/reset but there are other benefits. For details, see [Continuous access evaluation](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation).
+
+Microsoft Graph is now CAE-enabled in Preview. This means that it can ask its client apps for more claims when conditional access policies require it. Your can enable your application to be ready to consume CAE-enabled APIs by:
+
+1. Declaring that the client app is capable of handling claims challenges.
+1. Processing these challenges when they are thrown by the web API.
+
+#### Declare the CAE capability in the configuration
+
+This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `auth-config.ts`:
+
+```javascript
+    const msalConfig = {
+        auth: {
+            clientId: 'Enter_the_Application_Id_Here', 
+            authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
+            redirectUri: "/", 
+            postLogoutRedirectUri: "/",
+            navigateToLoginRequestUrl: true, 
+            clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
+        }
+    }
+
+    const msalInstance = new PublicClientApplication(msalConfig);
+```
+
+#### Processing the CAE challenge from Microsoft Graph
+
+Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenRedirect` API and provide the claims challenge as a parameter in the token request. This is shown in [graph.service.ts](../SPA/src/app/graph.service.ts), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
+
+```typescript
+ /**
+   * This method inspects the HTTPS response from a http call for the "www-authenticate header"
+   * If present, it grabs the claims challenge from the header and store it in the sessionStorage
+   * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
+   * @param response
+   */
+  handleClaimsChallenge(response: any, endpoint: string): void {
+    const authenticateHeader: string = response.headers.get('www-authenticate');
+
+    const claimsChallengeMap: any = this.parseChallenges(authenticateHeader);
+
+    let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+    addClaimsToStorage(
+      claimsChallengeMap.claims,
+      `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${
+        new URL(endpoint).hostname
+      }`
+    );
+
+    this.getAccessTokenInteractively(endpoint);
+  }
+
+
+  /**
+   * This method parses WWW-Authenticate authentication headers 
+   * @param header
+   * @return {Object} challengeMap
+   */
+  parseChallenges<T>(header: string): T {
+    const schemeSeparator = header.indexOf(' ');
+    const challenges = header.substring(schemeSeparator + 1).split(',');
+    const challengeMap = {} as any;
+
+    challenges.forEach((challenge: string) => {
+      const [key, value] = challenge.split('=');
+      challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
+    });
+
+    return challengeMap;
+  }
+```
+After that, we require a new access token via the `acquireTokenRedirect` API, fetch the claims challenge from the browser's localStorage, and pass it to the `acquireTokenRedirect` hook in the request parameter.
+
+```typescript
+  getAccessTokenInteractively(endpoint: string): void {
+     this.authService.instance.acquireTokenRedirect({
+       account: this.authService.instance.getActiveAccount()!,
+       scopes:
+         Object.values(protectedResources).find(
+           (resource: { endpoint: string; scopes: string[] }) =>
+             resource.endpoint === endpoint
+         )?.scopes || [],
+       claims:
+         this.authService.instance.getActiveAccount()! &&
+         getClaimsFromStorage(
+           `cc.${msalConfig.auth.clientId}.${
+             this.authService.instance.getActiveAccount()?.idTokenClaims?.oid
+           }.${new URL(endpoint).hostname}`
+         )
+           ? window.atob(
+               getClaimsFromStorage(
+                 `cc.${msalConfig.auth.clientId}.${
+                   this.authService.instance.getActiveAccount()?.idTokenClaims
+                     ?.oid
+                 }.${new URL(endpoint).hostname}`
+               )
+             )
+           : undefined,
+     });
+  }
+```
+
 ### Working with multiple resources
 
 When you have to access multiple resources, initiate a separate token request for each:
@@ -272,114 +372,33 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 
 ### Calling the Microsoft Graph API
 
-[Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) provides various utility methods to query the Graph API. While the SDK has a default authentication provider that can be used in basic scenarios, it can also be extended to use with a custom authentication provider such as MSAL. To do so, we will initialize the Graph SDK client with [clientOptions](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md) method, which contains an `authProvider` object of class **MyAuthenticationProvider** that handles the token acquisition process for the client. We offer this as a service to other components as shown below:
+Using the httpClient , simply add the Authorization header to your request, followed by the access token you have obtained previously for this resource/endpoint (as a bearer token):
 
 ```typescript
-export class GraphService {
-
-  constructor(private authService: MsalService) { }
-
-  getGraphClient = (providerOptions: ProviderOptions) => {
-
-    /**
-     * Pass the instance as authProvider in ClientOptions to instantiate the Client which will create and set the default middleware chain.
-     * For more information, visit: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md
-     */
-    let clientOptions = {
-      authProvider: new MyAuthenticationProvider(providerOptions, this.authService, this.msalBroadcastService),
-    };
-
-    const graphClient = Client.initWithMiddleware(clientOptions);
-
-    return graphClient;
-  }
-}
-```
-
-**MyAuthenticationProvider** class needs to implement the [IAuthenticationProvider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts) interface, which can be done as shown below:
-
-```typescript
-class MyAuthenticationProvider implements AuthenticationProvider {
-
-  account;
-  scopes;
-  interactionType;
-
-  constructor(providerOptions: ProviderOptions, private authService: MsalService) {
-    this.account = providerOptions.account;
-    this.scopes = providerOptions.scopes;
-    this.interactionType = providerOptions.interactionType;
-  }
-
-  /**
-   * This method will get called before every request to the ms graph server
-   * This should return a Promise that resolves to an accessToken (in case of success) or rejects with error (in case of failure)
-   * Basically this method will contain the implementation for getting and refreshing accessTokens
+ /**
+   * Makes a GET request using authorization header For more, visit:
+   * https://tools.ietf.org/html/rfc6750
+   * @param endpoint
+   * @returns
    */
-  getAccessToken(): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      let response: AuthenticationResult;
-
-      try {
-        response = await this.authService.instance.acquireTokenSilent({
-          account: this.account,
-          scopes: this.scopes
-        });
-
-        if (response.accessToken) {
-          resolve(response.accessToken);
-        } else {
-          reject(Error('Failed to acquire an access token'));
-        }
-      } catch (error) {
-        // in case if silent token acquisition fails, fallback to an interactive method
-        if (error instanceof InteractionRequiredAuthError) {
-          switch (this.interactionType) {
-            case InteractionType.Popup:
-              response = await this.authService.instance.acquireTokenPopup({
-                scopes: this.scopes
-              });
-
-              if (response.accessToken) {
-                resolve(response.accessToken);
-              } else {
-                reject(Error('Failed to acquire an access token'));
-              }
-              break;
-
-            case InteractionType.Redirect:
-              this.authService.instance.acquireTokenRedirect({
-                scopes: this.scopes
-              });
-              break;
-
-            default:
-              break;
+  getData(endpoint: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.get(endpoint).subscribe( {
+        next: (response) => {
+          resolve(response);
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            if (error.headers.get('www-authenticate')) {
+              this.handleClaimsChallenge(error, endpoint);
+            }
           }
+          reject(error);
         }
       }
+      );
     });
   }
-}
-```
-
-See [graph.service.ts](./SPA/src/app/graph.service.ts). The Graph client then can be used in your components as shown below:
-
-```typescript
-    const providerOptions: ProviderOptions = {
-      account: this.authService.instance.getActiveAccount()!, 
-      scopes: protectedResources.graphMe.scopes, 
-      interactionType: InteractionType.Popup
-    };
-
-    this.graphService.getGraphClient(providerOptions)
-    .api('/me').get()
-    .then((profileResponse: ProfileType) => {
-        // do something with response
-    })
-    .catch((error) => {
-        // handle errors
-    });
 ```
 
 ## Next Tutorial

@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core';
-import { Routes, RouterModule } from '@angular/router';
-import { ProfileComponent } from './profile/profile.component';
-import { HomeComponent } from './home/home.component';
-import { TenantComponent } from './tenant/tenant.component';
+import { RouterModule, Routes } from '@angular/router';
+import { BrowserUtils } from '@azure/msal-browser';
 import { MsalGuard } from '@azure/msal-angular';
+
+import { ProfileComponent } from './profile/profile.component';
+import { ContactsComponent } from './contacts/contacts.component';
+import { HomeComponent } from './home/home.component';
 
 /**
  * MSAL Angular can protect routes in your application
@@ -14,46 +16,41 @@ const routes: Routes = [
   {
     path: 'profile',
     component: ProfileComponent,
-    canActivate: [
-      MsalGuard
-    ]
+    canActivate: [MsalGuard],
   },
   {
-    path: 'tenant',
-    component: TenantComponent,
-    canActivate: [
-      MsalGuard
-    ]
-  },
-  {
-    // Needed for hash routing
-    path: 'error',
-    component: HomeComponent
-  },
-  {
-    // Needed for hash routing
-    path: 'state',
-    component: HomeComponent
-  },
-  {
-    // Needed for hash routing
-    path: 'code',
-    component: HomeComponent
+    path: 'contacts',
+    component: ContactsComponent,
+    canActivate: [MsalGuard]
   },
   {
     path: '',
-    component: HomeComponent
-  }
+    component: HomeComponent,
+  },
+  {
+    path: 'error',
+    component: HomeComponent,
+  },
+  {
+    path: 'state',
+    component: HomeComponent,
+  },
+  {
+    path: 'code',
+    component: HomeComponent,
+  },
 ];
 
-const isIframe = window !== window.parent && !window.opener;
-
 @NgModule({
-  imports: [RouterModule.forRoot(routes, {
-    useHash: true,
-    // Don't perform initial navigation in iframes
-    initialNavigation: !isIframe ? 'enabled' : 'disabled'
-  })],
-  exports: [RouterModule]
+  imports: [
+    RouterModule.forRoot(routes, {
+      // Don't perform initial navigation in iframes or popups
+      initialNavigation:
+        !BrowserUtils.isInIframe() && !BrowserUtils.isInPopup()
+          ? 'enabledNonBlocking'
+          : 'disabled', // Set to enabledBlocking to use Angular Universal
+    }),
+  ],
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
