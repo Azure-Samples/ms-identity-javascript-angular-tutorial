@@ -38,6 +38,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { getClaimsFromStorage } from './utils/storageUtils';
 import { GraphService } from './graph.service';
 
+
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
  * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
@@ -104,6 +105,16 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
 }
 
 
+/**
+ * Set your default interaction type for MSALGuard here. If you have any
+ * additional scopes you want the user to consent upon login, add them here as well.
+ */
+export function MSALGuardConfigFactory(): MsalGuardConfiguration {
+  return {
+    interactionType: InteractionType.Redirect,
+    authRequest: loginRequest
+  };
+}
 
 @NgModule({
   declarations: [

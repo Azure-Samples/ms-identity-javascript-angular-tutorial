@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { protectedResources } from '../auth-config';
 import { GraphService } from '../graph.service';
 import { Profile } from '../profile';
+
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',

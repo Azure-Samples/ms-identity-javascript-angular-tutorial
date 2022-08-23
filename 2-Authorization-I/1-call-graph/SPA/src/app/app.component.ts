@@ -1,19 +1,10 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
-import {
-  MSAL_GUARD_CONFIG,
-  MsalGuardConfiguration,
-  MsalService,
-  MsalBroadcastService,
-} from '@azure/msal-angular';
-import {
-  InteractionType,
-  PopupRequest,
-  AuthenticationResult,
-  RedirectRequest,
-  InteractionStatus,
-} from '@azure/msal-browser';
+import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
+import { AuthenticationResult, InteractionStatus, InteractionType, PopupRequest, RedirectRequest } from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { clearStorage } from './utils/storageUtils';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -104,6 +95,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   logout() {
+    clearStorage(this.authService.instance.getActiveAccount())
     this.authService.logout();
   }
 

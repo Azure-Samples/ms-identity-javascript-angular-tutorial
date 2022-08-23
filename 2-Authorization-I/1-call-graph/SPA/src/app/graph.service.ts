@@ -11,7 +11,8 @@ import { msalConfig, protectedResources } from './auth-config';
   providedIn: 'root',
 })
 export class GraphService {
-  constructor(private authService: MsalService, private http: HttpClient) {}
+
+  constructor(private authService: MsalService, private http: HttpClient) { }
 
   /**
    * Makes a GET request using authorization header For more, visit:
@@ -59,7 +60,6 @@ export class GraphService {
 
     this.getAccessTokenInteractively(endpoint);
   }
-
   /**
    * This method fetches a new access token interactively
    */

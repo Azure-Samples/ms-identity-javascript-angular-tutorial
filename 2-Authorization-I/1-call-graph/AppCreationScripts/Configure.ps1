@@ -159,32 +159,41 @@ Function ConfigureApplications
     Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>msal-angular-spa</a></td></tr>" -Path createdApps.html
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
-    
-    # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
-    Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-        -requiredDelegatedPermissions "User.Read|Contacts.Read" `
-    
+   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
 
-    $requiredResourcesAccess.Add($requiredPermissions)
-    Update-MgApplication -ApplicationId $spaAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
-    Write-Host "Granted permissions."
-    
-    # Update config file for 'spa'
-    $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId };
+   # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
+   Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+                                                -requiredDelegatedPermissions "User.Read" `
 
-    Write-Host "Updating the sample code ($configFile)"
+   $requiredResourcesAccess.Add($requiredPermissions)
 
-    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-    if($isOpenSSL -eq 'Y')
-    {
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-        Write-Host "Install the certificate on your system from current folder."
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    }
-    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+   # Add Required Resources Access (from 'spa' to 'Windows Azure Service Management API')
+   Write-Host "Getting access from 'spa' to 'Windows Azure Service Management API'"
+   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Windows Azure Service Management API" `
+                                                -requiredDelegatedPermissions "user_impersonation" `
+
+   $requiredResourcesAccess.Add($requiredPermissions)
+
+
+   Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
+   Write-Host "Granted permissions."
+
+   # Update config file for 'spa'
+   $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
+   Write-Host "Updating the sample code ($configFile)"
+   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantName };
+   ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
+   Write-Host ""
+   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+   Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
+   Write-Host "- For 'spa'"
+   Write-Host "  - Navigate to '$spaPortalUrl'"
+   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'" -ForegroundColor Red 
+
+   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+     
+   Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 }
 
 # Pre-requisites

@@ -6,9 +6,15 @@
         "Service": "Microsoft Graph",
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
+<<<<<<< HEAD
         "Languages": ["javascript", "angular"],
         "Products": ["azure-active-directory", "ms-graph", "msal-angular"],
         "description": "This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the Microsoft Authentication Library for Angular (MSAL Angular)"
+=======
+        "Description": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API",
+        "products": ["angular"],
+        "Languages": ["TypeScript"]
+>>>>>>> main
     },
     "AADApps": [
         {
@@ -18,10 +24,13 @@
             "HomePage": "http://localhost:4200/",
             "ReplyUrls": "http://localhost:4200/",
             "Audience": "AzureADMyOrg",
+<<<<<<< HEAD
             "Sample": {
                 "SampleSubPath": "2-Authorization-I\\1-call-graph",
                 "ProjectDirectory": "\\SPA"
             },
+=======
+>>>>>>> main
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
