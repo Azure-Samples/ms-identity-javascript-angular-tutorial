@@ -1,9 +1,9 @@
 
 [CmdletBinding()]
 param(
-    [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
+    [Parameter(Mandatory = $False, HelpMessage = 'Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
-    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
+    [Parameter(Mandatory = $False, HelpMessage = 'Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
 
@@ -20,19 +20,15 @@ param(
 # The exposed permissions are in the $exposedPermissions collection, and the type of permission (Scope | Role) is 
 # described in $permissionType
 Function AddResourcePermission($requiredAccess, `
-                               $exposedPermissions, [string]$requiredAccesses, [string]$permissionType)
-{
-    foreach($permission in $requiredAccesses.Trim().Split("|"))
-    {
-        foreach($exposedPermission in $exposedPermissions)
-        {
-            if ($exposedPermission.Value -eq $permission)
-                {
+        $exposedPermissions, [string]$requiredAccesses, [string]$permissionType) {
+    foreach ($permission in $requiredAccesses.Trim().Split("|")) {
+        foreach ($exposedPermission in $exposedPermissions) {
+            if ($exposedPermission.Value -eq $permission) {
                 $resourceAccess = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphResourceAccess
                 $resourceAccess.Type = $permissionType # Scope = Delegated permissions | Role = Application permissions
                 $resourceAccess.Id = $exposedPermission.Id # Read directory data
                 $requiredAccess.ResourceAccess += $resourceAccess
-                }
+            }
         }
     }
 }
@@ -40,15 +36,12 @@ Function AddResourcePermission($requiredAccess, `
 #
 # Example: GetRequiredPermissions "Microsoft Graph"  "Graph.Read|User.Read"
 # See also: http://stackoverflow.com/questions/42164581/how-to-configure-a-new-azure-ad-application-through-powershell
-Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requiredDelegatedPermissions, [string]$requiredApplicationPermissions, $servicePrincipal)
-{
+Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requiredDelegatedPermissions, [string]$requiredApplicationPermissions, $servicePrincipal) {
     # If we are passed the service principal we use it directly, otherwise we find it from the display name (which might not be unique)
-    if ($servicePrincipal)
-    {
+    if ($servicePrincipal) {
         $sp = $servicePrincipal
     }
-    else
-    {
+    else {
         $sp = Get-MgServicePrincipal -Filter "DisplayName eq '$applicationDisplayName'"
     }
     $appid = $sp.AppId
@@ -57,42 +50,34 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
     $requiredAccess.ResourceAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphResourceAccess]
 
     # $sp.Oauth2Permissions | Select Id,AdminConsentDisplayName,Value: To see the list of all the Delegated permissions for the application:
-    if ($requiredDelegatedPermissions)
-    {
+    if ($requiredDelegatedPermissions) {
         AddResourcePermission $requiredAccess -exposedPermissions $sp.Oauth2PermissionScopes -requiredAccesses $requiredDelegatedPermissions -permissionType "Scope"
     }
     
     # $sp.AppRoles | Select Id,AdminConsentDisplayName,Value: To see the list of all the Application permissions for the application
-    if ($requiredApplicationPermissions)
-    {
+    if ($requiredApplicationPermissions) {
         AddResourcePermission $requiredAccess -exposedPermissions $sp.AppRoles -requiredAccesses $requiredApplicationPermissions -permissionType "Role"
     }
     return $requiredAccess
 }
 
 
-Function ReplaceInLine([string] $line, [string] $key, [string] $value)
-{
+Function ReplaceInLine([string] $line, [string] $key, [string] $value) {
     $index = $line.IndexOf($key)
-    if ($index -ige 0)
-    {
-        $index2 = $index+$key.Length
+    if ($index -ige 0) {
+        $index2 = $index + $key.Length
         $line = $line.Substring(0, $index) + $value + $line.Substring($index2)
     }
     return $line
 }
 
-Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
-{
+Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary) {
     $lines = Get-Content $configFilePath
     $index = 0
-    while($index -lt $lines.Length)
-    {
+    while ($index -lt $lines.Length) {
         $line = $lines[$index]
-        foreach($key in $dictionary.Keys)
-        {
-            if ($line.Contains($key))
-            {
+        foreach ($key in $dictionary.Keys) {
+            if ($line.Contains($key)) {
                 $lines[$index] = ReplaceInLine $line $key $dictionary[$key]
             }
         }
@@ -102,16 +87,14 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
     Set-Content -Path $configFilePath -Value $lines -Force
 }
 
-Function ConfigureApplications
-{
+Function ConfigureApplications {
     <#.Description
        This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
        configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
        so that they are consistent with the Applications parameters
     #> 
     
-    if (!$azureEnvironmentName)
-    {
+    if (!$azureEnvironmentName) {
         $azureEnvironmentName = "Global"
     }
 
@@ -126,74 +109,64 @@ Function ConfigureApplications
     }
     
 
-   # Create the spa AAD application
-   Write-Host "Creating the AAD application (msal-angular-spa)"
+    # Create the spa AAD application
+    Write-Host "Creating the AAD application (msal-angular-spa)"
    
-   # create the application 
-   $spaAadApplication = New-MgApplication -DisplayName "msal-angular-spa" `
-                                                   -Spa `
-                                                   @{ `
-                                                       RedirectUris = "http://localhost:4200/"; `
-                                                     } `
-                                                    -SignInAudience AzureADMyOrg `
-                                                   #end of command
-    $tenantName = (Get-MgApplication -ApplicationId $spaAadApplication.Id).PublisherDomain
+    # create the application 
+    $spaAadApplication = New-MgApplication -DisplayName "msal-angular-spa" `
+        -Spa `
+    @{ `
+            RedirectUris = "http://localhost:4200/"; `
+                                                     
+    } `
+        -SignInAudience AzureADMyOrg `
+        #end of command
+        $tenantName = (Get-MgApplication -ApplicationId $spaAadApplication.Id).PublisherDomain
     Update-MgApplication -ApplicationId $spaAadApplication.Id -IdentifierUris @("https://$tenantName/msal-angular-spa")
     
     # create the service principal of the newly created application 
     $currentAppId = $spaAadApplication.AppId
-    $spaServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
+    $spaServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags { WindowsAzureActiveDirectoryIntegratedApp }
 
     # add the user running the script as an app owner if needed
     $owner = Get-MgApplicationOwner -ApplicationId $spaAadApplication.Id
-    if ($owner -eq $null)
-    { 
-        New-MgApplicationOwnerByRef -ApplicationId $spaAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+    if ($owner -eq $null) { 
+        New-MgApplicationOwnerByRef -ApplicationId $spaAadApplication.Id  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId" }
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($spaServicePrincipal.DisplayName)'"
     }
     Write-Host "Done creating the spa application (msal-angular-spa)"
 
     # URL of the AAD application in the Azure portal
     # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.Id+"/isMSAApp/"
-    $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.Id+"/isMSAApp/"
+    $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/" + $spaAadApplication.AppId + "/objectId/" + $spaAadApplication.Id + "/isMSAApp/"
     Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>msal-angular-spa</a></td></tr>" -Path createdApps.html
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
-   $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Open.AzureAD.Model.RequiredResourceAccess]
+    
+    # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
+    Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
+    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+        -requiredDelegatedPermissions "User.Read|Contacts.Read" `
+    
 
-   # Add Required Resources Access (from 'spa' to 'Microsoft Graph')
-   Write-Host "Getting access from 'spa' to 'Microsoft Graph'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-                                                -requiredDelegatedPermissions "User.Read" `
+    $requiredResourcesAccess.Add($requiredPermissions)
+    Update-MgApplication -ApplicationId $spaAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
+    Write-Host "Granted permissions."
+    
+    # Update config file for 'spa'
+    $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId; "Enter_the_Tenant_Info_Here" = $tenantId };
 
-   $requiredResourcesAccess.Add($requiredPermissions)
+    Write-Host "Updating the sample code ($configFile)"
 
-   # Add Required Resources Access (from 'spa' to 'Windows Azure Service Management API')
-   Write-Host "Getting access from 'spa' to 'Windows Azure Service Management API'"
-   $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Windows Azure Service Management API" `
-                                                -requiredDelegatedPermissions "user_impersonation" `
-
-   $requiredResourcesAccess.Add($requiredPermissions)
-
-
-   Set-AzureADApplication -ObjectId $spaAadApplication.ObjectId -RequiredResourceAccess $requiredResourcesAccess
-   Write-Host "Granted permissions."
-
-   # Update config file for 'spa'
-   $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
-   Write-Host "Updating the sample code ($configFile)"
-   $dictionary = @{ "Enter_the_Application_Id_Here" = $spaAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantName };
-   ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
-   Write-Host ""
-   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-   Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
-   Write-Host "- For 'spa'"
-   Write-Host "  - Navigate to '$spaPortalUrl'"
-   Write-Host "  - Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'" -ForegroundColor Red 
-
-   Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-     
-   Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+    ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
+    if ($isOpenSSL -eq 'Y') {
+        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
+        Write-Host "Install the certificate on your system from current folder."
+        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    }
+    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 }
 
 # Pre-requisites

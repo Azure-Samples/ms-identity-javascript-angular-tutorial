@@ -23,8 +23,8 @@ const isIE =
 
 export const msalConfig: Configuration = {
   auth: {
-    clientId: 'bb1287c1-bab6-4401-9ae9-40382d79a351', // This is the ONLY mandatory field that you need to supply.
-    authority: 'https://login.microsoftonline.com/556b80b7-c9fc-41fd-92da-c3635f7918e5', // Defaults to "https://login.microsoftonline.com/common"
+    clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+    authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
     redirectUri: '/', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
     postLogoutRedirectUri: '/', // Points to window.location.origin by default.
     clientCapabilities: ['CP1'], // This lets the resource server know that this client can handle claim challenges.

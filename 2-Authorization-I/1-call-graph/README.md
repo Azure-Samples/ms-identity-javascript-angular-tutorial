@@ -12,18 +12,18 @@ description: Angular single-page application using MSAL Angular to sign-in users
 
 # Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API
 
- 1. [Overview](#overview)
- 1. [Scenario](#scenario)
- 1. [Contents](#contents)
- 1. [Prerequisites](#prerequisites)
- 1. [Setup](#setup)
- 1. [Registration](#registration)
- 1. [Running the sample](#running-the-sample)
- 1. [Explore the sample](#explore-the-sample)
- 1. [About the code](#about-the-code)
- 1. [More information](#more-information)
- 1. [Community Help and Support](#community-help-and-support)
- 1. [Contributing](#contributing)
+* [Overview](#overview)
+* [Scenario](#scenario)
+* [Contents](#contents)
+* [Prerequisites](#prerequisites)
+* [Setup the sample](#setup-the-sample)
+* [Explore the sample](#explore-the-sample)
+* [Troubleshooting](#troubleshooting)
+* [About the code](#about-the-code)
+* [How to deploy this sample to Azure](#how-to-deploy-this-sample-to-azure)
+* [Next Steps](#next-steps)
+* [Contributing](#contributing)
+* [Learn More](#learn-more)
 
 ## Overview
 
@@ -125,24 +125,17 @@ To manually register the apps, as a first step you'll need to:
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
-1. Still in the **API permissions** blade,
-   - Select the **Add a permission** button and then,
-   - Ensure that the **Microsoft APIs** tab is selected.
-   - In the *Commonly used Microsoft APIs* section, select **Azure Service Management**
-   - In the **Delegated permissions** section, select the **user_impersonation** in the list. Use the search box if necessary.
-   - Select the **Add permissions** button at the bottom.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
+    1. Under **Supported account types**, select **Accounts in this organizational directory only**
+    1. Select **Register** to create the application.
+1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
+   1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+   1. Select the **Add a permission** button and then,
+   1. Ensure that the **Microsoft APIs** tab is selected.
+   1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+   1. In the **Delegated permissions** section, select the **User.Read**, **Contacts.Read** in the list. Use the search box if necessary.
+   1. Select the **Add permissions** button at the bottom.
 
 ##### Configure the spa app (msal-angular-spa) to use your app registration
 
@@ -273,6 +266,113 @@ export class AppComponent implements OnInit {
 
 > :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where acquireTokenRedirect was called.
 
+### Handle Continuous Access Evaluation (CAE) challenge from Microsoft Graph
+
+Continuous access evaluation (CAE) enables applications to do just-in time token validation, for instance enforcing user session revocation in the case of password change/reset but there are other benefits. For details, see [Continuous access evaluation](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation).
+
+Microsoft Graph is now CAE-enabled in Preview. This means that it can ask its client apps for more claims when conditional access policies require it. Your can enable your application to be ready to consume CAE-enabled APIs by:
+
+1. Declaring that the client app is capable of handling claims challenges.
+1. Processing these challenges when they are thrown by the web API.
+
+#### Declare the CAE capability in the configuration
+
+This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `auth-config.ts`:
+
+```javascript
+    const msalConfig = {
+        auth: {
+            clientId: 'Enter_the_Application_Id_Here', 
+            authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
+            redirectUri: "/", 
+            postLogoutRedirectUri: "/",
+            navigateToLoginRequestUrl: true, 
+            clientCapabilities: ["CP1"] // this lets the resource owner know that this client is capable of handling claims challenge.
+        }
+    }
+
+    const msalInstance = new PublicClientApplication(msalConfig);
+```
+
+#### Processing the CAE challenge from Microsoft Graph
+
+Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to present the user with a prompt for satisfying the challenge via Azure AD authorization endpoint. To do so, we use MSAL's `acquireTokenRedirect` API and provide the claims challenge as a parameter in the token request. This is shown in [graph.service.ts](../SPA/src/app/graph.service.ts), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
+
+```typescript
+ /**
+   * This method inspects the HTTPS response from a http call for the "www-authenticate header"
+   * If present, it grabs the claims challenge from the header and store it in the sessionStorage
+   * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
+   * @param response
+   */
+  handleClaimsChallenge(response: any, endpoint: string): void {
+    const authenticateHeader: string = response.headers.get('www-authenticate');
+
+    const claimsChallengeMap: any = this.parseChallenges(authenticateHeader);
+
+    let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+    addClaimsToStorage(
+      claimsChallengeMap.claims,
+      `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${
+        new URL(endpoint).hostname
+      }`
+    );
+
+    this.getAccessTokenInteractively(endpoint);
+  }
+
+
+  /**
+   * This method parses WWW-Authenticate authentication headers 
+   * @param header
+   * @return {Object} challengeMap
+   */
+  parseChallenges<T>(header: string): T {
+    const schemeSeparator = header.indexOf(' ');
+    const challenges = header.substring(schemeSeparator + 1).split(',');
+    const challengeMap = {} as any;
+
+    challenges.forEach((challenge: string) => {
+      const [key, value] = challenge.split('=');
+      challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
+    });
+
+    return challengeMap;
+  }
+
+```
+
+After that, we require a new access token via the `acquireTokenRedirect` API, fetch the claims challenge from the browser's localStorage, and pass it to the `acquireTokenRedirect` hook in the request parameter.
+
+```typescript
+  getAccessTokenInteractively(endpoint: string): void {
+     this.authService.instance.acquireTokenRedirect({
+       account: this.authService.instance.getActiveAccount()!,
+       scopes:
+         Object.values(protectedResources).find(
+           (resource: { endpoint: string; scopes: string[] }) =>
+             resource.endpoint === endpoint
+         )?.scopes || [],
+       claims:
+         this.authService.instance.getActiveAccount()! &&
+         getClaimsFromStorage(
+           `cc.${msalConfig.auth.clientId}.${
+             this.authService.instance.getActiveAccount()?.idTokenClaims?.oid
+           }.${new URL(endpoint).hostname}`
+         )
+           ? window.atob(
+               getClaimsFromStorage(
+                 `cc.${msalConfig.auth.clientId}.${
+                   this.authService.instance.getActiveAccount()?.idTokenClaims
+                     ?.oid
+                 }.${new URL(endpoint).hostname}`
+               )
+             )
+           : undefined,
+     });
+  }
+```
+
 ### Working with multiple resources
 
 When you have to access multiple resources, initiate a separate token request for each:
@@ -336,140 +436,85 @@ Clients should treat access tokens as opaque strings, as the contents of the tok
 Using the httpClient , simply add the Authorization header to your request, followed by the access token you have obtained previously for this resource/endpoint (as a bearer token):
 
 ```typescript
-export class GraphService {
-
-  constructor(private authService: MsalService) { }
-
-  getGraphClient = (providerOptions: ProviderOptions) => {
-
-    /**
-     * Pass the instance as authProvider in ClientOptions to instantiate the Client which will create and set the default middleware chain.
-     * For more information, visit: https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/docs/CreatingClientInstance.md
-     */
-    let clientOptions = {
-      authProvider: new MyAuthenticationProvider(providerOptions, this.authService),
-    };
-
-    const graphClient = Client.initWithMiddleware(clientOptions);
-
-    return graphClient;
-  }
-}
-```
-
-**MyAuthenticationProvider** class needs to implement the [IAuthenticationProvider](https://github.com/microsoftgraph/msgraph-sdk-javascript/blob/dev/src/IAuthenticationProvider.ts) interface, which can be done as shown below:
-
-```typescript
-class MyAuthenticationProvider implements AuthenticationProvider {
-
-  account;
-  scopes;
-  interactionType;
-
-  constructor(providerOptions: ProviderOptions, private authService: MsalService) {
-    this.account = providerOptions.account;
-    this.scopes = providerOptions.scopes;
-    this.interactionType = providerOptions.interactionType;
-  }
-
-  /**
-   * This method will get called before every request to the ms graph server
-   * This should return a Promise that resolves to an accessToken (in case of success) or rejects with error (in case of failure)
-   * Basically this method will contain the implementation for getting and refreshing accessTokens
+ /**
+   * Makes a GET request using authorization header For more, visit:
+   * https://tools.ietf.org/html/rfc6750
+   * @param endpoint
+   * @returns
    */
-  getAccessToken(): Promise<string> {
-    return new Promise(async (resolve, reject) => {
-      let response: AuthenticationResult;
-
-      try {
-        response = await this.authService.instance.acquireTokenSilent({
-          account: this.account,
-          scopes: this.scopes
-        });
-
-        if (response.accessToken) {
-          resolve(response.accessToken);
-        } else {
-          reject(Error('Failed to acquire an access token'));
-        }
-      } catch (error) {
-        // in case if silent token acquisition fails, fallback to an interactive method
-        if (error instanceof InteractionRequiredAuthError) {
-          switch (this.interactionType) {
-            case InteractionType.Popup:
-              response = await this.authService.instance.acquireTokenPopup({
-                scopes: this.scopes
-              });
-
-              if (response.accessToken) {
-                resolve(response.accessToken);
-              } else {
-                reject(Error('Failed to acquire an access token'));
-              }
-              break;
-
-            case InteractionType.Redirect:
-              this.authService.instance.acquireTokenRedirect({
-                scopes: this.scopes
-              });
-              break;
-
-            default:
-              break;
+  getData(endpoint: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this.http.get(endpoint).subscribe( {
+        next: (response) => {
+          resolve(response);
+        },
+        error: (error) => {
+          if (error.status === 401) {
+            if (error.headers.get('www-authenticate')) {
+              this.handleClaimsChallenge(error, endpoint);
+            }
           }
+          reject(error);
         }
       }
+      );
     });
   }
-}
 ```
 
-See [graph.service.ts](./SPA/src/app/graph.service.ts). The Graph client then can be used in your components as shown below:
+## How to deploy this sample to Azure
 
-```typescript
-    const providerOptions: ProviderOptions = {
-      account: this.authService.instance.getActiveAccount()!, 
-      scopes: protectedResources.graphMe.scopes, 
-      interactionType: InteractionType.Popup
-    };
+<details>
+ <summary>Expand the section</summary>
+### Deploying SPA to Azure Storage
 
-    this.graphService.getGraphClient(providerOptions)
-    .api('/me').get()
-    .then((profileResponse: ProfileType) => {
-        // do something with response
-    })
-    .catch((error) => {
-        // handle errors
-    });
-```
+There is one single-page application in this sample. To deploy it to **Azure Storage**, you'll need to:
 
-## More information
+* create an Azure Storage blob and obtain website coordinates
+* build your project and upload it to Azure Storage blob
+* update config files with website coordinates
 
-- [Microsoft identity platform (Azure Active Directory for developers)](https://docs.microsoft.com/azure/active-directory/develop/)
-- [Overview of Microsoft Authentication Library (MSAL)](https://docs.microsoft.com/azure/active-directory/develop/msal-overview)
-- [Quickstart: Register an application with the Microsoft identity platform](https://docs.microsoft.com/azure/active-directory/develop/quickstart-register-app)
-- [Quickstart: Configure a client application to access web APIs](https://docs.microsoft.com/azure/active-directory/develop/quickstart-configure-app-access-web-apis)
-- [Understanding Azure AD application consent experiences](https://docs.microsoft.com/azure/active-directory/develop/application-consent-experience)
-- [Understand user and admin consent](https://docs.microsoft.com/azure/active-directory/develop/howto-convert-app-to-be-multi-tenant#understand-user-and-admin-consent)
-- [Initialize client applications using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-initializing-client-applications)
-- [Single sign-on with MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-sso)
-- [Handle MSAL.js exceptions and errors](https://docs.microsoft.com/azure/active-directory/develop/msal-handling-exceptions?tabs=javascript)
-- [Logging in MSAL.js applications](https://docs.microsoft.com/azure/active-directory/develop/msal-logging?tabs=javascript)
-- [Pass custom state in authentication requests using MSAL.js](https://docs.microsoft.com/azure/active-directory/develop/msal-js-pass-custom-state-authentication-request)
-- [Prompt behavior in MSAL.js interactive requests](https://docs.microsoft.com/azure/active-directory/develop/msal-js-prompt-behavior)
-- [Use MSAL.js to work with Azure AD B2C](https://docs.microsoft.com/azure/active-directory/develop/msal-b2c-overview)
+> :information_source: If you would like to use **VS Code Azure Tools** extension for deployment, [watch the tutorial](https://docs.microsoft.com/azure/developer/javascript/tutorial-vscode-static-website-node-01) offered by Microsoft Docs.
 
-For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
+#### Build and upload (msal-angular-spa) to an Azure Storage blob
 
-## Community Help and Support
+Build your project to get a distributable files folder, where your built `html`, `css` and `javascript` files will be generated. Then follow the steps below:
 
-Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
-Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
+> :warning: When uploading, make sure you upload the contents of your distributable files folder and **not** the entire folder itself.
 
-If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
+> :information_source: If you don't have an account already, see: [How to create a storage account](https://docs.microsoft.com/azure/storage/common/storage-account-create).
 
-To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. Locate your storage account and display the account overview.
+1. Select **Static website** to display the configuration page for static websites.
+1. Select **Enabled** to enable static website hosting for the storage account.
+1. In the **Index document name** field, specify a default index page (For example: `index.html`).
+1. The default **index page** is displayed when a user navigates to the root of your static website.
+1. Select **Save**. The Azure portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
+1. In the `msal-angular-spa` project source code, update your configuration file with the **Primary endpoint field** as your new **Redirect URI** (you will register this URI later).
+1. Next, select **Storage Explorer**.
+1. Expand the **BLOB CONTAINERS** node, and then select the `$web` container.
+1. Choose the **Upload** button to upload files.
+1. If you intend for the browser to display the contents of file, make sure that the content type of that file is set to `text/html`.
+1. In the pane that appears beside the **account overview page** of your storage account, select **Static Website**. The URL of your site appears in the **Primary endpoint field**. In the next section, you will register this URI.
+
+#### Update the Azure AD app registration for msal-angular-spa
+
+1. Navigate back to to the [Azure portal](https://portal.azure.com).
+1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
+1. In the resulting screen, select `msal-angular-spa`.
+1. In the app's registration screen, select **Authentication** in the menu.
+   * In the **Redirect URIs** section, update the reply URLs to match the site URL of your Azure deployment. For example:
+      * `https://msal-angular-spa.azurewebsites.net/`
+
+</details>
+
+## Next Steps
+
+Learn how to:
+
+* [Use MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/blob/main/3-Authorization-II/1-call-api/README.md)
+* [Use MSAL Angular TO authenticate users with Azure AD B2C and calls a protected .NET Core web API](https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial/blob/main/3-Authorization-II/2-call-api-b2c/README.md)
 
 ## Contributing
 
