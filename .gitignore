@@ -112,3 +112,6 @@ obj/
 
 # VS Code cache
 .vscode
+
+# Angular cache
+.angular
