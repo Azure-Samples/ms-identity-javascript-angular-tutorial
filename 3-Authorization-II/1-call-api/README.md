@@ -96,7 +96,7 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
     npm install
 ```
 
-### Step 3: Register the sample application(s) in your tenant
+### Step 4: Register the sample application(s) in your tenant
 
 There are two projects in this sample. Each needs to be separately registered in your Azure AD tenant. To register these projects, you can:
 
@@ -235,7 +235,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
 1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value(s) with the application ID (client ID) of the web API project that you've registered earlier, e.g. `api://<msal-dotnet-api-client-id>/TodoList.Read`
 
-### Step 4: Running the sample
+### Step 5: Running the sample
 
 From your shell or command line, execute the following commands:
 
