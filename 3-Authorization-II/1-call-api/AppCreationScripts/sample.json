@@ -43,14 +43,14 @@
                         "Application"
                     ],
                     "Name": "TodoList.Read.All",
-                    "Description": "Allow this application to read every users Todo list items"
+                    "Description": "Allow this application to read every users TodoList items"
                 },
                 {
                     "AllowedMemberTypes": [
                         "Application"
                     ],
                     "Name": "TodoList.ReadWrite.All",
-                    "Description": "Allow this application to read and write every users Todo list items"
+                    "Description": "Allow this application to read and write every users TodoList items"
                 }
             ],
             "OptionalClaims": {

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MsalGuard } from '@azure/msal-angular';
+import { MsalGuard, MsalRedirectComponent } from '@azure/msal-angular';
 import { BrowserUtils } from '@azure/msal-browser';
 
 import { HomeComponent } from './home/home.component';
@@ -27,19 +27,9 @@ const routes: Routes = [
         ]
     },
     {
-        // Needed for hash routing
-        path: 'error',
-        component: HomeComponent
-    },
-    {
-        // Needed for hash routing
-        path: 'state',
-        component: HomeComponent
-    },
-    {
-        // Needed for hash routing
-        path: 'code',
-        component: HomeComponent
+        // Needed for handling redirect after login
+        path: 'auth',
+        component: MsalRedirectComponent
     },
     {
         path: '',

@@ -24,7 +24,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import {
     MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService,
-    MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent
+    MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent, ProtectedResourceScopes
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
@@ -43,10 +43,26 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/initialization.md#get-tokens-for-web-api-calls
  */
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
-    const protectedResourceMap = new Map<string, Array<string>>();
+    const protectedResourceMap = new Map<string, Array<string | ProtectedResourceScopes> | null>();
 
-    protectedResourceMap.set(protectedResources.apiTodoList.endpoint, protectedResources.apiTodoList.scopes.read);
-    protectedResourceMap.set(protectedResources.apiTodoList.endpoint, protectedResources.apiTodoList.scopes.write);
+    protectedResourceMap.set(protectedResources.apiTodoList.endpoint, [
+        {
+            httpMethod: 'GET',
+            scopes: [...protectedResources.apiTodoList.scopes.read]
+        },
+        {
+            httpMethod: 'POST',
+            scopes: [...protectedResources.apiTodoList.scopes.write]
+        },
+        {
+            httpMethod: 'PUT',
+            scopes: [...protectedResources.apiTodoList.scopes.write]
+        },
+        {
+            httpMethod: 'DELETE',
+            scopes: [...protectedResources.apiTodoList.scopes.write]
+        }
+    ]);
 
     return {
         interactionType: InteractionType.Popup,

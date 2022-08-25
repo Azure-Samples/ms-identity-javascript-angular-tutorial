@@ -207,26 +207,5 @@ namespace TodoListAPI.Controllers
 
             return NoContent();
         }
-
-        //// Checks if the presented token has application permissions
-        //private bool HasApplicationPermissions(string[] permissionsNames)
-        //{
-        //    var rolesClaim = User.Claims.Where(
-        //    c => c.Type == ClaimConstants.Roles || c.Type == ClaimConstants.Role)
-        //    .SelectMany(c => c.Value.Split(' '));
-
-        //    var result = rolesClaim.Any(v => permissionsNames.Any(p => p.Equals(v)));
-
-        //    return result;
-        //}
-
-        //// Checks if the presented token has delegated permissions
-        //private bool HasDelegatedPermissions(string[] scopesNames)
-        //{
-        //    var result = (User.FindFirst(ClaimConstants.Scp) ?? User.FindFirst(ClaimConstants.Scope))?
-        //        .Value.Split(' ').Any(v => scopesNames.Any(s => s.Equals(v)));
-
-        //    return result ?? false;
-        //}
     }
 }

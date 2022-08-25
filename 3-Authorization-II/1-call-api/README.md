@@ -1,6 +1,6 @@
 ---
 page_type: sample
-name: An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
+name: Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API
 services: ms-identity
 platform: javascript
 languages:
@@ -14,7 +14,7 @@ urlFragment: ms-identity-javascript-angular-tutorial
 description: An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
 ---
 
-# An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
+# Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -153,12 +153,12 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client's to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `TodoList.Read`.
+    1. For **Scope name**, enter **TodoList.Read** (case-sensitive).
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-dotnet-api to read ToDo list items`.
-    1. For **Admin consent description** type in the details `e.g. Allows the app msal-dotnet-api to read the signed-in users ToDo list items.`
-    1. For **User consent display name** type in the details `e.g. Read ToDo list items as yourself`.
-    1. For **User consent description** type in the details `e.g. Allow the app msal-dotnet-api to read ToDo list items on your behalf.`
+    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-dotnet-api to read Todolist items`.
+    1. For **Admin consent description** type in the details `e.g. Allows the app msal-dotnet-api to read the signed-in users Todolist items.`
+    1. For **User consent display name** type in the details `e.g. Read Todolist items as yourself`.
+    1. For **User consent description** type in the details `e.g. Allow the app msal-dotnet-api to read Todolist items on your behalf.`
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
     > Repeat the steps above for another scope named **TodoList.ReadWrite**
@@ -166,7 +166,7 @@ To manually register the apps, as a first step you'll need to:
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
 
-    > :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
+> :information_source:  Follow  [the principle of least privilege](https://docs.microsoft.com/azure/active-directory/develop/secure-least-privileged-access) whenever you are publishing permissions for a web API.
 
 ##### Publish Application Permissions
 
@@ -175,7 +175,7 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Create app role**:
     1. For **Display name**, enter a suitable name for your application permission, for instance **TodoList.Read.All**.
     1. For **Allowed member types**, choose **Application** to ensure other applications can be granted this permission.
-    1. For **Value**, enter **TodoList.Read.All**.
+    1. For **Value**, enter **TodoList.Read.All** (case-sensitive).
     1. For **Description**, enter **Allow this application to read every users Todo list items**.
     1. Select **Apply** to save your changes.
     > Repeat the steps above for another app permission named **TodoList.ReadWrite.All**
@@ -210,6 +210,12 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. Under **Supported account types**, select **Accounts in this organizational directory only**
     1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Authentication** blade to the left.
+1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+    1. In the **Redirect URI** section enter the following redirect URIs:
+        1. `http://localhost:4200/`
+        1. `http://localhost:4200/auth`
+    1. Click **Save** to save your changes.
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
 1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then,
