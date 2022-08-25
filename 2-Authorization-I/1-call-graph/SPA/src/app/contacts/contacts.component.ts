@@ -1,6 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { GraphService } from '../graph.service';
+import { GraphService, ProviderOptions } from '../graph.service';
 import { protectedResources } from '../auth-config';
+import { MsalService } from '@azure/msal-angular';
+import { InteractionType } from '@azure/msal-browser';
+import { ResponseType } from '@microsoft/microsoft-graph-client';
 
 @Component({
   selector: 'app-contacts',
@@ -10,23 +13,42 @@ import { protectedResources } from '../auth-config';
 export class ContactsComponent implements OnInit {
   contacts: any = [];
   hasContacts: boolean = false;
-  constructor(private graphService: GraphService) {}
+  constructor(
+    private graphService: GraphService,
+    private authService: MsalService
+  ) {}
 
   ngOnInit(): void {
+    const providerOptions: ProviderOptions = {
+      account: this.authService.instance.getActiveAccount()!,
+      scopes: protectedResources.graphContacts.scopes,
+      interactionType: InteractionType.Redirect,
+      endpoint: protectedResources.graphContacts.endpoint,
+    };
+
+    this.getContacts(providerOptions);
+  }
+
+  getContacts(providerOptions: ProviderOptions) {
     this.graphService
-      .getData(protectedResources.graphContacts.endpoint)
+      .getGraphClient(providerOptions)
+      .api('/me/contacts')
+      .responseType(ResponseType.RAW)
+      .get()
+      .then((response: any) => {
+        if (response.status === 200) return response.json();
+        if (response.status === 401) {
+          if (response.headers.get('www-authenticate')) {
+            this.graphService.handleClaimsChallenge(response, providerOptions);
+          }
+        }
+      })
       .then((contactsResponse: any) => {
         this.contacts = contactsResponse.value;
         this.setHasContacts();
       })
-      .catch((errorResponse) => {
-        if (
-          errorResponse.status === 404 &&
-          errorResponse.error.error.message ===
-            'The mailbox is either inactive, soft-deleted, or is hosted on-premise.'
-        ) {
-          this.setHasContacts();
-        }
+      .catch((error: any) => {
+        console.log(error);
       });
   }
 
