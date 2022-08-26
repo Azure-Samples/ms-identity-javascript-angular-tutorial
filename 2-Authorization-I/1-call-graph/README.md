@@ -1,16 +1,20 @@
 ---
 page_type: sample
-name: Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API
+name: A Javascript Angular single-page application using MSAL Angular to sign-in users with Azure AD and call the Microsoft Graph Api
 services: ms-identity
+platform: Javascript
 languages:
- - TypeScript
-products:
+ - javascript
  - angular
+products:
+ - azure-active-directory
+ - ms-graph
+ - msal-angular
 urlFragment: ms-identity-javascript-angular-tutorial
-description: Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API
+description: This sample demonstrates an Angular single-page application (SPA) that uses Microsoft Authentication Library for Angular (MSAL Angular) to sign-in users with Azure Active Directory (Azure AD) and calls Microsoft Graph Api
 ---
 
-# Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API
+# A Javascript Angular single-page application using MSAL Angular to sign-in users with Azure AD and call the Microsoft Graph Api
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -26,16 +30,16 @@ description: Angular single-page application using MSAL Angular to sign-in users
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In addition, this sample also demonstrates how to use [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with MSAL as a custom authentication provider to call the Graph API.
+This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular). In addition, this sample also demonstrates how to use [Microsoft Graph JavaScript SDK](https://github.com/microsoftgraph/msgraph-sdk-javascript) client with MSAL as a custom authentication provider to call the Graph API on behalf of a user.
 
-Here you'll learn about [Access Tokens](https://docs.microsoft.com/azure/active-directory/develop/access-tokens), [acquiring a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token), [calling a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **silent token acquisition**, **working with multiple resources** and more.
+Here you'll learn about [Access Tokens](https://aka.ms/access-tokens), [acquiring a token](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-acquire-token), [calling a protected web API](https://docs.microsoft.com/azure/active-directory/develop/scenario-spa-call-api), as well as [Dynamic Scopes and Incremental Consent](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent), **silent token acquisition**, **working with multiple resources** and more.
 
 > :information_source: See the community call: [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A)
 
 ## Scenario
 
-1. The client Angular SPA uses the Microsoft Authentication Library (MSAL) to sign-in and obtain a JWT access token from **Azure AD**.
-1. The access token is used as a *bearer* token to authorize the user to call the Microsoft Graph protected by **Azure AD**.
+1. The client Angular SPA uses the Microsoft Authentication Library (MSAL) to sign-in a user with **Azure AD** and obtain a JWT access token for Ms Graph API.
+1. The access token is used as a *bearer* token to authorize the user to call the Microsoft Graph Api.
 
 ![Overview](./ReadmeFiles/topology.png)
 
@@ -54,7 +58,8 @@ Here you'll learn about [Access Tokens](https://docs.microsoft.com/azure/active-
 * [Visual Studio Code](https://code.visualstudio.com/download) is recommended for running and editing this sample.
 * [VS Code Azure Tools](https://marketplace.visualstudio.com/items?itemName=ms-vscode.vscode-node-azure-pack) extension is recommended for interacting with Azure through VS Code Interface.
 * A modern web browser. This sample uses **ES6** conventions and will not run on **Internet Explorer**.
-* [Angular-CLI](https://cli.angular.io/) must be installed **globally** to run this sample.* An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
+* [Angular-CLI](https://cli.angular.io/) must be installed **globally** to run this sample.
+* An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
 * A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
 
 ## Setup the sample
@@ -83,10 +88,10 @@ or download and extract the repository *.zip* file.
 
 There is one project in this sample. To register it, you can:
 
-* follow the steps below for manually register your apps
-* or use PowerShell scripts that:
-  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  * modify the projects' configuration files.
+- follow the steps below for manually register your apps
+- or use PowerShell scripts that:
+  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  - modify the projects' configuration files.
 
   <details>
    <summary>Expand this section if you want to use this automation:</summary>
@@ -133,8 +138,17 @@ To manually register the apps, as a first step you'll need to:
    1. Select the **Add a permission** button and then,
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   1. In the **Delegated permissions** section, select the **User.Read**, **Contacts.Read** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+           1. In the **Delegated permissions** section, select the **User.Read**, **Contacts.Read** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
+
+##### Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **ID**.
+    1. Select the optional claim **acct**. Provides user's account status in tenant.If the user is a member of the tenant, the value is 0. If they're a guest, the value is 1.
+    1. Select **Add** to save your changes.
 
 ##### Configure the spa app (msal-angular-spa) to use your app registration
 
@@ -144,7 +158,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
 
 ### Step 4: Running the sample
 
