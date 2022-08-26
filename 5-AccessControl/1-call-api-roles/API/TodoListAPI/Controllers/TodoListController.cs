@@ -1,12 +1,11 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using TodoListAPI.Models;
 using TodoListAPI.Utils;
@@ -18,11 +17,10 @@ namespace TodoListAPI.Controllers
     [ApiController]
     public class TodoListController : ControllerBase
     {
-        // The Web API will only accept tokens 1) for users, and 
-        // 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
-
         private readonly TodoContext _context;
+
+        private const string _todoListRead = "TodoList.Read";
+        private const string _todoListReadWrite = "TodoList.ReadWrite";
 
         public TodoListController(TodoContext context)
         {
@@ -33,88 +31,113 @@ namespace TodoListAPI.Controllers
         [HttpGet]
         [Route("getAll")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListRead }
+        )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
             return await _context.TodoItems.ToListAsync();
         }
 
-        // GET: api/todolist
+        // GET: api/TodoItems
         [HttpGet]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+        /// <summary>
+        /// Access tokens that have neither the 'scp' (for delegated permissions) nor
+        /// 'roles' (for application permissions) claim are not to be honored.
+        ///
+        /// An access token issued by Azure AD will have at least one of the two claims. Access tokens
+        /// issued to a user will have the 'scp' claim. Access tokens issued to an application will have
+        /// the roles claim. Access tokens that contain both claims are issued only to users, where the scp
+        /// claim designates the delegated permissions, while the roles claim designates the user's role.
+        ///
+        /// To determine whether an access token was issued to a user (i.e delegated) or an application
+        /// more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
+        /// https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
+        /// </summary>
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite }
+        )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst("preferred_username")?.Value;
-            return await _context.TodoItems.Where(item => item.Owner == owner).ToListAsync();
+            /// <summary>
+            /// The 'oid' (object id) is the only claim that should be used to uniquely identify
+            /// a user in an Azure AD tenant. The token might have one or more of the following claim,
+            /// that might seem like a unique identifier, but is not and should not be used as such:
+            ///
+            /// - upn (user principal name): might be unique amongst the active set of users in a tenant
+            /// but tend to get reassigned to new employees as employees leave the organization and others
+            /// take their place or might change to reflect a personal change like marriage.
+            ///
+            /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
+            /// to new employees as employees leave the organization and others take their place.
+            /// </summary>
+            return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
         }
 
-        // GET: api/todolist/5
+        // GET: api/TodoItems/5
         [HttpGet("{id}")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite }
+        )]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
- 
-            var todoItem = await _context.TodoItems.FindAsync(id);
-
-            if (todoItem == null)
-            {
-                return NotFound();
-            }
-
-            return todoItem;
+            return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == HttpContext.User.GetObjectId());
         }
 
-        // PUT: api/todolist/5
+        // PUT: api/TodoItems/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite }
+        )]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-            if (id != todoItem.Id)
+            if (id != todoItem.Id  || !_context.TodoItems.Any(x => x.Id == id))
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(todoItem).State = EntityState.Modified;
 
-            try
+            if (_context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TodoItemExists(id))
+                _context.Entry(todoItem).State = EntityState.Modified;
+
+                try
                 {
-                    return NotFound();
+                    await _context.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!_context.TodoItems.Any(e => e.Id == id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
 
             return NoContent();
         }
 
-        // POST: api/todolist
+        // POST: api/TodoItems
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite }
+        )]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-            string owner = User.FindFirst("preferred_username")?.Value;
-            todoItem.Owner = owner;
-
+            todoItem.Owner = HttpContext.User.GetObjectId();
             todoItem.Status = false;
-
 
             _context.TodoItems.Add(todoItem);
             await _context.SaveChangesAsync();
@@ -122,28 +145,28 @@ namespace TodoListAPI.Controllers
             return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
         }
 
-        // DELETE: api/todolist/5
+        // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite }
+        )]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            TodoItem todoItem = await _context.TodoItems.FindAsync(id);
 
-            var todoItem = await _context.TodoItems.FindAsync(id);
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            if (_context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+            {
+                _context.TodoItems.Remove(todoItem);
+                await _context.SaveChangesAsync();
+            }
 
-            return todoItem;
-        }
-
-        private bool TodoItemExists(int id)
-        {
-            return _context.TodoItems.Any(e => e.Id == id);
+            return NoContent();
         }
     }
 }

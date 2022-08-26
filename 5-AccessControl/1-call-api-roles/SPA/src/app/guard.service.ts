@@ -3,6 +3,7 @@ import {
   CanActivate,
   ActivatedRouteSnapshot
 } from '@angular/router';
+
 import { MsalService } from '@azure/msal-angular';
 import { AccountInfo } from '@azure/msal-common';
 
@@ -20,7 +21,7 @@ export class RoleGuardService implements CanActivate {
   constructor(private authService: MsalService) {}
   
   canActivate(route: ActivatedRouteSnapshot): boolean {
-    const expectedRole = route.data.expectedRole;
+    const expectedRole = route.data['expectedRole'];
     let account: Account = this.authService.instance.getAllAccounts()[0];
 
     if (!account.idTokenClaims?.roles) {
