@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using TodoListAPI.Models;
-using TodoListAPI.Utils;
+using TodoListAPI.Infrastructure;
 
 namespace TodoListAPI.Controllers
 {
@@ -19,9 +19,6 @@ namespace TodoListAPI.Controllers
     {
         private readonly TodoContext _context;
 
-        private const string _todoListRead = "TodoList.Read";
-        private const string _todoListReadWrite = "TodoList.ReadWrite";
-
         public TodoListController(TodoContext context)
         {
             _context = context;
@@ -30,10 +27,8 @@ namespace TodoListAPI.Controllers
         // GET: api/todolist/getAll
         [HttpGet]
         [Route("getAll")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
-        [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListRead }
-        )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
         {
             return await _context.TodoItems.ToListAsync();
@@ -41,23 +36,8 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-        /// <summary>
-        /// Access tokens that have neither the 'scp' (for delegated permissions) nor
-        /// 'roles' (for application permissions) claim are not to be honored.
-        ///
-        /// An access token issued by Azure AD will have at least one of the two claims. Access tokens
-        /// issued to a user will have the 'scp' claim. Access tokens issued to an application will have
-        /// the roles claim. Access tokens that contain both claims are issued only to users, where the scp
-        /// claim designates the delegated permissions, while the roles claim designates the user's role.
-        ///
-        /// To determine whether an access token was issued to a user (i.e delegated) or an application
-        /// more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
-        /// https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
-        /// </summary>
-        [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite }
-        )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
             /// <summary>
@@ -77,10 +57,8 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-        [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite }
-        )]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
             return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == HttpContext.User.GetObjectId());
@@ -90,10 +68,8 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-        [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListReadWrite }
-        )]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
             if (id != todoItem.Id  || !_context.TodoItems.Any(x => x.Id == id))
@@ -130,10 +106,8 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-        [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListReadWrite }
-        )]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
             todoItem.Owner = HttpContext.User.GetObjectId();
@@ -147,10 +121,8 @@ namespace TodoListAPI.Controllers
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-        [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListReadWrite }
-        )]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
             TodoItem todoItem = await _context.TodoItems.FindAsync(id);

@@ -283,26 +283,29 @@ To provide feedback on or suggest features for Azure Active Directory, visit [Us
 
 ### Angular RoleGuard and protected routes for role-based access control
 
-The client application Angular SPA has a **RoleGuard** (`role-guard.service.ts`) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
+The client application Angular SPA has a **RoleGuard** (`role.guard.ts`) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
 
 ```typescript
-export class RoleGuardService implements CanActivate {
+export class RoleGuard implements CanActivate {
 
-  constructor(private authService: MsalService) {}
-  
-  canActivate(route: ActivatedRouteSnapshot): boolean {
-    const expectedRole = route.data.expectedRole;
+    constructor(private authService: MsalService) { }
 
-   if (!this.authService.getAccount().idTokenClaims.roles) {
-      window.alert('Token does not have roles claim. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
-      return false;
-   } else if (!this.authService.getAccount().idTokenClaims.roles.includes(expectedRole)) {
-      window.alert('You do not have access as expected role is missing. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
-      return false;
-   }
+    canActivate(route: ActivatedRouteSnapshot): boolean {
+        const expectedRoles: string[] = route.data['expectedRoles'];
+        let account: AccountInfo = this.authService.instance.getActiveAccount()!;
 
-    return true;
-  }
+        if (!account.idTokenClaims?.roles) {
+            window.alert('Token does not have roles claim. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
+            return false;
+        }
+
+        if (!expectedRoles.includes(account.idTokenClaims.roles[0])) {
+            window.alert('You do not have access as the expected role is not found. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
+            return false;
+        }
+
+        return true;
+    }
 }
 ```
 
@@ -310,112 +313,109 @@ We then enable **RoleGuard** in `app-routing.module.ts` as follows:
 
 ```typescript
 const routes: Routes = [
-  {
-    path: 'todo-edit/:id',
-    component: TodoEditComponent,
-    canActivate: [
-      MsalGuard,
-      RoleGuardService
-    ],
-    data: {
-      expectedRole: 'TenantUser'
+    {
+        path: 'todo-edit/:id',
+        component: TodoEditComponent,
+        canActivate: [
+            MsalGuard,
+            RoleGuard
+        ],
+        data: {
+            expectedRoles: [roles.TaskUser, roles.TaskAdmin]
+        }
+    },
+    {
+        path: 'todo-view',
+        component: TodoViewComponent,
+        canActivate: [
+            MsalGuard,
+            RoleGuard
+        ],
+        data: {
+            expectedRoles: [roles.TaskUser, roles.TaskAdmin]
+        }
+    },
+    {
+        path: 'dashboard',
+        component: DashboardComponent,
+        canActivate: [
+            MsalGuard,
+            RoleGuard,
+        ],
+        data: {
+            expectedRoles: [roles.TaskAdmin]
+        }
+    },
+    {
+        // Needed for handling redirect after login
+        path: 'auth',
+        component: MsalRedirectComponent
+    },
+    {
+        path: '',
+        component: HomeComponent
     }
-  },
-  {
-    path: 'todo-view',
-    component: TodoViewComponent,
-    canActivate: [
-      MsalGuard,
-      RoleGuardService
-    ],
-    data: {
-      expectedRole: 'TenantUser'
-    }
-  },
-  {
-    path: 'dashboard',
-    component: DashboardComponent,
-    canActivate: [
-      MsalGuard,
-      RoleGuardService,
-    ],
-    data: {
-      expectedRole: 'TaskAdmin'
-    }
-  },
-  {
-    path: '',
-    component: HomeComponent
-  }
 ];
 ```
 
-However, it is important to be aware of that no content on the front-end application can be **truly** secure. That is, our **RoleGuard** component is primarily responsible for rendering the correct pages and other UI elements for a user in a particular role; in the example above, we allow only users in the `TaskAdmin` role to see the `Dashboard` component. In order to **truly** protect data and expose certain REST operations to a selected set of users, we enable **RBAC** on the back-end/web API as well in this sample. This is shown next.
+However, it is important to be aware of that no content on a browser application is **truly** secure. That is, our **RoleGuard** component is primarily responsible for rendering the correct pages and other UI elements for a user in a particular role; in the example above, we allow only users in the `TaskAdmin` role to see the `Dashboard` component. In order to **truly** protect data and expose certain REST operations to a selected set of users, we enable **RBAC** on the back-end/web API as well in this sample. This is shown next.
 
 ### Policy based Authorization for .NET Core web API
 
 As mentioned before, in order to **truly** implement **RBAC** and secure data, this sample  allows only authorized calls to our web API. We do this by defining access policies and decorating our HTTP methods with them. To do so, we first add `roles` claim as a validation parameter in `Startup.cs`, and then we create authorization policies that depends on this claim:
 
 ```csharp
-   // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
-   services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-   {
-         // The claim in the Jwt token where App roles are available.
-         options.TokenValidationParameters.RoleClaimType = "roles";
-   });
+  // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
+  services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+  {
+        // The claim in the Jwt token where App roles are available.
+        options.TokenValidationParameters.RoleClaimType = "roles";
+  });
 
-         // Adding authorization policies that enforce authorization using Azure AD roles.
-   services.AddAuthorization(options =>
-   {
-         options.AddPolicy(AuthorizationPolicies.AssignmentToTaskUserRoleRequired, policy => policy.RequireRole(AppRole.TaskUser));
-         options.AddPolicy(AuthorizationPolicies.AssignmentToTaskAdminRoleRequired, policy => policy.RequireRole(AppRole.TaskAdmin));
-   });
+  // Adding authorization policies that enforce authorization using Azure AD roles.
+  services.AddAuthorization(options =>
+  {
+      options.AddPolicy(AuthorizationPolicies.AssignmentToTaskUserRoleRequired, policy => policy.RequireRole(Configuration["AzureAd:Roles:TaskUser"], Configuration["AzureAd:Roles:TaskAdmin"]));
+
+      options.AddPolicy(AuthorizationPolicies.AssignmentToTaskAdminRoleRequired, policy => policy.RequireRole(Configuration["AzureAd:Roles:TaskAdmin"]));
+  });
 ```
 
-We defined these roles in `AppRoles.cs` as follows:
+We defined these roles in `appsettings.json` as follows:
 
-```csharp
-   public static class AppRole
-   {
-      public const string TaskUser = "TaskUser";
-      public const string TaskAdmin = "TaskAdmin";
-   }
-   public static class AuthorizationPolicies
-   {
-      public const string AssignmentToTaskUserRoleRequired = "AssignmentToTaskUserRoleRequired";
-      public const string AssignmentToTaskAdminRoleRequired = "AssignmentToTaskAdminRoleRequired";
-   }
+```json
+  "Roles": {
+    "TaskAdmin": "TaskAdmin",
+    "TaskUser": "TaskUser"
+  }
 ```
 
 Finally, in `TodoListController.cs`, we decorate our routes with the appropriate policy:
 
 ```csharp
-   // GET: api/todolist/getAll
-   [HttpGet]
-   [Route("getAll")]
-   [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
-   public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
-   {
-      HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+  // GET: api/todolist/getAll
+  [HttpGet]
+  [Route("getAll")]
+  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+  [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
+  public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
+  {
       return await _context.TodoItems.ToListAsync();
-   }
+  }
 
-   // GET: api/todolist
-   [HttpGet]
-   [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-   public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
-   {
-      HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-      string owner = User.FindFirst("preferred_username")?.Value;
-      return await _context.TodoItems.Where(item => item.Owner == owner).ToListAsync();
-   }
+  // GET: api/TodoItems
+  [HttpGet]
+  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+  [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+  public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
+  {
+      return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
+  }
 ```
 
 ## Next Steps
 
-Learn how to:
-
-* [Call an API using Security Groups](../../5-AccessControl/2-call-api-groups/README-incremental.md).
+Learn how to [call an API using Security Groups](../../5-AccessControl/2-call-api-groups/README.md).
 
 ## Contributing
 

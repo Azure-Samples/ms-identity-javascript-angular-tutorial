@@ -8,7 +8,7 @@ import { TodoViewComponent } from './todo-view/todo-view.component';
 import { TodoEditComponent } from './todo-edit/todo-edit.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
 
-import { RoleGuardService } from './guard.service';
+import { RoleGuard } from './role.guard';
 import { roles } from './auth-config';
 
 /**
@@ -21,10 +21,10 @@ const routes: Routes = [
         component: TodoEditComponent,
         canActivate: [
             MsalGuard,
-            RoleGuardService
+            RoleGuard
         ],
         data: {
-            expectedRole: roles.TaskUser
+            expectedRoles: [roles.TaskUser, roles.TaskAdmin]
         }
     },
     {
@@ -32,10 +32,10 @@ const routes: Routes = [
         component: TodoViewComponent,
         canActivate: [
             MsalGuard,
-            RoleGuardService
+            RoleGuard
         ],
         data: {
-            expectedRole: roles.TaskUser
+            expectedRoles: [roles.TaskUser, roles.TaskAdmin]
         }
     },
     {
@@ -43,10 +43,10 @@ const routes: Routes = [
         component: DashboardComponent,
         canActivate: [
             MsalGuard,
-            RoleGuardService,
+            RoleGuard,
         ],
         data: {
-            expectedRole: roles.TaskAdmin
+            expectedRoles: [roles.TaskAdmin]
         }
     },
     {
