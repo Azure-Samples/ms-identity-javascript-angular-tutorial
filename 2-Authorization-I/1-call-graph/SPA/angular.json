@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "SPA3": {
+    "ms-identity-angular-c2s1": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/spa3",
+            "outputPath": "dist/ms-identity-angular-c2s1",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
@@ -65,10 +65,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "SPA3:build:production"
+              "browserTarget": "ms-identity-angular-c2s1:build:production"
             },
             "development": {
-              "browserTarget": "SPA3:build:development"
+              "browserTarget": "ms-identity-angular-c2s1:build:development"
             }
           },
           "defaultConfiguration": "development"
@@ -76,7 +76,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "SPA3:build"
+            "browserTarget": "ms-identity-angular-c2s1:build"
           }
         },
         "test": {

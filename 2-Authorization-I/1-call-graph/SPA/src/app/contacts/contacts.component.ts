@@ -4,6 +4,7 @@ import { protectedResources } from '../auth-config';
 import { MsalService } from '@azure/msal-angular';
 import { InteractionType } from '@azure/msal-browser';
 import { ResponseType } from '@microsoft/microsoft-graph-client';
+import { Contact } from '../contacts';
 
 @Component({
   selector: 'app-contacts',
@@ -11,7 +12,7 @@ import { ResponseType } from '@microsoft/microsoft-graph-client';
   styleUrls: ['./contacts.component.css'],
 })
 export class ContactsComponent implements OnInit {
-  contacts: any = [];
+  contacts: Contact[] = [];
   hasContacts: boolean = false;
   constructor(
     private graphService: GraphService,

@@ -26,7 +26,7 @@ export const getClaimsFromStorage = (claimsChallengeId: string): any => {
  */
 export const clearStorage = (account: any): void => {
   for (var key in sessionStorage) {
-    if (key === `cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)
+    if (key.startsWith(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`))
       sessionStorage.removeItem(key);
   }
 };

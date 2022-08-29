@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { BrowserUtils } from '@azure/msal-browser';
-import { MsalGuard } from '@azure/msal-angular';
+import { MsalGuard, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { ProfileComponent } from './profile/profile.component';
 import { ContactsComponent } from './contacts/contacts.component';
@@ -21,22 +21,15 @@ const routes: Routes = [
   {
     path: 'contacts',
     component: ContactsComponent,
-    canActivate: [MsalGuard]
+    canActivate: [MsalGuard],
+  },
+  {
+    // Needed for handling redirect after login
+    path: 'auth',
+    component: MsalRedirectComponent,
   },
   {
     path: '',
-    component: HomeComponent,
-  },
-  {
-    path: 'error',
-    component: HomeComponent,
-  },
-  {
-    path: 'state',
-    component: HomeComponent,
-  },
-  {
-    path: 'code',
     component: HomeComponent,
   },
 ];

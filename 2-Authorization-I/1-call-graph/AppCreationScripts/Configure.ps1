@@ -148,7 +148,7 @@ Function ConfigureApplications
    $spaAadApplication = New-MgApplication -DisplayName "msal-angular-spa" `
                                                    -Spa `
                                                    @{ `
-                                                       RedirectUris = "http://localhost:4200/"; `
+                                                       RedirectUris = "http://localhost:4200/", "http://localhost:4200/auth"; `
                                                      } `
                                                     -SignInAudience AzureADMyOrg `
                                                    #end of command

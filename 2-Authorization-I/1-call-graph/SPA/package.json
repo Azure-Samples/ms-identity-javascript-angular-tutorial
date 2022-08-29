@@ -1,5 +1,5 @@
 {
-  "name": "spa3",
+  "name": "ms-identity-angular-c2s1",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -23,7 +23,7 @@
     "@azure/msal-angular": "^2.4.1",
     "@azure/msal-browser": "^2.28.1",
     "@microsoft/microsoft-graph-client": "^3.0.2",
-    "rxjs": "~7.5.0",
+    "rxjs": "^6.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
   },

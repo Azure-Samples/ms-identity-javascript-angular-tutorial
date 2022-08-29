@@ -20,7 +20,7 @@ import { createClaimsTable } from '../utils/claim-utils';
 export class HomeComponent implements OnInit {
   loginDisplay = false;
   dataSource: any = [];
-  displayedColumns: string[] = ['claim', 'value'];
+  displayedColumns: string[] = ['claim', 'value', 'description'];
 
   private readonly _destroying$ = new Subject<void>();
 

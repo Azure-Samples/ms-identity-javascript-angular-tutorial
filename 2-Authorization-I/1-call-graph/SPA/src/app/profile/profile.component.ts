@@ -52,24 +52,24 @@ export class ProfileComponent implements OnInit {
           {
             id: 1,
             claim: 'Name',
-            value: profileResponse ? profileResponse['givenName'] : null,
+            value: profileResponse ? profileResponse.givenName : null,
           },
           {
             id: 2,
             claim: 'Surname',
-            value: profileResponse ? profileResponse['surname'] : null,
+            value: profileResponse ? profileResponse.surname : null,
           },
           {
             id: 3,
             claim: 'User Principal Name (UPN)',
             value: profileResponse
-              ? profileResponse['userPrincipalName']
+              ? profileResponse.userPrincipalName
               : null,
           },
           {
             id: 4,
             claim: 'ID',
-            value: profileResponse ? profileResponse['id'] : null,
+            value: profileResponse ? profileResponse.id : null,
           },
         ];
       })

@@ -88,10 +88,10 @@ or download and extract the repository *.zip* file.
 
 There is one project in this sample. To register it, you can:
 
-- follow the steps below for manually register your apps
-- or use PowerShell scripts that:
-  - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
-  - modify the projects' configuration files.
+* follow the steps below for manually register your apps
+* or use PowerShell scripts that:
+  * **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
+  * modify the projects' configuration files.
 
   <details>
    <summary>Expand this section if you want to use this automation:</summary>
@@ -133,6 +133,13 @@ To manually register the apps, as a first step you'll need to:
     1. Under **Supported account types**, select **Accounts in this organizational directory only**
     1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Authentication** blade to the left.
+1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+    1. In the **Redirect URI** section enter the following redirect URIs:
+        1. `http://localhost:4200/`
+        1. `http://localhost:4200/auth`
+    1. Click **Save** to save your changes.
+
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
    1. Select the **Add a permission** button and then,
@@ -251,8 +258,7 @@ export class ProfileComponent implements OnInit {
 }
 ```
 
-Alternatively, you can also explicitly acquire Access tokens using the *acquireToken* APIs. **MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. 
-The `acquireTokenSilent()` API is meant to retrieve a non-expired access token from the cache *silently*. If `acquireTokenSilent()` fails for some reason, the recommended pattern is to fallback to one of the interactive methods i.e. `acquireTokenPopup()` or `acquireTokenRedirect()`. `acquireTokenSilent()` requires the current user's account as a parameter. Read more about [accounts in MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/FAQ.md#how-do-i-get-accounts).
+Alternatively, you can also explicitly acquire Access tokens using the *acquireToken* APIs. **MSAL.js** exposes 3 APIs for acquiring a token: `acquireTokenPopup()`, `acquireTokenRedirect()` and `acquireTokenSilent()`. For more information about *acquireToken* APIs please check the following [Acquiring and Using an Access Token](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/acquire-token.md)
 
 ```typescript
 export class AppComponent implements OnInit {
@@ -280,6 +286,146 @@ export class AppComponent implements OnInit {
 ```
 
 > :information_source: When using `acquireTokenRedirect`, you may want to set `navigateToLoginRequestUrl` in [msalConfig](./SPA/src/authConfig.js) to **true** if you wish to return back to the page where *acquireTokenRedirect* was called.
+
+### Working with multiple resources
+
+When you have to access multiple resources, initiate a separate token request for each:
+
+ ```javascript
+     // "User.Read" stands as shorthand for "graph.microsoft.com/User.Read"
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read" ]
+     });
+     const customApiToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
+
+Bear in mind that you *can* request multiple scopes for the same resource (e.g. `User.Read`, `User.Write` and `Calendar.Read` for **MS Graph API**).
+
+ ```javascript
+     const graphToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "User.Write", "Calendar.Read"] // all MS Graph API scopes
+     });
+ ```
+
+In case you *erroneously* pass multiple resources in your token request, the token you will receive will only be issued for the first resource.
+
+ ```javascript
+     // you will only receive a token for MS GRAPH API's "User.Read" scope here
+     const myToken = await msalInstance.acquireTokenSilent({
+          scopes: [ "User.Read", "api://<myCustomApiClientId>/My.Scope" ]
+     });
+ ```
+
+### Dynamic scopes and incremental consent
+
+<details>
+  <summary>Expand this section</summary>
+
+In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. *loginPopup*, *loginRedirect*) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
+
+```javascript
+     const loginRequest = {
+          scopes: [ "openid", "profile", "User.Read" ]
+     };
+
+     const tokenRequest = {
+          scopes: [ "Mail.Read" ]
+     };
+
+     // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
+     msalInstance.loginPopup(loginRequest);
+
+     // will fail and fallback to an interactive method prompting a consent screen
+     // after consent, the received token will be issued for "openid", "profile" ,"User.Read" and "Mail.Read" combined
+     msalInstance.acquireTokenPopup(tokenRequest);
+```
+
+In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
+
+</details>
+
+### Handle Continuous Access Evaluation (CAE) challenge from Microsoft Graph
+
+Continuous access evaluation (CAE) enables applications to do just-in time token validation, for instance enforcing user session revocation in the case of password change/reset but there are other benefits. For details, see [Continuous access evaluation](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation).
+
+Microsoft Graph is now CAE-enabled. This means that it can ask its client apps for more claims when conditional access policies require it. Your can enable your application to be ready to consume CAE-enabled APIs by:
+
+1. Declaring that the client app is capable of handling [claims challenges](https://aka.ms/claimschallenge).
+2. Processing the claim challenge when they are thrown by MS Graph Api.
+
+#### Declare the CAE capability in the configuration
+
+This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `auth-config.ts`:
+
+```javascript
+    const msalConfig = {
+        auth: {
+            clientId: 'Enter_the_Application_Id_Here', 
+            authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
+            redirectUri: "/", 
+            postLogoutRedirectUri: "/",
+            navigateToLoginRequestUrl: true, 
+            clientCapabilities: ["CP1"] // this lets the resource owner (MS Graph) know that this client is capable of handling claims challenge.
+        }
+    }
+
+    const msalInstance = new PublicClientApplication(msalConfig);
+```
+
+#### Processing the CAE challenge from Microsoft Graph
+
+Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to proces the challenge and redirect the user back to Azure AD for further processing. To do so, we use MSAL's `acquireToken` API and provide the claims challenge as a parameter in the token request. This is shown in [graph.service.ts](../SPA/src/app/graph.service.ts), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
+
+```typescript
+ /**
+   * This method inspects the HTTPS response from a http call for the "www-authenticate header"
+   * If present, it grabs the claims challenge from the header and store it in the sessionStorage
+   * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
+   * @param response
+   */
+  handleClaimsChallenge(response: any, providerOptions: ProviderOptions): void {
+    const authenticateHeader: string = response.headers.get('www-authenticate');
+    const claimsChallengeMap: any = this.parseChallenges(authenticateHeader);
+    let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+    addClaimsToStorage(
+      claimsChallengeMap.claims,
+      `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${
+        new URL(providerOptions.endpoint).hostname
+      }`
+    );
+    
+    new MsalAuthenticationProvider(providerOptions, this.authService).getAccessToken()
+    
+  }
+
+
+  /**
+   * This method parses WWW-Authenticate authentication headers 
+   * @param header
+   * @return {Object} challengeMap
+   */
+  parseChallenges<T>(header: string): T {
+    const schemeSeparator = header.indexOf(' ');
+    const challenges = header.substring(schemeSeparator + 1).split(',');
+    const challengeMap = {} as any;
+
+    challenges.forEach((challenge: string) => {
+      const [key, value] = challenge.split('=');
+      challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
+    });
+
+    return challengeMap;
+  }
+
+```
+
+After that, we require a new access token via the `MsalAuthenticationProvider` Class, fetch the claims challenge from the browser's localStorage, and pass it to the `acquireToken` API in the request parameter. This is shown in [graph.service.ts](../SPA/src/app/graph.service.ts)
+
+### Access Token validation
+
+Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
 ### Calling the Microsoft Graph API
 
@@ -437,146 +583,6 @@ getProfile(providerOptions: ProviderOptions) {
       });
   }
 ```
-
-### Handle Continuous Access Evaluation (CAE) challenge from Microsoft Graph
-
-Continuous access evaluation (CAE) enables applications to do just-in time token validation, for instance enforcing user session revocation in the case of password change/reset but there are other benefits. For details, see [Continuous access evaluation](https://docs.microsoft.com/azure/active-directory/conditional-access/concept-continuous-access-evaluation).
-
-Microsoft Graph is now CAE-enabled. This means that it can ask its client apps for more claims when conditional access policies require it. Your can enable your application to be ready to consume CAE-enabled APIs by:
-
-1. Declaring that the client app is capable of handling [claims challenges](https://aka.ms/claimschallenge).
-2. Processing the claim challenge when they are thrown by MS Graph Api.
-
-#### Declare the CAE capability in the configuration
-
-This sample app declares that it's CAE-capable by adding the `clientCapabilities` property in the configuration in `auth-config.ts`:
-
-```javascript
-    const msalConfig = {
-        auth: {
-            clientId: 'Enter_the_Application_Id_Here', 
-            authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here',
-            redirectUri: "/", 
-            postLogoutRedirectUri: "/",
-            navigateToLoginRequestUrl: true, 
-            clientCapabilities: ["CP1"] // this lets the resource owner (MS Graph) know that this client is capable of handling claims challenge.
-        }
-    }
-
-    const msalInstance = new PublicClientApplication(msalConfig);
-```
-
-#### Processing the CAE challenge from Microsoft Graph
-
-Once the client app receives the CAE claims challenge from Microsoft Graph, it needs to proces the challenge and redirect the user back to Azure AD for further processing. To do so, we use MSAL's `acquireToken` API and provide the claims challenge as a parameter in the token request. This is shown in [graph.service.ts](../SPA/src/app/graph.service.ts), where we handle the response from the Microsoft Graph API with the `handleClaimsChallenge` method:
-
-```typescript
- /**
-   * This method inspects the HTTPS response from a http call for the "www-authenticate header"
-   * If present, it grabs the claims challenge from the header and store it in the sessionStorage
-   * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
-   * @param response
-   */
-  handleClaimsChallenge(response: any, providerOptions: ProviderOptions): void {
-    const authenticateHeader: string = response.headers.get('www-authenticate');
-    const claimsChallengeMap: any = this.parseChallenges(authenticateHeader);
-    let account: AccountInfo = this.authService.instance.getActiveAccount()!;
-    addClaimsToStorage(
-      claimsChallengeMap.claims,
-      `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${
-        new URL(providerOptions.endpoint).hostname
-      }`
-    );
-    
-    new MsalAuthenticationProvider(providerOptions, this.authService).getAccessToken()
-    
-  }
-
-
-  /**
-   * This method parses WWW-Authenticate authentication headers 
-   * @param header
-   * @return {Object} challengeMap
-   */
-  parseChallenges<T>(header: string): T {
-    const schemeSeparator = header.indexOf(' ');
-    const challenges = header.substring(schemeSeparator + 1).split(',');
-    const challengeMap = {} as any;
-
-    challenges.forEach((challenge: string) => {
-      const [key, value] = challenge.split('=');
-      challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
-    });
-
-    return challengeMap;
-  }
-
-```
-
-After that, we require a new access token via the `MsalAuthenticationProvider` Class, fetch the claims challenge from the browser's localStorage, and pass it to the `acquireToken` API in the request parameter. This is shown in [graph.service.ts](../SPA/src/app/graph.service.ts)
-
-### Working with multiple resources
-
-When you have to access multiple resources, initiate a separate token request for each:
-
- ```javascript
-     // "User.Read" stands as shorthand for "graph.microsoft.com/User.Read"
-     const graphToken = await msalInstance.acquireTokenSilent({
-          scopes: [ "User.Read" ]
-     });
-     const customApiToken = await msalInstance.acquireTokenSilent({
-          scopes: [ "api://<myCustomApiClientId>/My.Scope" ]
-     });
- ```
-
-Bear in mind that you *can* request multiple scopes for the same resource (e.g. `User.Read`, `User.Write` and `Calendar.Read` for **MS Graph API**).
-
- ```javascript
-     const graphToken = await msalInstance.acquireTokenSilent({
-          scopes: [ "User.Read", "User.Write", "Calendar.Read"] // all MS Graph API scopes
-     });
- ```
-
-In case you *erroneously* pass multiple resources in your token request, the token you will receive will only be issued for the first resource.
-
- ```javascript
-     // you will only receive a token for MS GRAPH API's "User.Read" scope here
-     const myToken = await msalInstance.acquireTokenSilent({
-          scopes: [ "User.Read", "api://<myCustomApiClientId>/My.Scope" ]
-     });
- ```
-
-### Dynamic scopes and incremental consent
-
-<details>
-  <summary>Expand this section</summary>
-
-In **Azure AD**, the scopes (permissions) set directly on the application registration are called static scopes. Other scopes that are only defined within the code are called dynamic scopes. This has implications on the **login** (i.e. *loginPopup*, *loginRedirect*) and **acquireToken** (i.e. `acquireTokenPopup`, `acquireTokenRedirect`, `acquireTokenSilent`) methods of **MSAL.js**. Consider:
-
-```javascript
-     const loginRequest = {
-          scopes: [ "openid", "profile", "User.Read" ]
-     };
-
-     const tokenRequest = {
-          scopes: [ "Mail.Read" ]
-     };
-
-     // will return an ID Token and an Access Token with scopes: "openid", "profile" and "User.Read"
-     msalInstance.loginPopup(loginRequest);
-
-     // will fail and fallback to an interactive method prompting a consent screen
-     // after consent, the received token will be issued for "openid", "profile" ,"User.Read" and "Mail.Read" combined
-     msalInstance.acquireTokenPopup(tokenRequest);
-```
-
-In the code snippet above, the user will be prompted for consent once they authenticate and receive an **ID Token** and an **Access Token** with scope `User.Read`. Later, if they request an **Access Token** for `User.Read`, they will not be asked for consent again (in other words, they can acquire a token *silently*). On the other hand, the user did not consented to `Mail.Read` at the authentication stage. As such, they will be asked for consent when requesting an **Access Token** for that scope. The token received will contain all the previously consented scopes, hence the term *incremental consent*.
-
-</details>
-
-### Access Token validation
-
-Clients should treat access tokens as opaque strings, as the contents of the token are intended for the **resource only** (such as a web API or Microsoft Graph). For validation and debugging purposes, developers can decode **JWT**s (*JSON Web Tokens*) using a site like [jwt.ms](https://jwt.ms).
 
 ## Next Steps
 

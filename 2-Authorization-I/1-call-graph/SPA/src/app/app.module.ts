@@ -35,7 +35,7 @@ import {
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { getClaimsFromStorage } from './utils/storageUtils';
+import { getClaimsFromStorage } from './utils/storage-utils';
 import { GraphService } from './graph.service';
 
 
@@ -95,7 +95,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
                 }.${resource}`
               )
             )
-          : undefined;
+          : undefined; // claims challenge e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
       return {
         ...originalAuthRequest,
         claims: claim,

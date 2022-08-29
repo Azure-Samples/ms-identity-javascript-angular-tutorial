@@ -11,9 +11,13 @@ import {
   AuthenticationProvider,
   AuthenticationProviderOptions,
 } from '@microsoft/microsoft-graph-client';
-import { addClaimsToStorage, getClaimsFromStorage } from './utils/storageUtils';
-import { msalConfig } from './auth-config';
+import {
+  addClaimsToStorage,
+  getClaimsFromStorage,
+} from './utils/storage-utils';
+import { parseChallenges } from './utils/claim-utils';
 
+import { msalConfig } from './auth-config';
 /**
  * The code below demonstrates how you can use MSAL as a custom authentication provider for the Microsoft Graph JavaScript SDK.
  * You do NOT need to implement a custom provider. Microsoft Graph JavaScript SDK v3.0 (preview) offers AuthCodeMSALBrowserAuthenticationProvider
@@ -63,34 +67,26 @@ export class GraphService {
    */
   handleClaimsChallenge(response: any, providerOptions: ProviderOptions): void {
     const authenticateHeader: string = response.headers.get('www-authenticate');
-    const claimsChallengeMap: any = this.parseChallenges(authenticateHeader);
+    const claimsChallengeMap: any = parseChallenges(authenticateHeader);
     let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+
+    /**
+     * This method stores the claim challenge to the session storage in the browser to be used when acquiring a token.
+     * To ensure that we are fetching the correct claim from the storage, we are using the clientId
+     * of the application and oid (user’s object id) as the key identifier of the claim with schema
+     * cc.<clientId>.<oid><resource.hostname>
+     */
     addClaimsToStorage(
       claimsChallengeMap.claims,
       `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${
         new URL(providerOptions.endpoint).hostname
       }`
     );
-    
-    new MsalAuthenticationProvider(providerOptions, this.authService).getAccessToken()
-    
-  }
 
-  /**
-   * This method parses WWW-Authenticate authentication headers
-   * @param header
-   * @return {Object} challengeMap
-   */
-  parseChallenges<T>(header: string): T {
-    const schemeSeparator = header.indexOf(' ');
-    const challenges = header.substring(schemeSeparator + 1).split(',');
-    const challengeMap = {} as any;
-
-    challenges.forEach((challenge: string) => {
-      const [key, value] = challenge.split('=');
-      challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
-    });
-    return challengeMap;
+    new MsalAuthenticationProvider(
+      providerOptions,
+      this.authService
+    ).getAccessToken();
   }
 }
 
@@ -123,26 +119,27 @@ class MsalAuthenticationProvider implements AuthenticationProvider {
     return new Promise(async (resolve, reject) => {
       let response: AuthenticationResult;
       let resource = new URL(this.endpoint).hostname;
+      let claim =
+        this.authService.instance.getActiveAccount()! &&
+        getClaimsFromStorage(
+          `cc.${msalConfig.auth.clientId}.${
+            this.authService.instance.getActiveAccount()?.idTokenClaims?.oid
+          }.${resource}`
+        )
+          ? window.atob(
+              getClaimsFromStorage(
+                `cc.${msalConfig.auth.clientId}.${
+                  this.authService.instance.getActiveAccount()?.idTokenClaims
+                    ?.oid
+                }.${resource}`
+              )
+            )
+          : undefined; // e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
       try {
         response = await this.authService.instance.acquireTokenSilent({
           account: this.account,
           scopes: this.scopes,
-          claims:
-            this.authService.instance.getActiveAccount()! &&
-            getClaimsFromStorage(
-              `cc.${msalConfig.auth.clientId}.${
-                this.authService.instance.getActiveAccount()?.idTokenClaims?.oid
-              }.${resource}`
-            )
-              ? window.atob(
-                  getClaimsFromStorage(
-                    `cc.${msalConfig.auth.clientId}.${
-                      this.authService.instance.getActiveAccount()
-                        ?.idTokenClaims?.oid
-                    }.${resource}`
-                  )
-                )
-              : undefined,
+          claims: claim,
         });
 
         if (response.accessToken) {
@@ -157,23 +154,7 @@ class MsalAuthenticationProvider implements AuthenticationProvider {
             case InteractionType.Popup:
               response = await this.authService.instance.acquireTokenPopup({
                 scopes: this.scopes,
-                claims:
-                  this.authService.instance.getActiveAccount()! &&
-                  getClaimsFromStorage(
-                    `cc.${msalConfig.auth.clientId}.${
-                      this.authService.instance.getActiveAccount()
-                        ?.idTokenClaims?.oid
-                    }.${resource}`
-                  )
-                    ? window.atob(
-                        getClaimsFromStorage(
-                          `cc.${msalConfig.auth.clientId}.${
-                            this.authService.instance.getActiveAccount()
-                              ?.idTokenClaims?.oid
-                          }.${resource}`
-                        )
-                      )
-                    : undefined,
+                claims: claim,
               });
 
               if (response.accessToken) {
@@ -192,23 +173,7 @@ class MsalAuthenticationProvider implements AuthenticationProvider {
                */
               this.authService.instance.acquireTokenRedirect({
                 scopes: this.scopes,
-                claims:
-                  this.authService.instance.getActiveAccount()! &&
-                  getClaimsFromStorage(
-                    `cc.${msalConfig.auth.clientId}.${
-                      this.authService.instance.getActiveAccount()
-                        ?.idTokenClaims?.oid
-                    }.${resource}`
-                  )
-                    ? window.atob(
-                        getClaimsFromStorage(
-                          `cc.${msalConfig.auth.clientId}.${
-                            this.authService.instance.getActiveAccount()
-                              ?.idTokenClaims?.oid
-                          }.${resource}`
-                        )
-                      )
-                    : undefined,
+                claims: claim,
               });
               break;
 
