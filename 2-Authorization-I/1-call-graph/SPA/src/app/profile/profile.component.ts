@@ -48,30 +48,9 @@ export class ProfileComponent implements OnInit {
                 }
             })
             .then((profileResponse: Profile) => {
-                this.dataSource = [
-                    {
-                        id: 1,
-                        claim: 'Name',
-                        value: profileResponse ? profileResponse.givenName : null,
-                    },
-                    {
-                        id: 2,
-                        claim: 'Surname',
-                        value: profileResponse ? profileResponse.surname : null,
-                    },
-                    {
-                        id: 3,
-                        claim: 'User Principal Name (UPN)',
-                        value: profileResponse
-                            ? profileResponse.userPrincipalName
-                            : null,
-                    },
-                    {
-                        id: 4,
-                        claim: 'ID',
-                        value: profileResponse ? profileResponse.id : null,
-                    },
-                ];
+                Object.entries(profileResponse).forEach((claim: [string, unknown]) => {
+                    this.dataSource = [...this.dataSource, { claim: claim[0], value: claim[1] }];
+                });
             })
             .catch((error: any) => {
                 console.log(error);
