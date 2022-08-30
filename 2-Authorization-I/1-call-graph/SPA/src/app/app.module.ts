@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 
 import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatButtonModule } from '@angular/material/button';
@@ -13,38 +14,34 @@ import { HomeComponent } from './home/home.component';
 import { ContactsComponent } from './contacts/contacts.component';
 
 import {
-  IPublicClientApplication,
-  PublicClientApplication,
-  InteractionType,
+    IPublicClientApplication,
+    PublicClientApplication,
+    InteractionType,
 } from '@azure/msal-browser';
 
-
-
 import {
-  MSAL_INSTANCE,
-  MsalGuardConfiguration,
-  MSAL_GUARD_CONFIG,
-  MsalService,
-  MsalBroadcastService,
-  MsalGuard,
-  MsalRedirectComponent,
-  MsalInterceptor,
-  MSAL_INTERCEPTOR_CONFIG,
-  MsalInterceptorConfiguration
+    MSAL_INSTANCE,
+    MsalGuardConfiguration,
+    MSAL_GUARD_CONFIG,
+    MsalService,
+    MsalBroadcastService,
+    MsalGuard,
+    MsalRedirectComponent,
+    MsalInterceptor,
+    MSAL_INTERCEPTOR_CONFIG,
+    MsalInterceptorConfiguration
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { getClaimsFromStorage } from './utils/storage-utils';
 import { GraphService } from './graph.service';
-
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
  * For more info, visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md
  */
 export function MSALInstanceFactory(): IPublicClientApplication {
-  return new PublicClientApplication(msalConfig); 
+    return new PublicClientApplication(msalConfig);
 }
 
 /**
@@ -52,10 +49,10 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  * additional scopes you want the user to consent upon login, add them here as well.
  */
 export function MsalGuardConfigurationFactory(): MsalGuardConfiguration {
-  return {
-    interactionType: InteractionType.Redirect,
-    authRequest: loginRequest
-  };
+    return {
+        interactionType: InteractionType.Redirect,
+        authRequest: loginRequest
+    };
 }
 
 /**
@@ -64,44 +61,35 @@ export function MsalGuardConfigurationFactory(): MsalGuardConfiguration {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/initialization.md#get-tokens-for-web-api-calls
  */
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
-  const protectedResourceMap = new Map<string, Array<string>>();
+    const protectedResourceMap = new Map<string, Array<string>>();
 
-  protectedResourceMap.set(
-    protectedResources.graphMe.endpoint,
-    protectedResources.graphMe.scopes
-  );
+    protectedResourceMap.set(protectedResources.graphMe.endpoint, protectedResources.graphMe.scopes);
+    protectedResourceMap.set(protectedResources.graphContacts.endpoint, protectedResources.graphContacts.scopes);
 
-   protectedResourceMap.set(
-     protectedResources.graphContacts.endpoint,
-     protectedResources.graphContacts.scopes
-   );
-  
-  return {
-    interactionType: InteractionType.Redirect,
-    protectedResourceMap,
-    authRequest: (msalService, httpReq, originalAuthRequest) => {
-      const resource = new URL(httpReq.url).hostname;
-      let claim =
-        msalService.instance.getActiveAccount()! &&
-        getClaimsFromStorage(
-          `cc.${msalConfig.auth.clientId}.${
-            msalService.instance.getActiveAccount()?.idTokenClaims?.oid
-          }.${resource}`
-        )
-          ? window.atob(
-              getClaimsFromStorage(
-                `cc.${msalConfig.auth.clientId}.${
-                  msalService.instance.getActiveAccount()?.idTokenClaims?.oid
-                }.${resource}`
-              )
-            )
-          : undefined; // claims challenge e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
-      return {
-        ...originalAuthRequest,
-        claims: claim,
-      };
-    },
-  };
+    return {
+        interactionType: InteractionType.Redirect,
+        protectedResourceMap,
+        authRequest: (msalService, httpReq, originalAuthRequest) => {
+            const resource = new URL(httpReq.url).hostname;
+            let claim =
+                msalService.instance.getActiveAccount()! &&
+                    getClaimsFromStorage(
+                        `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+                        }.${resource}`
+                    )
+                    ? window.atob(
+                        getClaimsFromStorage(
+                            `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+                            }.${resource}`
+                        )
+                    )
+                    : undefined; // claims challenge e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+            return {
+                ...originalAuthRequest,
+                claims: claim,
+            };
+        },
+    };
 }
 
 
@@ -110,55 +98,51 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
  * additional scopes you want the user to consent upon login, add them here as well.
  */
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return {
-    interactionType: InteractionType.Redirect,
-    authRequest: loginRequest
-  };
+    return {
+        interactionType: InteractionType.Redirect,
+        authRequest: loginRequest
+    };
 }
 
 @NgModule({
-  declarations: [
-    AppComponent,
-    ProfileComponent,
-    HomeComponent,
-    ContactsComponent,
-  ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatCardModule,
-    MatTableModule,
-    HttpClientModule,
-  ],
-  providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: MsalInterceptor,
-      multi: true,
-    },
-    {
-      provide: MSAL_INSTANCE,
-      useFactory: MSALInstanceFactory,
-    },
-    {
-      provide: MSAL_GUARD_CONFIG,
-      useFactory: MsalGuardConfigurationFactory,
-    },
-    {
-      provide: MSAL_INTERCEPTOR_CONFIG,
-      useFactory: MSALInterceptorConfigFactory,
-    },
-    MsalService,
-    MsalBroadcastService,
-    MsalGuard,
-    MatButtonModule,
-    MatCardModule,
-    MatTableModule,
-    GraphService,
-    HttpClientModule,
-  ],
-  bootstrap: [AppComponent, MsalRedirectComponent],
+    declarations: [
+        AppComponent,
+        ProfileComponent,
+        HomeComponent,
+        ContactsComponent,
+    ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        MatToolbarModule,
+        MatButtonModule,
+        MatCardModule,
+        MatTableModule,
+        HttpClientModule,
+    ],
+    providers: [
+        {
+            provide: HTTP_INTERCEPTORS,
+            useClass: MsalInterceptor,
+            multi: true,
+        },
+        {
+            provide: MSAL_INSTANCE,
+            useFactory: MSALInstanceFactory,
+        },
+        {
+            provide: MSAL_GUARD_CONFIG,
+            useFactory: MsalGuardConfigurationFactory,
+        },
+        {
+            provide: MSAL_INTERCEPTOR_CONFIG,
+            useFactory: MSALInterceptorConfigFactory,
+        },
+        MsalService,
+        MsalBroadcastService,
+        MsalGuard,
+        GraphService
+    ],
+    bootstrap: [AppComponent, MsalRedirectComponent],
 })
-export class AppModule {}
+export class AppModule { }

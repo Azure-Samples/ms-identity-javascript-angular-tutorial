@@ -6,14 +6,14 @@
  */
 
 import {
-  LogLevel,
-  Configuration,
-  BrowserCacheLocation,
+    LogLevel,
+    Configuration,
+    BrowserCacheLocation,
 } from '@azure/msal-browser';
 
 const isIE =
-  window.navigator.userAgent.indexOf('MSIE ') > -1 ||
-  window.navigator.userAgent.indexOf('Trident/') > -1;
+    window.navigator.userAgent.indexOf('MSIE ') > -1 ||
+    window.navigator.userAgent.indexOf('Trident/') > -1;
 
 /**
  * Configuration object to be passed to MSAL instance on creation.
@@ -22,26 +22,26 @@ const isIE =
  */
 
 export const msalConfig: Configuration = {
-  auth: {
-    clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
-    authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-    redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
-    postLogoutRedirectUri: '/', // Points to window.location.origin by default.
-    clientCapabilities: ['CP1'], // This lets the resource server know that this client can handle claim challenges.
-  },
-  cache: {
-    cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
-    storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge. Remove this line to use Angular Universal
-  },
-  system: {
-    loggerOptions: {
-      loggerCallback(logLevel: LogLevel, message: string) {
-        console.log(message);
-      },
-      logLevel: LogLevel.Verbose,
-      piiLoggingEnabled: false,
+    auth: {
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
+        redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
+        postLogoutRedirectUri: '/', // Points to window.location.origin by default.
+        clientCapabilities: ['CP1'], // This lets the resource server know that this client can handle claim challenges.
     },
-  },
+    cache: {
+        cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
+        storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge. Remove this line to use Angular Universal
+    },
+    system: {
+        loggerOptions: {
+            loggerCallback(logLevel: LogLevel, message: string) {
+                console.log(message);
+            },
+            logLevel: LogLevel.Verbose,
+            piiLoggingEnabled: false,
+        },
+    },
 };
 
 /**
@@ -49,14 +49,14 @@ export const msalConfig: Configuration = {
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/resources-and-scopes.md
  */
 export const protectedResources = {
-  graphMe: {
-    endpoint: 'https://graph.microsoft.com/v1.0/me',
-    scopes: ['User.Read'],
-  },
-  graphContacts: {
-    endpoint: 'https://graph.microsoft.com/v1.0/me/contacts',
-    scopes: ['Contacts.Read'],
-  },
+    graphMe: {
+        endpoint: 'https://graph.microsoft.com/v1.0/me',
+        scopes: ['User.Read'],
+    },
+    graphContacts: {
+        endpoint: 'https://graph.microsoft.com/v1.0/me/contacts',
+        scopes: ['Contacts.Read'],
+    },
 };
 
 /**
@@ -66,5 +66,5 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-  scopes: ['User.Read', 'Contacts.Read'],
+    scopes: ['User.Read', 'Contacts.Read'],
 };

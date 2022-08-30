@@ -13,37 +13,37 @@ import { HomeComponent } from './home/home.component';
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/initialization.md#secure-the-routes-in-your-application
  */
 const routes: Routes = [
-  {
-    path: 'profile',
-    component: ProfileComponent,
-    canActivate: [MsalGuard],
-  },
-  {
-    path: 'contacts',
-    component: ContactsComponent,
-    canActivate: [MsalGuard],
-  },
-  {
-    // Needed for handling redirect after login
-    path: 'auth',
-    component: MsalRedirectComponent,
-  },
-  {
-    path: '',
-    component: HomeComponent,
-  },
+    {
+        path: 'profile',
+        component: ProfileComponent,
+        canActivate: [MsalGuard],
+    },
+    {
+        path: 'contacts',
+        component: ContactsComponent,
+        canActivate: [MsalGuard],
+    },
+    {
+        // Needed for handling redirect after login
+        path: 'auth',
+        component: MsalRedirectComponent,
+    },
+    {
+        path: '',
+        component: HomeComponent,
+    },
 ];
 
 @NgModule({
-  imports: [
-    RouterModule.forRoot(routes, {
-      // Don't perform initial navigation in iframes or popups
-      initialNavigation:
-        !BrowserUtils.isInIframe() && !BrowserUtils.isInPopup()
-          ? 'enabledNonBlocking'
-          : 'disabled', // Set to enabledBlocking to use Angular Universal
-    }),
-  ],
-  exports: [RouterModule],
+    imports: [
+        RouterModule.forRoot(routes, {
+            // Don't perform initial navigation in iframes or popups
+            initialNavigation:
+                !BrowserUtils.isInIframe() && !BrowserUtils.isInPopup()
+                    ? 'enabledNonBlocking'
+                    : 'disabled', // Set to enabledBlocking to use Angular Universal
+        }),
+    ],
+    exports: [RouterModule],
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }
