@@ -163,15 +163,14 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `TodoList.Read`.
+    1. For **Scope name**, use `access_as_user`.
     1. Select **Admins and users** options for **Who can consent?**.
     1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-angular-app to read ToDo list items`.
     1. For **Admin consent description** type in the details `e.g. Allows the app msal-angular-app to read the signed-in users ToDo list items.`
-    1. For **User consent display name** type in the details `e.g. Read ToDo list items as yourself`.
-    1. For **User consent description** type in the details `e.g. Allow the app msal-angular-app to read ToDo list items on your behalf.`
+    1. For **User consent display name** type in the details `e.g. Read Todolist items as yourself`.
+    1. For **User consent description** type in the details `e.g. Allow the app msal-angular-app to read Todolist items on your behalf.`
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
-    > Repeat the steps above for another scope named **TodoList.ReadWrite**
 1. Select the **Manifest** blade on the left.
     1. Set `accessTokenAcceptedVersion` property to **2**.
     1. Select on **Save**.
@@ -186,7 +185,7 @@ To manually register the apps, as a first step you'll need to:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-angular-app`.
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **TodoList.Read**, **TodoList.ReadWrite** in the list. Use the search box if necessary.
+           1. In the **Delegated permissions** section, select the **access_as_user** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Publish Application Roles for users and groups
@@ -222,7 +221,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Scope_here` and replace the existing value with Scope.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of the web API -in this scenario, this is the same application ID with `msal-angular-app`.
 
 ### Step 6: Running the sample
 

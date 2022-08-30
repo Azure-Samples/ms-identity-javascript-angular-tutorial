@@ -27,7 +27,7 @@ namespace TodoListAPI.Controllers
         // GET: api/todolist/getAll
         [HttpGet]
         [Route("getAll")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
         {
@@ -36,7 +36,7 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
@@ -57,7 +57,7 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
@@ -68,7 +68,7 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
@@ -106,7 +106,7 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
@@ -121,7 +121,7 @@ namespace TodoListAPI.Controllers
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
         [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {

@@ -6,7 +6,7 @@
     "Service": ".NET Core web API",
     "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
     "Endpoint": "AAD v2.0",
-    "Languages": ["TypeScript", "CSharp"],
+    "Languages": ["typescript", "csharp"],
     "Description": "Angular single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
     "products": ["azure-active-directory", "msal-js", "msal-angular", "microsoft-identity-web"]
   },
@@ -18,10 +18,7 @@
       "Audience": "AzureADMyOrg",
       "HomePage": "http://localhost:4200/",
       "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
-      "Scopes": [
-        "TodoList.Read",
-        "TodoList.ReadWrite"
-      ],
+      "Scopes": ["access_as_user"],
       "Sample": {
         "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
         "ProjectDirectory": "\\1-call-api-roles\\SPA"
@@ -29,10 +26,7 @@
       "RequiredResourcesAccess": [
         {
           "Resource": "client",
-          "DelegatedPermissions": [
-            "TodoList.Read",
-            "TodoList.ReadWrite"
-          ]
+          "DelegatedPermissions": ["access_as_user"]
         }
       ],
       "AppRoles": [
@@ -95,8 +89,8 @@
           "value": "$tenantId"
         },
         {
-          "key": "Enter_the_Web_Api_Scope_here",
-          "value": "client.Scope"
+          "key": "Enter_the_Web_Api_Application_Id_Here",
+          "value": "client.AppId"
         }
       ]
     }

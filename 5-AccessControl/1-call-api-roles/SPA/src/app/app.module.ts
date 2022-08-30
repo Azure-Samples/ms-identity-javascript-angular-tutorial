@@ -46,24 +46,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
     const protectedResourceMap = new Map<string, Array<string | ProtectedResourceScopes> | null>();
 
-    protectedResourceMap.set(protectedResources.apiTodoList.endpoint, [
-        {
-            httpMethod: 'GET',
-            scopes: [...protectedResources.apiTodoList.scopes.read]
-        },
-        {
-            httpMethod: 'POST',
-            scopes: [...protectedResources.apiTodoList.scopes.write]
-        },
-        {
-            httpMethod: 'PUT',
-            scopes: [...protectedResources.apiTodoList.scopes.write]
-        },
-        {
-            httpMethod: 'DELETE',
-            scopes: [...protectedResources.apiTodoList.scopes.write]
-        }
-    ]);
+    protectedResourceMap.set(protectedResources.apiTodoList.endpoint, [...protectedResources.apiTodoList.scopes]);
 
     return {
         interactionType: InteractionType.Popup,

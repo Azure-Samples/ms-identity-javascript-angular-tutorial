@@ -48,10 +48,7 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
     apiTodoList: {
         endpoint: "https://localhost:44351/api/todolist",
-        scopes: {
-            read: ["api://Enter_the_Web_Api_Application_Id_Here/TodoList.Read"],
-            write: ["api://Enter_the_Web_Api_Application_Id_Here/TodoList.ReadWrite"]
-        }
+        scopes: ["api://Enter_the_Web_Api_Application_Id_Here/access_as_user"]
     }
 }
 
@@ -62,7 +59,7 @@ export const protectedResources = {
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
 export const loginRequest = {
-    scopes: []
+    scopes: [...protectedResources.apiTodoList.scopes]
 };
 
 export const roles = {

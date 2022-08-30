@@ -221,14 +221,7 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value TodoList.Read  `
-    -userConsentDisplayName "Access msal-angular-app"  `
-    -userConsentDescription "Allow the application to access msal-angular-app on your behalf."  `
-    -adminConsentDisplayName "Access msal-angular-app"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
-            
-    $scopes.Add($scope)
-    $scope = CreateScope -value TodoList.ReadWrite  `
+    $scope = CreateScope -value access_as_user  `
     -userConsentDisplayName "Access msal-angular-app"  `
     -userConsentDescription "Allow the application to access msal-angular-app on your behalf."  `
     -adminConsentDisplayName "Access msal-angular-app"  `
@@ -249,7 +242,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
     $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-angular-app" `
-        -requiredDelegatedPermissions "TodoList.Read|TodoList.ReadWrite" `
+        -requiredDelegatedPermissions "access_as_user" `
     
 
     $requiredResourcesAccess.Add($requiredPermissions)
@@ -266,7 +259,7 @@ Function ConfigureApplications
     
     # Update config file for 'client'
     $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Scope_here" = ("api://"+$clientAadApplication.AppId+"/access_as_user") };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId };
 
     Write-Host "Updating the sample code ($configFile)"
 
