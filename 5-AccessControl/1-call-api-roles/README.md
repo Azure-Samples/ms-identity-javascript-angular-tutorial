@@ -228,14 +228,14 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
-1. Find the key `Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com` and replace the existing value with your Azure AD tenant domain, ex. `contoso.onmicrosoft.com`.
-1. Find the key `Enter the ID of your Azure AD tenant copied from the Azure portal` and replace the existing value with your Azure AD tenant/directory ID.
-1. Find the key `Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
+1. Find the string `Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com` and replace the existing value with your Azure AD tenant domain, ex. `contoso.onmicrosoft.com`.
+1. Find the string `Enter the ID of your Azure AD tenant copied from the Azure portal` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the string `Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of the web API -in this scenario, this is the same application ID with `msal-angular-app`.
+1. Find the string `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
+1. Find the string `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
+1. Find the string `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of the web API -in this scenario, this is the same application ID with `msal-angular-app`.
 
 ### Step 6: Running the sample
 
@@ -446,7 +446,7 @@ Finally, in `TodoListController.cs`, we decorate our routes with the appropriate
 
 ## Next Steps
 
-Learn how to [call an API using Security Groups](../../5-AccessControl/2-call-api-groups/README.md).
+Learn how to [Protect and call an API using Security Groups](../../5-AccessControl/2-call-api-groups/README.md).
 
 ## Contributing
 
