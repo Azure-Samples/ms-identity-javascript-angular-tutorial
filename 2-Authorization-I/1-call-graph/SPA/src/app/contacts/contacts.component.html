@@ -1,0 +1,16 @@
+<div class="card-section">
+    <p>Calling <strong>Microsoft Graph API</strong>...</p>
+    <ul>
+        <li><strong>resource:</strong> <mark>User</mark> object</li>
+        <li><strong>endpoint:</strong> <mark>https://graph.microsoft.com/v1.0/me/contacts</mark></li>
+        <li><strong>scope:</strong> <mark>Contacts.Read</mark></li>
+    </ul>
+    <p>Contents of the <strong>response</strong> is below:</p>
+
+    <mat-card class="card-section" *ngFor="let contact of contacts">
+        <mat-card-title>{{contact?.displayName}}</mat-card-title>
+        <mat-card-content>{{contact?.personalNotes}}</mat-card-content>
+    </mat-card>
+
+    <p *ngIf="!hasContacts">User has no contacts</p>
+</div>

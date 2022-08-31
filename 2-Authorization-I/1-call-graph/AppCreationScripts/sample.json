@@ -1,14 +1,15 @@
 {
     "Sample": {
-        "Title": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API",
+        "Title": "A Javascript Angular single-page application using MSAL Angular to sign-in users with Azure AD and call the Microsoft Graph Api",
         "Level": 100,
         "Client": "Angular SPA",
         "Service": "Microsoft Graph",
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
-        "Description": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call the Microsoft Graph API",
-        "products": ["angular"],
-        "Languages": ["TypeScript"]
+        "Platform": "Javascript",
+        "Languages": ["javascript", "angular"],
+        "Products": ["azure-active-directory", "ms-graph", "msal-angular"],
+        "description": "This sample demonstrates an Angular single-page application (SPA) that uses Microsoft Authentication Library for Angular (MSAL Angular) to sign-in users with Azure Active Directory (Azure AD) and calls Microsoft Graph Api"
     },
     "AADApps": [
         {
@@ -16,22 +17,21 @@
             "Name": "msal-angular-spa",
             "Kind": "SinglePageApplication",
             "HomePage": "http://localhost:4200/",
-            "ReplyUrls": "http://localhost:4200/",
+            "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",  
             "Audience": "AzureADMyOrg",
+            "Sample": {
+                "SampleSubPath": "2-Authorization-I\\1-call-graph",
+                "ProjectDirectory": "\\SPA"
+            },
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "User.Read"
-                    ]
-                },
-                {
-                    "Resource": "Windows Azure Service Management API",
-                    "DelegatedPermissions": [
-                        "user_impersonation"
-                    ]
+                    "DelegatedPermissions": ["User.Read", "Contacts.Read"]
                 }
-            ]
+            ],        
+        "OptionalClaims": {
+          "IdTokenClaims": [ "acct" ]
+        },
         }
     ],
     "CodeConfiguration": [

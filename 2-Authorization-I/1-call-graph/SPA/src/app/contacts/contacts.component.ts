@@ -1,42 +1,41 @@
 import { Component, OnInit } from '@angular/core';
-import { InteractionType } from '@azure/msal-browser';
 import { MsalService } from '@azure/msal-angular';
+import { InteractionType } from '@azure/msal-browser';
 import { ResponseType } from '@microsoft/microsoft-graph-client';
 
 import { GraphService, ProviderOptions } from '../graph.service';
 import { protectedResources } from '../auth-config';
-import { Profile } from '../profile';
+import { Contact } from '../contacts';
 
 @Component({
-    selector: 'app-profile',
-    templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.css'],
+    selector: 'app-contacts',
+    templateUrl: './contacts.component.html',
+    styleUrls: ['./contacts.component.css'],
 })
-export class ProfileComponent implements OnInit {
-    profile!: Profile;
-    displayedColumns: string[] = ['claim', 'value'];
-    dataSource: any = [];
-
+export class ContactsComponent implements OnInit {
+    contacts: Contact[] = [];
+    hasContacts: boolean = false;
+    
     constructor(
         private graphService: GraphService,
         private authService: MsalService
     ) { }
 
-    ngOnInit() {
+    ngOnInit(): void {
         const providerOptions: ProviderOptions = {
             account: this.authService.instance.getActiveAccount()!,
-            scopes: protectedResources.graphMe.scopes,
+            scopes: protectedResources.graphContacts.scopes,
             interactionType: InteractionType.Redirect,
-            endpoint: protectedResources.graphMe.endpoint,
+            endpoint: protectedResources.graphContacts.endpoint,
         };
 
-        this.getProfile(providerOptions);
+        this.getContacts(providerOptions);
     }
 
-    getProfile(providerOptions: ProviderOptions) {
+    getContacts(providerOptions: ProviderOptions) {
         this.graphService
             .getGraphClient(providerOptions)
-            .api('/me')
+            .api('/me/contacts')
             .responseType(ResponseType.RAW)
             .get()
             .then((response: any) => {
@@ -47,13 +46,16 @@ export class ProfileComponent implements OnInit {
                     }
                 }
             })
-            .then((profileResponse: Profile) => {
-                Object.entries(profileResponse).forEach((claim: [string, unknown]) => {
-                    this.dataSource = [...this.dataSource, { claim: claim[0], value: claim[1] }];
-                });
+            .then((contactsResponse: any) => {
+                this.contacts = contactsResponse.value;
+                this.setHasContacts();
             })
             .catch((error: any) => {
                 console.log(error);
             });
+    }
+
+    setHasContacts() {
+        this.hasContacts = this.contacts.length > 0;
     }
 }
