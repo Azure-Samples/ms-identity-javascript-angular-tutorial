@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.IdentityModel.Tokens.Jwt;
+using System.Threading.Tasks;
+using System.Linq;
 using TodoListAPI.Models;
 using TodoListAPI.Infrastructure;
 
@@ -47,18 +49,20 @@ namespace TodoListAPI
                         /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
                         /// </summary>
                         
-                        //options.Events.OnTokenValidated = async context =>
-                        //{
-                        //    string[] allowedClientApps = { /* list of client ids to allow */ };
+                        options.Events.OnTokenValidated = async context =>
+                        {
+                           string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId
 
-                        //    string clientappId = context?.Principal?.Claims
-                        //        .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
+                           string clientappId = context?.Principal?.Claims
+                               .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
-                        //    if (!allowedClientApps.Contains(clientappId))
-                        //    {
-                        //        throw new System.Exception("This client is not authorized");
-                        //    }
-                        //};
+                           if (!allowedClientApps.Contains(clientappId))
+                           {
+                               throw new System.Exception("This client is not authorized");
+                           }
+
+                           await Task.CompletedTask;
+                        };
                     }, options => { Configuration.Bind("AzureAd", options); });
 
             // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the Authorize attribute and User.IsInrole()
