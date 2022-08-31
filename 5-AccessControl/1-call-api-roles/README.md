@@ -5,6 +5,7 @@ services: ms-identity
 languages:
  - typescript
  - csharp
+ - javascript
 products:
  - azure-active-directory
  - msal-js
@@ -23,6 +24,7 @@ description: Angular single-page application calling a protected web API using A
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
+* [How to deploy this sample to Azure](#how-to-deploy-this-sample-to-azure)
 * [Next Steps](#next-steps)
 * [Contributing](#contributing)
 * [Learn More](#learn-more)
@@ -31,9 +33,14 @@ description: Angular single-page application calling a protected web API using A
 
 This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **App Roles**.
 
-Access control in Azure AD can be done with **Security Groups** as well, as we will cover in the [next tutorial](../2-call-api-groups/README.md). **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Role based access control in Azure AD can be done with **Delegated** and **App** permissions and **Security Groups** as well. we will cover RBAC using Security Groups in the [next tutorial](../2-call-api-groups/README.md). **Delegated** and **App** permissions, **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
 In the sample, a **dashboard** component allows signed-in users to see the tasks assigned to users and is only accessible by users under an **app role** named **TaskAdmin**.
+
+> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
+
+
+> :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
 
 ## Scenario
 
@@ -165,10 +172,10 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
     1. For **Scope name**, use `access_as_user`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in the details, `e.g. Allow the users of the app msal-angular-app to read ToDo list items`.
-    1. For **Admin consent description** type in the details `e.g. Allows the app msal-angular-app to read the signed-in users ToDo list items.`
-    1. For **User consent display name** type in the details `e.g. Read Todolist items as yourself`.
-    1. For **User consent description** type in the details `e.g. Allow the app msal-angular-app to read Todolist items on your behalf.`
+    1. For **Admin consent display name** type in *Access 'msal-angular-app' as the signed-in user.*.
+    1. For **Admin consent description** type in *Allow the app to access the 'msal-angular-app' as a signed-in user.*.
+    1. For **User consent display name** type in *Access 'msal-angular-app' on your behalf.*.
+    1. For **User consent description** type in *Allow the app to access the 'msal-angular-app' on your behalf.*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
@@ -207,15 +214,15 @@ To add users to this app role, follow the guidelines here: [Assign users and gro
 
 For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
 
-##### Configure the app (msal-angular-app) to use your app registration
+##### Configure the client app (msal-angular-app) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
-1. Find the key `Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com` and replace the existing value with your Azure AD tenant name.
-1. Find the key `Enter the ID of your Azure AD tenant copied from the Azure portal` and replace the existing value with your Azure AD tenant ID.
+1. Find the key `Enter the domain of your Azure AD tenant, e.g. contoso.onmicrosoft.com` and replace the existing value with your Azure AD tenant domain, ex. `contoso.onmicrosoft.com`.
+1. Find the key `Enter the ID of your Azure AD tenant copied from the Azure portal` and replace the existing value with your Azure AD tenant/directory ID.
 1. Find the key `Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
 
 1. Open the `SPA\src\app\auth-config.ts` file.
