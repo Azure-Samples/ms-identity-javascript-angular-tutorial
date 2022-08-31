@@ -13,7 +13,7 @@ import { MsalBroadcastService, MsalGuardConfiguration, MSAL_GUARD_CONFIG, MsalSe
 import { InteractionType, BrowserConfigurationAuthError, BrowserUtils, UrlString, PopupRequest, RedirectRequest, AuthenticationResult } from "@azure/msal-browser";
 
 @Injectable()
-export class MsalGuard implements CanActivate, CanActivateChild, CanLoad {
+export class BaseGuard implements CanActivate, CanActivateChild, CanLoad {
     private loginFailedRoute?: UrlTree;
 
     constructor(

@@ -5,10 +5,10 @@ import { Observable, of } from "rxjs";
 import { concatMap } from "rxjs/operators";
 
 import { MsalBroadcastService, MsalGuardConfiguration, MsalService, MSAL_GUARD_CONFIG } from "@azure/msal-angular";
-import { MsalGuard } from "./base.guard";
+import { BaseGuard } from "./base.guard";
 
 @Injectable()
-export class RoleGuard extends MsalGuard {
+export class RoleGuard extends BaseGuard {
 
   constructor(
     @Inject(MSAL_GUARD_CONFIG) protected override msalGuardConfig: MsalGuardConfiguration,
@@ -46,7 +46,6 @@ export class RoleGuard extends MsalGuard {
 
         return of(hasRequiredRole);
       })
-    )
-
+    );
   }
 }

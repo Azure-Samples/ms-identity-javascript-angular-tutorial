@@ -8,7 +8,8 @@
         "Endpoint": "AAD v2.0",
         "Languages": [
             "typescript",
-            "csharp"
+            "csharp",
+            "javascript"
         ],
         "Description": "Angular single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
         "products": [
