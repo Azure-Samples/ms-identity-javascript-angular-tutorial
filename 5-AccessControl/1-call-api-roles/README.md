@@ -24,7 +24,6 @@ description: Angular single-page application calling a protected web API using A
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
-* [How to deploy this sample to Azure](#how-to-deploy-this-sample-to-azure)
 * [Next Steps](#next-steps)
 * [Contributing](#contributing)
 * [Learn More](#learn-more)
