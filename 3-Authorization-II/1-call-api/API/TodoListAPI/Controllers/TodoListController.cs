@@ -1,14 +1,13 @@
-﻿using System;
+﻿using System.Linq;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using TodoListAPI.Models;
-using System.Security.Claims;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using TodoListAPI.Models;
 
 namespace TodoListAPI.Controllers
 {
@@ -17,70 +16,139 @@ namespace TodoListAPI.Controllers
     [ApiController]
     public class TodoListController : ControllerBase
     {
-        // The Web API will only accept tokens 1) for users, and 
-        // 2) having the access_as_user scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "access_as_user" };
-
         private readonly TodoContext _context;
+
+        private const string _todoListRead = "TodoList.Read";
+        private const string _todoListReadWrite = "TodoList.ReadWrite";
+        private const string _todoListReadAll = "TodoList.Read.All";
+        private const string _todoListReadWriteAll = "TodoList.ReadWrite.All";
 
         public TodoListController(TodoContext context)
         {
             _context = context;
         }
 
+        /// <summary>
+        /// Indicates if the AT presented has application or delegated permissions.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsAppOnlyToken()
+        {
+            // Add in the optional 'idtyp' claim to check if the access token is coming from an application or user.
+            // See: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims
+            if (HttpContext.User.Claims.Any(c => c.Type == "idtyp"))
+            {
+                return HttpContext.User.Claims.Any(c => c.Type == "idtyp" && c.Value == "app");
+            }
+            else
+            {
+                // alternatively, if an AT contains the roles claim but no scp claim, that indicates it's an app token
+                return HttpContext.User.Claims.Any(c => c.Type == "roles") && HttpContext.User.Claims.Any(c => c.Type != "scp");
+            }
+        }
+
         // GET: api/TodoItems
         [HttpGet]
+        /// <summary>
+        /// Access tokens that have neither the 'scp' (for delegated permissions) nor
+        /// 'roles' (for application permissions) claim are not to be honored.
+        ///
+        /// An access token issued by Azure AD will have at least one of the two claims. Access tokens
+        /// issued to a user will have the 'scp' claim. Access tokens issued to an application will have
+        /// the roles claim. Access tokens that contain both claims are issued only to users, where the scp
+        /// claim designates the delegated permissions, while the roles claim designates the user's role.
+        ///
+        /// To determine whether an access token was issued to a user (i.e delegated) or an application
+        /// more easily, we recommend enabling the optional claim 'idtyp'. For more information, see:
+        /// https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
+        /// </summary>
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return await _context.TodoItems.Where(item => item.Owner == owner).ToListAsync();
+            if (!IsAppOnlyToken())
+            {
+                /// <summary>
+                /// The 'oid' (object id) is the only claim that should be used to uniquely identify
+                /// a user in an Azure AD tenant. The token might have one or more of the following claim,
+                /// that might seem like a unique identifier, but is not and should not be used as such:
+                ///
+                /// - upn (user principal name): might be unique amongst the active set of users in a tenant
+                /// but tend to get reassigned to new employees as employees leave the organization and others
+                /// take their place or might change to reflect a personal change like marriage.
+                ///
+                /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
+                /// to new employees as employees leave the organization and others take their place.
+                /// </summary>
+                return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
+            }
+            else
+            {
+                return await _context.TodoItems.ToListAsync();
+            }
         }
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
- 
-            var todoItem = await _context.TodoItems.FindAsync(id);
-
-            if (todoItem == null)
+            // if it only has delegated permissions, then it will be t.id==id && x.Owner == owner
+            // if it has app permissions the it will return t.id==id
+            if (!IsAppOnlyToken())
             {
-                return NotFound();
+                return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == HttpContext.User.GetObjectId());
             }
-
-            return todoItem;
+            else
+            {
+                return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id);
+            }
         }
 
         // PUT: api/TodoItems/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+        )]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-            if (id != todoItem.Id)
+            if (id != todoItem.Id  || !_context.TodoItems.Any(x => x.Id == id))
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(todoItem).State = EntityState.Modified;
 
-            try
+            if ((!IsAppOnlyToken() && _context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+                ||
+                IsAppOnlyToken())
             {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TodoItemExists(id))
+                if (_context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
+                    _context.Entry(todoItem).State = EntityState.Modified;
+
+                    try
+                    {
+                        await _context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (!_context.TodoItems.Any(e => e.Id == id))
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
                 }
             }
 
@@ -91,10 +159,20 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            string owner = HttpContext.User.GetObjectId();
+
+            if (IsAppOnlyToken())
+            {
+                // with such a permission any owner name is accepted
+                owner = todoItem.Owner;
+            }
+
             todoItem.Owner = owner;
             todoItem.Status = false;
 
@@ -106,25 +184,28 @@ namespace TodoListAPI.Controllers
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
+        [RequiredScopeOrAppPermission(
+            AcceptedScope = new string[] { _todoListReadWrite },
+            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+        )]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            TodoItem todoItem = await _context.TodoItems.FindAsync(id);
 
-            var todoItem = await _context.TodoItems.FindAsync(id);
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            if ((!IsAppOnlyToken() && _context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+                ||
+                IsAppOnlyToken())
+            {
+                _context.TodoItems.Remove(todoItem);
+                await _context.SaveChangesAsync();
+            }
 
-            return todoItem;
-        }
-
-        private bool TodoItemExists(int id)
-        {
-            return _context.TodoItems.Any(e => e.Id == id);
+            return NoContent();
         }
     }
 }
