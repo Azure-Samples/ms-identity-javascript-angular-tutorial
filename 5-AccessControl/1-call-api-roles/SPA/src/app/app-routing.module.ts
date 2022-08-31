@@ -20,7 +20,6 @@ const routes: Routes = [
         path: 'todo-edit/:id',
         component: TodoEditComponent,
         canActivate: [
-            MsalGuard,
             RoleGuard
         ],
         data: {
@@ -31,7 +30,6 @@ const routes: Routes = [
         path: 'todo-view',
         component: TodoViewComponent,
         canActivate: [
-            MsalGuard,
             RoleGuard
         ],
         data: {
@@ -42,7 +40,6 @@ const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         canActivate: [
-            MsalGuard,
             RoleGuard,
         ],
         data: {

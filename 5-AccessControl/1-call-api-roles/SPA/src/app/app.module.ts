@@ -24,11 +24,12 @@ import { TodoService } from './todo.service';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import {
-    MsalGuard, MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService,
+    MsalInterceptor, MsalBroadcastService, MsalInterceptorConfiguration, MsalModule, MsalService,
     MSAL_GUARD_CONFIG, MSAL_INSTANCE, MSAL_INTERCEPTOR_CONFIG, MsalGuardConfiguration, MsalRedirectComponent, ProtectedResourceScopes
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
+import { RoleGuard } from './role.guard';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -109,7 +110,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
             useFactory: MSALInterceptorConfigFactory
         },
         MsalService,
-        MsalGuard,
+        RoleGuard,
         MsalBroadcastService,
         TodoService
     ],

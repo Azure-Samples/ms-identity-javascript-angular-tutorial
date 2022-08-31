@@ -1,33 +1,51 @@
-import { Injectable } from '@angular/core';
-import {
-    CanActivate,
-    ActivatedRouteSnapshot
-} from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from "@angular/router";
+import { Inject, Injectable } from "@angular/core";
+import { Location } from "@angular/common";
+import { Observable, of } from "rxjs";
+import { concatMap } from "rxjs/operators";
 
-import { MsalService } from '@azure/msal-angular';
-import { AccountInfo } from '@azure/msal-common';
+import { MsalBroadcastService, MsalGuardConfiguration, MsalService, MSAL_GUARD_CONFIG } from "@azure/msal-angular";
+import { BaseGuard } from "./base.guard";
 
-@Injectable({
-    providedIn: 'root'
-})
-export class RoleGuard implements CanActivate {
+@Injectable()
+export class RoleGuard extends BaseGuard {
 
-    constructor(private authService: MsalService) { }
+  constructor(
+    @Inject(MSAL_GUARD_CONFIG) protected override msalGuardConfig: MsalGuardConfiguration,
+    protected override msalBroadcastService: MsalBroadcastService,
+    protected override authService: MsalService,
+    protected override location: Location,
+    protected override router: Router
+  ) {
+    super(msalGuardConfig, msalBroadcastService, authService, location, router);
+  }
 
-    canActivate(route: ActivatedRouteSnapshot): boolean {
-        const expectedRoles: string[] = route.data['expectedRoles'];
-        let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+  override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+    let result = super.activateHelper(state, route);
 
-        if (!account.idTokenClaims?.roles) {
+    const expectedRoles: string[] = route ? route.data['expectedRoles'] : [];
+
+    return result.pipe(
+      concatMap(() => {
+        let activeAccount = this.authService.instance.getActiveAccount();
+
+        if (!activeAccount && this.authService.instance.getAllAccounts().length > 0) {
+            activeAccount = this.authService.instance.getAllAccounts()[0];
+        }
+
+        if (!activeAccount?.idTokenClaims?.roles) {
             window.alert('Token does not have roles claim. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
-            return false;
+            return of(false);
         }
 
-        if (!expectedRoles.includes(account.idTokenClaims.roles[0])) {
+        const hasRequiredRole = expectedRoles.some((role: string) => activeAccount?.idTokenClaims?.roles?.includes(role));
+
+        if (!hasRequiredRole) {
             window.alert('You do not have access as the expected role is not found. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
-            return false;
         }
 
-        return true;
-    }
+        return of(hasRequiredRole);
+      })
+    );
+  }
 }

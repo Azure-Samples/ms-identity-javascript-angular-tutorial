@@ -38,7 +38,6 @@ In the sample, a **dashboard** component allows signed-in users to see the tasks
 
 > :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
-
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
 
 ## Scenario
@@ -213,6 +212,15 @@ To add users to this app role, follow the guidelines here: [Assign users and gro
 
 For more information, see: [How to: Add app roles in your application and receive them in the token](https://docs.microsoft.com/azure/active-directory/develop/howto-add-app-roles-in-azure-ad-apps)
 
+##### (Optional) Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **Access**.
+    1. Select the optional claim **acct**. 
+        > Provides user's account status in tenant. If the user is a member of the tenant, the value is 0. If they're a guest, the value is 1.
+    1. Select **Add** to save your changes.
+
 ##### Configure the client app (msal-angular-app) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
@@ -288,33 +296,54 @@ To provide feedback on or suggest features for Azure Active Directory, visit [Us
 
 ### Angular RoleGuard and protected routes for role-based access control
 
-The client application Angular SPA has a **RoleGuard** (`role.guard.ts`) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
+The client application Angular SPA has a [role.guard.ts](./SPA/src/app/role.guard.ts) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
 
 ```typescript
-export class RoleGuard implements CanActivate {
+@Injectable()
+export class RoleGuard extends BaseGuard {
 
-    constructor(private authService: MsalService) { }
+  constructor(
+    @Inject(MSAL_GUARD_CONFIG) protected override msalGuardConfig: MsalGuardConfiguration,
+    protected override msalBroadcastService: MsalBroadcastService,
+    protected override authService: MsalService,
+    protected override location: Location,
+    protected override router: Router
+  ) {
+    super(msalGuardConfig, msalBroadcastService, authService, location, router);
+  }
 
-    canActivate(route: ActivatedRouteSnapshot): boolean {
-        const expectedRoles: string[] = route.data['expectedRoles'];
-        let account: AccountInfo = this.authService.instance.getActiveAccount()!;
+  override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+    let result = super.activateHelper(state, route);
 
-        if (!account.idTokenClaims?.roles) {
+    const expectedRoles: string[] = route ? route.data['expectedRoles'] : [];
+
+    return result.pipe(
+      concatMap(() => {
+        let activeAccount = this.authService.instance.getActiveAccount();
+
+        if (!activeAccount && this.authService.instance.getAllAccounts().length > 0) {
+            activeAccount = this.authService.instance.getAllAccounts()[0];
+        }
+
+        if (!activeAccount?.idTokenClaims?.roles) {
             window.alert('Token does not have roles claim. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
-            return false;
+            return of(false);
         }
 
-        if (!expectedRoles.includes(account.idTokenClaims.roles[0])) {
+        const hasRequiredRole = expectedRoles.some((role: string) => activeAccount?.idTokenClaims?.roles?.includes(role));
+
+        if (!hasRequiredRole) {
             window.alert('You do not have access as the expected role is not found. Please ensure that your account is assigned to an app role and then sign-out and sign-in again.');
-            return false;
         }
 
-        return true;
-    }
+        return of(hasRequiredRole);
+      })
+    );
+  }
 }
 ```
 
-We then enable **RoleGuard** in `app-routing.module.ts` as follows:
+We then enable **RoleGuard** in [app-routing.module.ts](./SPA/src/app/app-routing.module.ts) as follows:
 
 ```typescript
 const routes: Routes = [
@@ -322,7 +351,6 @@ const routes: Routes = [
         path: 'todo-edit/:id',
         component: TodoEditComponent,
         canActivate: [
-            MsalGuard,
             RoleGuard
         ],
         data: {
@@ -333,7 +361,6 @@ const routes: Routes = [
         path: 'todo-view',
         component: TodoViewComponent,
         canActivate: [
-            MsalGuard,
             RoleGuard
         ],
         data: {
@@ -344,7 +371,6 @@ const routes: Routes = [
         path: 'dashboard',
         component: DashboardComponent,
         canActivate: [
-            MsalGuard,
             RoleGuard,
         ],
         data: {
@@ -401,7 +427,7 @@ Finally, in `TodoListController.cs`, we decorate our routes with the appropriate
   // GET: api/todolist/getAll
   [HttpGet]
   [Route("getAll")]
-  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
   public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
   {
@@ -410,7 +436,7 @@ Finally, in `TodoListController.cs`, we decorate our routes with the appropriate
 
   // GET: api/TodoItems
   [HttpGet]
-  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
   [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
   public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
   {
