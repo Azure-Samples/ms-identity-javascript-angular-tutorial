@@ -295,7 +295,7 @@ To provide feedback on or suggest features for Azure Active Directory, visit [Us
 
 ### Angular RoleGuard and protected routes for role-based access control
 
-The client application Angular SPA has a [role.guard.ts](./SPA/src/app/role.guard.ts) component that checks whether a user has the right privileges to access a protected route. It does this by checking `roles` claim the ID token of the signed-in user:
+The client application Angular SPA has a [role.guard.ts](./SPA/src/app/role.guard.ts) component that checks whether a user belongs to the required role(s) to access a protected route (see also: [base.guard.ts](./SPA/src/app/base.guard.ts)). It does this by checking `roles` claim the ID token of the signed-in user:
 
 ```typescript
 @Injectable()
@@ -390,9 +390,9 @@ const routes: Routes = [
 
 However, it is important to be aware of that no content on a browser application is **truly** secure. That is, our **RoleGuard** component is primarily responsible for rendering the correct pages and other UI elements for a user in a particular role; in the example above, we allow only users in the `TaskAdmin` role to see the `Dashboard` component. In order to **truly** protect data and expose certain REST operations to a selected set of users, we enable **RBAC** on the back-end/web API as well in this sample. This is shown next.
 
-### Policy based Authorization for .NET Core web API
+### Policy based authorization for .NET Core web API
 
-As mentioned before, in order to **truly** implement **RBAC** and secure data, this sample  allows only authorized calls to our web API. We do this by defining access policies and decorating our HTTP methods with them. To do so, we first add `roles` claim as a validation parameter in `Startup.cs`, and then we create authorization policies that depends on this claim:
+As mentioned before, in order to **truly** implement **RBAC** and secure data, this sample  allows only authorized calls to our web API. We do this by defining access policies and decorating our HTTP methods with them. To do so, we first add `roles` claim as a validation parameter in [Startup.cs](./API/TodoListAPI/Startup.cs), and then we create authorization policies that depends on this claim:
 
 ```csharp
   // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
@@ -411,7 +411,7 @@ As mentioned before, in order to **truly** implement **RBAC** and secure data, t
   });
 ```
 
-We defined these roles in `appsettings.json` as follows:
+We defined these roles in [appsettings.json](./API/TodoListAPI/appsettings.json) as follows:
 
 ```json
   "Roles": {
@@ -420,7 +420,7 @@ We defined these roles in `appsettings.json` as follows:
   }
 ```
 
-Finally, in `TodoListController.cs`, we decorate our routes with the appropriate policy:
+Finally, in [TodoListController.cs](./API/TodoListAPI/Controllers/TodoListController.cs), we decorate our routes with the appropriate policy:
 
 ```csharp
   // GET: api/todolist/getAll

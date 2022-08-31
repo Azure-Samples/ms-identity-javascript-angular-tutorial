@@ -12,6 +12,11 @@ import { Observable, of } from "rxjs";
 import { MsalBroadcastService, MsalGuardConfiguration, MSAL_GUARD_CONFIG, MsalService } from "@azure/msal-angular";
 import { InteractionType, BrowserConfigurationAuthError, BrowserUtils, UrlString, PopupRequest, RedirectRequest, AuthenticationResult } from "@azure/msal-browser";
 
+/**
+ * Guard for protecting routes that require authentication. You can extend it to create custom route guards.
+ * This class is based on MsalGuard from msal-angular. For more information, visit: 
+ * https://azuread.github.io/microsoft-authentication-library-for-js/ref/classes/_azure_msal_angular.msalguard.html)
+ */
 @Injectable()
 export class BaseGuard implements CanActivate, CanActivateChild, CanLoad {
     private loginFailedRoute?: UrlTree;
