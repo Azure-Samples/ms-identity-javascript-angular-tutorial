@@ -16,30 +16,30 @@ namespace TodoListAPI.Tests
         }
 
         [Fact]
-        public void ShouldContainClientId()
+        public void ShouldNotContainClientId()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
             var clientId = myConfiguration.GetSection("AzureAd")["ClientId"];
 
-            Assert.True(Guid.TryParse(clientId, out var theGuid));
+            Assert.False(Guid.TryParse(clientId, out var theGuid));
         }
 
         [Fact]
-        public void ShouldContainTenantId()
+        public void ShouldNotContainTenantId()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
             var tenantId = myConfiguration.GetSection("AzureAd")["TenantId"];
 
-            Assert.True(Guid.TryParse(tenantId, out var theGuid));
+            Assert.False(Guid.TryParse(tenantId, out var theGuid));
         }
 
         [Fact]
-        public void ShouldContainDomain()
+        public void ShouldNotContainDomain()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
             var domain = $"https://{myConfiguration.GetSection("AzureAd")["Domain"]}";
 
-            Assert.True(Uri.TryCreate(domain, UriKind.Absolute, out var uri));
+            Assert.False(Uri.TryCreate(domain, UriKind.Absolute, out var uri));
         }
     }
 }
