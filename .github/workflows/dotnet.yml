@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
+  build-3x:
 
     runs-on: ubuntu-latest
 
@@ -19,21 +19,7 @@ jobs:
         dotnet-version: 3.1.x
 
     - run: |
-        cd 3-Authorization-II/1-call-api/API
-        dotnet restore
-        dotnet build --no-restore
-        cd TodoListAPI.Tests
-        dotnet test --no-build --verbosity normal
-
-    - run: |
         cd 3-Authorization-II/2-call-api-b2c/API
-        dotnet restore
-        dotnet build --no-restore
-        cd TodoListAPI.Tests
-        dotnet test --no-build --verbosity normal
-
-    - run: |
-        cd 5-AccessControl/1-call-api-roles/API
         dotnet restore
         dotnet build --no-restore
         cd TodoListAPI.Tests
@@ -48,6 +34,31 @@ jobs:
   
     - run: |
         cd 7-AdvancedScenarios/2-call-api-pop/API
+        dotnet restore
+        dotnet build --no-restore
+        cd TodoListAPI.Tests
+        dotnet test --no-build --verbosity normal
+
+  build-6x:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 6.0.x
+
+    - run: |
+        cd 3-Authorization-II/1-call-api/API
+        dotnet restore
+        dotnet build --no-restore
+        cd TodoListAPI.Tests
+        dotnet test --no-build --verbosity normal
+
+    - run: |
+        cd 5-AccessControl/1-call-api-roles/API
         dotnet restore
         dotnet build --no-restore
         cd TodoListAPI.Tests

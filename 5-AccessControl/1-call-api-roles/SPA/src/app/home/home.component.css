@@ -1,14 +1,25 @@
+#table-container {
+    overflow: auto;
+}
+
 table {
-    width: 70%;
     margin: 3% auto auto auto;
-  }
+    width: 70%;
+}
+
+.mat-row {
+    height: auto;
+}
+
+.mat-cell {
+    padding: 8px 8px 8px 0;
+}
+
+p {
+    text-align: center;
+}
 
 .card-section {
     margin: 10%;
     padding: 5%;
-}
-
-button {
-    margin: 0 auto;
-    display: block;
 }
