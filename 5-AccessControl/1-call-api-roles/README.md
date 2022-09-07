@@ -395,52 +395,52 @@ However, it is important to be aware of that no content on a browser application
 As mentioned before, in order to **truly** implement **RBAC** and secure data, this sample  allows only authorized calls to our web API. We do this by defining access policies and decorating our HTTP methods with them. To do so, we first add `roles` claim as a validation parameter in [Startup.cs](./API/TodoListAPI/Startup.cs), and then we create authorization policies that depends on this claim:
 
 ```csharp
-  // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
-  services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
-  {
-        // The claim in the Jwt token where App roles are available.
-        options.TokenValidationParameters.RoleClaimType = "roles";
-  });
+// See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
+services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+{
+    // The claim in the Jwt token where App roles are available.
+    options.TokenValidationParameters.RoleClaimType = "roles";
+});
 
-  // Adding authorization policies that enforce authorization using Azure AD roles.
-  services.AddAuthorization(options =>
-  {
-      options.AddPolicy(AuthorizationPolicies.AssignmentToTaskUserRoleRequired, policy => policy.RequireRole(Configuration["AzureAd:Roles:TaskUser"], Configuration["AzureAd:Roles:TaskAdmin"]));
+// Adding authorization policies that enforce authorization using Azure AD roles.
+services.AddAuthorization(options =>
+{
+    options.AddPolicy(AuthorizationPolicies.AssignmentToTaskUserRoleRequired, policy => policy.RequireRole(Configuration["AzureAd:Roles:TaskUser"], Configuration["AzureAd:Roles:TaskAdmin"]));
 
-      options.AddPolicy(AuthorizationPolicies.AssignmentToTaskAdminRoleRequired, policy => policy.RequireRole(Configuration["AzureAd:Roles:TaskAdmin"]));
-  });
+    options.AddPolicy(AuthorizationPolicies.AssignmentToTaskAdminRoleRequired, policy => policy.RequireRole(Configuration["AzureAd:Roles:TaskAdmin"]));
+});
 ```
 
 We defined these roles in [appsettings.json](./API/TodoListAPI/appsettings.json) as follows:
 
 ```json
-  "Roles": {
+"Roles": {
     "TaskAdmin": "TaskAdmin",
     "TaskUser": "TaskUser"
-  }
+}
 ```
 
 Finally, in [TodoListController.cs](./API/TodoListAPI/Controllers/TodoListController.cs), we decorate our routes with the appropriate policy:
 
 ```csharp
-  // GET: api/todolist/getAll
-  [HttpGet]
-  [Route("getAll")]
-  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-  [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
-  public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
-  {
-      return await _context.TodoItems.ToListAsync();
-  }
+// GET: api/todolist/getAll
+[HttpGet]
+[Route("getAll")]
+[RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
+[Authorize(Policy = AuthorizationPolicies.AssignmentToTaskAdminRoleRequired)]
+public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
+{
+    return await _context.TodoItems.ToListAsync();
+}
 
-  // GET: api/TodoItems
-  [HttpGet]
-  [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
-  [Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
-  public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
-  {
-      return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
-  }
+// GET: api/TodoItems
+[HttpGet]
+[RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes")]
+[Authorize(Policy = AuthorizationPolicies.AssignmentToTaskUserRoleRequired)]
+public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
+{
+    return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
+}
 ```
 
 ## Next Steps
