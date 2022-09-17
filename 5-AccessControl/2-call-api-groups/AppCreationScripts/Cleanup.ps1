@@ -1,26 +1,17 @@
+﻿
 [CmdletBinding()]
 param(    
-    [PSCredential] $Credential,
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
     [string] $tenantId,
-    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script (it defaults to AzureCloud)')]
+    [Parameter(Mandatory=$False, HelpMessage='Azure environment to use while running the script. Default = Global')]
     [string] $azureEnvironmentName
 )
-
-#Requires -Modules AzureAD -RunAsAdministrator
-
-
-if ($null -eq (Get-Module -ListAvailable -Name "AzureAD")) { 
-    Install-Module "AzureAD" -Scope CurrentUser 
-} 
-Import-Module AzureAD
-$ErrorActionPreference = "Stop"
 
 Function Cleanup
 {
     if (!$azureEnvironmentName)
     {
-        $azureEnvironmentName = "AzureCloud"
+        $azureEnvironmentName = "Global"
     }
 
     <#
@@ -31,66 +22,76 @@ Function Cleanup
     # $tenantId is the Active Directory Tenant. This is a GUID which represents the "Directory ID" of the AzureAD tenant 
     # into which you want to create the apps. Look it up in the Azure portal in the "Properties" of the Azure AD. 
 
-    # Login to Azure PowerShell (interactive if credentials are not already provided:
-    # you'll need to sign-in with creds enabling your to create apps in the tenant)
-    if (!$Credential -and $TenantId)
-    {
-        $creds = Connect-AzureAD -TenantId $tenantId -AzureEnvironmentName $azureEnvironmentName
+    # Connect to the Microsoft Graph API
+    Write-Host "Connecting to Microsoft Graph"
+    if ($tenantId -eq "") {
+        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        $tenantId = (Get-MgContext).TenantId
     }
-    else
-    {
-        if (!$TenantId)
-        {
-            $creds = Connect-AzureAD -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
-        else
-        {
-            $creds = Connect-AzureAD -TenantId $tenantId -Credential $Credential -AzureEnvironmentName $azureEnvironmentName
-        }
+    else {
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
-
-    if (!$tenantId)
-    {
-        $tenantId = $creds.Tenant.Id
-    }
-    $tenant = Get-AzureADTenantDetail
-    $tenantName =  ($tenant.VerifiedDomains | Where-Object { $_._Default -eq $True }).Name
     
     # Removes the applications
-    Write-Host "Cleaning-up applications from tenant '$tenantName'"
+    Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
-    Write-Host "Removing 'service' (msal-dotnet-api) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'msal-dotnet-api'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-dotnet-api'"
+    Write-Host "Removing 'client' (msal-angular-app) if needed"
+    try
+    {
+        Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+    }
+    catch
+    {
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove the application 'msal-angular-app'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
+    }
+
+    Write-Host "Making sure there are no more (msal-angular-app) applications found, will remove if needed..."
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
+    
     if ($apps)
     {
-        Remove-AzureADApplication -ObjectId $apps.ObjectId
+        Remove-MgApplication -ApplicationId $apps.Id
     }
 
     foreach ($app in $apps) 
     {
-        Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed msal-dotnet-api.."
-    }
-    # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-dotnet-api'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
-    
-    Write-Host "Removing 'client' (msal-angular-spa) if needed"
-    Get-AzureADApplication -Filter "DisplayName eq 'msal-angular-spa'"  | ForEach-Object {Remove-AzureADApplication -ObjectId $_.ObjectId }
-    $apps = Get-AzureADApplication -Filter "DisplayName eq 'msal-angular-spa'"
-    if ($apps)
-    {
-        Remove-AzureADApplication -ObjectId $apps.ObjectId
+        Remove-MgApplication -ApplicationId $app.Id -Debug
+        Write-Host "Removed msal-angular-app.."
     }
 
-    foreach ($app in $apps) 
-    {
-        Remove-AzureADApplication -ObjectId $app.ObjectId
-        Write-Host "Removed msal-angular-spa.."
-    }
     # also remove service principals of this app
-    Get-AzureADServicePrincipal -filter "DisplayName eq 'msal-angular-spa'" | ForEach-Object {Remove-AzureADServicePrincipal -ObjectId $_.Id -Confirm:$false}
-    
+    try
+    {
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-angular-app'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
+    }
+    catch
+    {
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove ServicePrincipal 'msal-angular-app'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+    }
+     Write-Host "You may want to remove the security group 'GroupAdmin' if it was created to test this sample only."
+     #if($null -ne (Get-MgGroup -Filter  "DisplayName eq 'GroupAdmin'")) 
+     #{
+     #   Remove-MgGroup -GroupId (Get-MgGroup -Filter  "DisplayName eq 'GroupAdmin'").Id
+     #}
+     Write-Host "You may want to remove the security group 'GroupMember' if it was created to test this sample only."
+     #if($null -ne (Get-MgGroup -Filter  "DisplayName eq 'GroupMember'")) 
+     #{
+     #   Remove-MgGroup -GroupId (Get-MgGroup -Filter  "DisplayName eq 'GroupMember'").Id
+     #}
 }
 
-Cleanup -Credential $Credential -tenantId $TenantId
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) { 
+    Install-Module "Microsoft.Graph.Applications" -Scope CurrentUser                                            
+} 
+Import-Module Microsoft.Graph.Applications
+$ErrorActionPreference = "Stop"
+
+
+Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+
+Write-Host "Disconnecting from tenant"
+Disconnect-MgGraph

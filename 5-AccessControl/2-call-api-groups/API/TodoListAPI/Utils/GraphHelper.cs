@@ -1,12 +1,12 @@
-﻿using System.Threading.Tasks;
-using Microsoft.Graph;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.DependencyInjection;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Graph;
 
 namespace TodoListAPI.Utils
 {

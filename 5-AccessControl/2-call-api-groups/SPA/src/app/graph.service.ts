@@ -5,24 +5,36 @@ import { User } from './user';
 import { protectedResources } from './auth-config';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class GraphService {
 
-  user: User = {
-    displayName: "",
-    groupIDs: [],
-  };
-  
-  uri = protectedResources.graphApi.endpoint;
+    private user: User = {
+        displayName: "",
+        groupIDs: [],
+    };
 
-  constructor(private http: HttpClient) { }
+    uri = protectedResources.apiGraph.endpoint;
 
-  getGroups() {
-    return this.http.get(this.uri);
-  }
+    constructor(private http: HttpClient) { }
 
-  getNextPage(nextPage: any) {
-    return this.http.get(nextPage);
-  }
+    getUser() {
+        return this.user;
+    };
+
+    getGroups() {
+        return this.http.get(this.uri);
+    };
+
+    setGroups(groups: any) {
+        this.user.groupIDs = groups;
+    };
+
+    addGroup(group: string) {
+        this.user.groupIDs.push(group);
+    };
+
+    getNextPage(nextPage: any) {
+        return this.http.get(nextPage);
+    };
 }

@@ -58,6 +58,14 @@ describe('Ensure that the app starts', () => {
 
         expect(canNavigate).toBe(true);
     });
+
+    it('should not navigate to guarded component', async () => {
+        const { router, run } = setup();
+
+        const canNavigate = await run(() => router.navigateByUrl('/todo-view'));
+
+        expect(canNavigate).toBe(false);
+    });
 });
 
 function setup() {
