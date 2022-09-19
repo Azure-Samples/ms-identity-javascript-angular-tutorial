@@ -37,6 +37,7 @@ Function AddResourcePermission($requiredAccess, `
     }
 }
 
+#
 # Example: GetRequiredPermissions "Microsoft Graph"  "Graph.Read|User.Read"
 # See also: http://stackoverflow.com/questions/42164581/how-to-configure-a-new-azure-ad-application-through-powershell
 Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requiredDelegatedPermissions, [string]$requiredApplicationPermissions, $servicePrincipal)
@@ -69,6 +70,7 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
     return $requiredAccess
 }
 
+
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -99,7 +101,6 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
-
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
@@ -117,6 +118,25 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
     return $scope
 }
 
+<#.Description
+   This function creates a new Azure AD AppRole with default and provided values
+#>  
+Function CreateAppRole([string] $types, [string] $name, [string] $description)
+{
+    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
+    $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
+    $typesArr = $types.Split(',')
+    foreach($type in $typesArr)
+    {
+        $appRole.AllowedMemberTypes += $type;
+    }
+    $appRole.DisplayName = $name
+    $appRole.Id = New-Guid
+    $appRole.IsEnabled = $true
+    $appRole.Description = $description
+    $appRole.Value = $name;
+    return $appRole
+}
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -230,7 +250,7 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_via_group_assignment  `
+    $scope = CreateScope -value access_via_group_assignments  `
     -userConsentDisplayName "Access msal-angular-app"  `
     -userConsentDescription "Allow the application to access msal-angular-app on your behalf."  `
     -adminConsentDisplayName "Access msal-angular-app"  `
@@ -245,29 +265,40 @@ Function ConfigureApplications
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
     $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
+
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-app</a></td></tr>" -Path createdApps.html
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
-    
+    # Declare a list to hold RRA items    
+
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app" `
-        -requiredDelegatedPermissions "access_via_group_assignment" `
-
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app"`
+        -requiredDelegatedPermissions "access_via_group_assignments"
+    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
     $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'client' to the RRA list."
+    # Useful for RRA troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
     
+
     # Add Required Resources Access (from 'client' to 'Microsoft Graph')
     Write-Host "Getting access from 'client' to 'Microsoft Graph'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
-        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All" `
-
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
+        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All"
+    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
     $requiredResourcesAccess.Add($requiredPermission)
+    Write-Host "Added 'Microsoft Graph' to the RRA list."
+    # Useful for RRA troubleshooting
+    # $requiredResourcesAccess.Count
+    # $requiredResourcesAccess
+    
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
 
-    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at" -ForegroundColor Green
-
     # print the registered app portal URL for any further navigation
-    $clientPortalUrl
+    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl"
+    
+    
 Function UpdateLine([string] $line, [string] $value)
 {
     $index = $line.IndexOf(':')
@@ -310,6 +341,7 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
 
     Write-Host "Updating the sample config '$configFile' with the following config values:"
     $dictionary
+    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     
@@ -321,14 +353,16 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
 
     Write-Host "Updating the sample config '$configFile' with the following config values:"
     $dictionary
+    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - On Azure portal, create a security group named GroupAdmin and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-    Write-Host "  - On Azure portal, create a security group named GroupMember and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a security group named 'GroupAdmin' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a security group named 'GroupMember' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red 
+    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {
