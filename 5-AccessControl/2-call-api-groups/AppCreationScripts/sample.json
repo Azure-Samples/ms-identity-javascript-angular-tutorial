@@ -30,7 +30,7 @@
             "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
             "GroupMembershipClaims": "SecurityGroup",
             "Scopes": [
-                "access_as_user"
+                "access_via_group_assignment"
             ],
             "Sample": {
                 "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
@@ -40,7 +40,7 @@
                 {
                     "Resource": "client",
                     "DelegatedPermissions": [
-                        "access_as_user"
+                        "access_via_group_assignment"
                     ]
                 },
                 {
@@ -49,16 +49,6 @@
                         "User.Read",
                         "GroupMember.Read.All"
                     ]
-                }
-            ],
-            "SecurityGroups": [
-                {
-                    "Name": "GroupAdmin",
-                    "Description": "Admin Security Group"
-                },
-                {
-                    "Name": "GroupMember",
-                    "Description": "User Security Group"
                 }
             ],
             "OptionalClaims": {

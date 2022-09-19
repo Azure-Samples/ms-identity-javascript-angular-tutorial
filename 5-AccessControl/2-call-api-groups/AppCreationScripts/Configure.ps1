@@ -214,7 +214,7 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_as_user  `
+    $scope = CreateScope -value access_via_group_assignment  `
     -userConsentDisplayName "Access msal-angular-app"  `
     -userConsentDescription "Allow the application to access msal-angular-app on your behalf."  `
     -adminConsentDisplayName "Access msal-angular-app"  `
@@ -234,19 +234,23 @@ Function ConfigureApplications
     
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "msal-angular-app" `
-        -requiredDelegatedPermissions "access_as_user" `
-    $requiredResourcesAccess.Add($requiredPermissions)
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app" `
+        -requiredDelegatedPermissions "access_via_group_assignment" `
+
+    $requiredResourcesAccess.Add($requiredPermission)
     
     # Add Required Resources Access (from 'client' to 'Microsoft Graph')
     Write-Host "Getting access from 'client' to 'Microsoft Graph'"
-    $requiredPermissions = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
         -requiredDelegatedPermissions "User.Read|GroupMember.Read.All" `
-    $requiredResourcesAccess.Add($requiredPermissions)
+
+    $requiredResourcesAccess.Add($requiredPermission)
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
 
     Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at" -ForegroundColor Green
+
+    # print the registered app portal URL for any further navigation
     $clientPortalUrl
 Function UpdateLine([string] $line, [string] $value)
 {
@@ -288,7 +292,8 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     
     $dictionary = @{ "Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $clientAppKey };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values"
+    Write-Host "Updating the sample config '$configFile' with the following config values:"
+    $dictionary
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     
@@ -298,7 +303,8 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     
     $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values"
+    Write-Host "Updating the sample config '$configFile' with the following config values:"
+    $dictionary
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
@@ -307,7 +313,6 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "  - Navigate to $clientPortalUrl"
     Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
     Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {

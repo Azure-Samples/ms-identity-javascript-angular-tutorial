@@ -34,13 +34,13 @@ This sample demonstrates a cross-platform application suite involving an Angular
 
 Access control in Azure AD can also be done with **App Roles**, as shown in the [previous tutorial](../1-call-api-roles/README.md). **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
+In the sample, a dashboard component allows signed-in users to see the tasks assigned to them or other users based on their memberships to one of the two security groups, **GroupAdmin** and **GroupMember**.
+
 > :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
 
 ## Scenario
-
-In the sample, a dashboard component allows signed-in users to see the tasks assigned to them or other users based on their memberships to one of the two security groups, **GroupAdmin** and **GroupMember**.
 
 - The **TodoListSPA** uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user with the Microsoft identity platform.
 - The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure Active Directory (Azure AD) on behalf of the authenticated user for the **TodoListAPI**.
@@ -107,9 +107,9 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
 
 ### Step 5: Register the sample application(s) in your tenant
 
-While there are multiple project in this sample, we'd register just one app with Azure AD and use the registered app's *client id* in both apps. This reuse of app ids (client ids) is used when the apps themselves are just components of one larger app topology.  
+> :information_source: While there are multiple project in this sample, we'd register just one app with Azure AD and use the registered app's *client id* in both apps. This reuse of app ids (client ids) is used when the apps themselves are just components of one larger app topology.  
 
-There is one project in this sample. To register it, you can:
+There are two projects in this sample. To register it, you can:
 
 - follow the steps below for manually register your apps
 - or use PowerShell scripts that:
@@ -172,7 +172,7 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `access_as_user`.
+    1. For **Scope name**, use `access_via_group_assignment`.
     1. Select **Admins and users** options for **Who can consent?**.
     1. For **Admin consent display name** type in *Access 'msal-angular-app' as the signed-in user.*.
     1. For **Admin consent description** type in *Allow the app to access the 'msal-angular-app' as a signed-in user.*.
@@ -304,8 +304,8 @@ You have two different options available to you on how you can further configure
 1. Find the app key `groups.groupMember` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
-2. Find the app key `Groups.GroupAdmin` and replace the existing value with the object ID of the **GroupAdmin** group copied from the Azure portal.
-3. Find the app key `Groups.GroupMember` and replace the existing value with the object ID of the **GroupMember** group copied from the Azure portal.
+2. Find the app key `Groups.GroupAdmin` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+3. Find the app key `Groups.GroupMember` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 ### Step 6: Running the sample
 
