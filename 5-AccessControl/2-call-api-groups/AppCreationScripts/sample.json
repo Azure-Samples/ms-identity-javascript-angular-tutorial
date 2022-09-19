@@ -12,7 +12,7 @@
             "csharp",
             "javascript"
         ],
-        "Description": "Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control",
+        "Description": "Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)",
         "products": [
             "azure-active-directory",
             "ms-graph",
@@ -31,7 +31,7 @@
             "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
             "GroupMembershipClaims": "SecurityGroup",
             "Scopes": [
-                "access_via_group_assignment"
+                "access_via_group_assignments"
             ],
             "Sample": {
                 "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
@@ -41,7 +41,7 @@
                 {
                     "Resource": "client",
                     "DelegatedPermissions": [
-                        "access_via_group_assignment"
+                        "access_via_group_assignments"
                     ]
                 },
                 {
