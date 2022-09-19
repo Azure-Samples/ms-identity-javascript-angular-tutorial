@@ -37,7 +37,6 @@ Function AddResourcePermission($requiredAccess, `
     }
 }
 
-#
 # Example: GetRequiredPermissions "Microsoft Graph"  "Graph.Read|User.Read"
 # See also: http://stackoverflow.com/questions/42164581/how-to-configure-a-new-azure-ad-application-through-powershell
 Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requiredDelegatedPermissions, [string]$requiredApplicationPermissions, $servicePrincipal)
@@ -70,7 +69,6 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
     return $requiredAccess
 }
 
-
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -101,6 +99,24 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+
+<#.Description
+   This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
+#>  
+Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
+{
+    $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
+    $scope.Id = New-Guid
+    $scope.Value = $value
+    $scope.UserConsentDisplayName = $userConsentDisplayName
+    $scope.UserConsentDescription = $userConsentDescription
+    $scope.AdminConsentDisplayName = $adminConsentDisplayName
+    $scope.AdminConsentDescription = $adminConsentDescription
+    $scope.IsEnabled = $true
+    $scope.Type = "User"
+    return $scope
+}
+
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -311,8 +327,8 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-    Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, assign some users to it, and configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a group named GroupAdmin and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a group named GroupMember and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {
