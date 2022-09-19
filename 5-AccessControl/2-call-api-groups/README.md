@@ -1,5 +1,9 @@
 ---
 page_type: sample
+services: ms-identity
+client: Angular SPA
+service: .NET Core web API
+level: 300
 languages:
 - typescript
 - csharp
@@ -10,12 +14,14 @@ products:
 - msal-js
 - msal-angular
 - microsoft-identity-web
-name: Angular single-page application calling a protected Core web API using Security Groups to implement Role-Based Access Control
-description: Angular single-page application calling a protected web API using App Roles to implement Role-Based Access Control
+platform: javascript
+endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-angular-tutorial
+name: Angular single-page application calling a protected AspNet Core web API and using Security Groups to implement Role-Based Access Control
+description: Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
 ---
 
-# Angular single-page application calling a protected Core web API using Security Groups to implement Role-Based Access Control
+# Angular single-page application calling a protected AspNet Core web API and using Security Groups to implement Role-Based Access Control
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -109,7 +115,7 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
 
 > :information_source: While there are multiple project in this sample, we'd register just one app with Azure AD and use the registered app's *client id* in both apps. This reuse of app ids (client ids) is used when the apps themselves are just components of one larger app topology.  
 
-There are two projects in this sample. To register it, you can:
+There is one project in this sample. To register it, you can:
 
 - follow the steps below for manually register your apps
 - or use PowerShell scripts that:
@@ -172,12 +178,12 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `access_via_group_assignment`.
+    1. For **Scope name**, use `access_via_group_assignments`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in *Access 'msal-angular-app' as the signed-in user.*.
-    1. For **Admin consent description** type in *Allow the app to access the 'msal-angular-app' as a signed-in user.*.
-    1. For **User consent display name** type in *Access 'msal-angular-app' on your behalf.*.
-    1. For **User consent description** type in *Allow the app to access the 'msal-angular-app' on your behalf.*.
+    1. For **Admin consent display name** type in *Access 'msal-angular-app' as the signed-in user assigned to group memberships.*.
+    1. For **Admin consent description** type in *Allow the app to access the 'msal-angular-app' as a signed-in user assigned to one or more security groups.*.
+    1. For **User consent display name** type in *Access 'msal-angular-app' on your behalf after security group assignment.*.
+    1. For **User consent description** type in *Allow the app to access the 'msal-angular-app' on your behalf after assignment to one or more security groups.*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
@@ -193,14 +199,14 @@ To manually register the apps, as a first step you'll need to:
    1. Select the **Add a permission** button and then:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-angular-app`.
-        1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-            1. In the **Delegated permissions** section, select the **Access 'msal-angular-app'** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
+           1. In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
    1. Select the **Add a permission** button and then:
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is requested by apps when signing-in users.
-           1. In the **Delegated permissions** section, select the **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+           1. In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Configure Optional Claims

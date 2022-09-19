@@ -72,6 +72,16 @@ Function Cleanup
         Write-Warning $Error[0]
         Write-Host "Unable to remove ServicePrincipal 'msal-angular-app'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
+     Write-Host "You may want to remove the security group 'GroupAdmin' if it was created to test this sample only."
+     #if($null -ne (Get-MgGroup -Filter  "DisplayName eq 'GroupAdmin'")) 
+     #{
+     #   Remove-MgGroup -GroupId (Get-MgGroup -Filter  "DisplayName eq 'GroupAdmin'").Id
+     #}
+     Write-Host "You may want to remove the security group 'GroupMember' if it was created to test this sample only."
+     #if($null -ne (Get-MgGroup -Filter  "DisplayName eq 'GroupMember'")) 
+     #{
+     #   Remove-MgGroup -GroupId (Get-MgGroup -Filter  "DisplayName eq 'GroupMember'").Id
+     #}
 }
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) { 

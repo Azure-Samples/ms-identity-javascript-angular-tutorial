@@ -37,6 +37,10 @@
                 "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
                 "ProjectDirectory": "\\2-call-api-groups\\SPA"
             },
+            "SecurityGroups":[
+                {"Name":"GroupAdmin", "Description":"Admin Security Group"},
+                {"Name":"GroupMember", "Description":"User Security Group"}
+            ],
             "RequiredResourcesAccess": [
                 {
                     "Resource": "client",
