@@ -59,10 +59,10 @@
             },
             "ManualSteps": [
                 {
-                    "Comment": "On Azure portal, create a group named 'GroupAdmin' and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration."
+                    "Comment": "On Azure portal, create a security group named GroupAdmin and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created."
                 },
                 {
-                    "Comment": "On Azure portal, create a group named 'GroupMember' and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration."
+                    "Comment": "On Azure portal, create a security group named GroupMember and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created."
                 }
             ]
         }

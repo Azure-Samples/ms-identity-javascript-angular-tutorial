@@ -71,11 +71,11 @@ Function ConfigureApplications {
 
     Write-Host "Connecting to Microsoft Graph"
     if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "User.Read Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
     # Add user object Id here
@@ -86,14 +86,21 @@ Function ConfigureApplications {
     CreateGroupsAndAssignUser -user $user
 }
 
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser
+    Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
+}
+
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
-    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser
+    Write-Host "Installed Microsoft.Graph.Groups module. If you are having issues, please create a new PowerShell session and try again."
 }
 
 Import-Module Microsoft.Graph.Groups
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
-    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser
+    Write-Host "Installed Microsoft.Graph.Users module. If you are having issues, please create a new PowerShell session and try again."
 }
 
 Import-Module Microsoft.Graph.Users

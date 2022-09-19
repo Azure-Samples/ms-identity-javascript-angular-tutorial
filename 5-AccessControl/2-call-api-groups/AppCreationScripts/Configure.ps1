@@ -327,8 +327,8 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - On Azure portal, create a group named GroupAdmin and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
-    Write-Host "  - On Azure portal, create a group named GroupMember and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a security group named GroupAdmin and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a security group named GroupMember and assign some users to it, then configure your ID and Access token to emit GroupID in your app registration." -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {

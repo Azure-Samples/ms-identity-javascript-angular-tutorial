@@ -228,7 +228,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
 1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-app` app copied from the Azure portal.
 
-### Create Security Groups
+#### Create Security Groups
 
 > :warning: You may already have security groups with the names below defined in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of the groups.
 
@@ -249,7 +249,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 
-### Configure Security Groups
+#### Configure Security Groups
 
 You have two different options available to you on how you can further configure your application to receive the `groups` claim.
 
@@ -258,22 +258,22 @@ You have two different options available to you on how you can further configure
 
 > To get the on-premise group's `samAccountName` or `On Premises Group Security Identifier` instead of Group ID, please refer to the document [Configure group claims for applications with Azure Active Directory](https://docs.microsoft.com/azure/active-directory/hybrid/how-to-connect-fed-group-claims#prerequisites-for-using-group-attributes-synchronized-from-active-directory).
 
-#### Configure your application to receive **all the groups** the signed-in user is assigned to, including nested groups
+##### Configure your application to receive **all the groups** the signed-in user is assigned to, including nested groups
 
 1. In the app's registration screen, select the **Token Configuration** blade in the left to open the page where you can configure the claims provided tokens issued to your application.
 1. Select the **Add groups claim** button on top to open the **Edit Groups Claim** screen.
 1. Select `Security groups` **or** the `All groups (includes distribution lists but not groups assigned to the application)` option. Choosing both negates the effect of `Security Groups` option.
 1. Under the **ID** section, select `Group ID`. This will result in Azure AD sending the [object id](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the **groups** claim of the [ID Token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) that your app receives after signing-in a user.
 
-#### Configure your application to receive the `groups` claim values from a **filtered set of groups** a user may be assigned to
+##### Configure your application to receive the `groups` claim values from a **filtered set of groups** a user may be assigned to
 
-##### Prerequisites, benefits and limitations of using this option
+###### Prerequisites, benefits and limitations of using this option
 
 1. This option is useful when your application is interested in a selected set of groups that a signing-in user may be assigned to and not every security group this user is assigned to in the tenant.  This option also saves your application from running into the [overage](#groups-overage-claim) issue.
 1. This feature is not available in the [Azure AD Free edition](https://azure.microsoft.com/pricing/details/active-directory/).
 1. **Nested group assignments** are not available when this option is utilized.
 
-##### Steps to enable this option in your app
+###### Steps to enable this option in your app
 
 1. In the app's registration screen, select the **Token Configuration** blade in the left to open the page where you can configure the claims provided tokens issued to your application.
 1. Select the **Add groups claim** button on top to open the **Edit Groups Claim** screen.
@@ -295,17 +295,17 @@ You have two different options available to you on how you can further configure
 >
 > When you set **User assignment required?** to **Yes**, Azure AD will check that only users assigned to your application in the **Users and groups** blade are able to sign-in to your app. You can assign users directly or by assigning security groups they belong to.
 
-### Configure the app to recognize Group IDs
+#### Configure the app to recognize Group IDs
 
 > :warning: During **Token Configuration**, if you have chosen any other option except **groupID** (e.g. like **DNSDomain\sAMAccountName**) you should enter the **group name** (for example `contoso.com\Test Group`) instead of the **object ID** below:
 
-1. Open the `SPA\src\app\app-config.ts` file.
-1. Find the app key `groups.groupAdmin` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
-1. Find the app key `groups.groupMember` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
+1. Open the `SPA\src\app\auth-config.ts` file.
+1. Find the key `Enter the objectID for GroupAdmin group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+1. Find the key `Enter the objectID for GroupMember group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
-2. Find the app key `Groups.GroupAdmin` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
-3. Find the app key `Groups.GroupMember` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
+2. Find the key `Enter the objectID for GroupAdmin group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+3. Find the key `Enter the objectID for GroupMember group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 ### Step 6: Running the sample
 
@@ -377,7 +377,7 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 
 #### Create the Overage scenario for testing
 
-1. You can use the `BulkCreateGroups.ps1` provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. Remember to change the user's **objectId** provided in the `BulkCreateGroups.ps1` script.
+1. You can use the `BulkCreateGroups.ps1` provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user Object ID when prompted by the `BulkCreateGroups.ps1` script.
 
 When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [User.Read](https://docs.microsoft.com/graph/permissions-reference#user-permissions) and [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberGroups](https://docs.microsoft.com/graph/api/user-getmembergroups) API to execute successfully.
 
