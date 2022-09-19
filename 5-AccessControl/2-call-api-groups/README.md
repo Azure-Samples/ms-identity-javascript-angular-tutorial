@@ -32,7 +32,7 @@ urlFragment: ms-identity-javascript-angular-tutorial
 
 This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **Security Groups**.
 
-Access control in Azure AD can also be done with **App Roles**, as shown in the [previous tutorial](../1-call-api-roles/README.md). **Security Groups** and **App Roles** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Access control in Azure AD can also be done with, **App Roles** (see the [previous tutorial](../1-call-api-roles/README.md)) and/or **Delegated Permissions**. **Security Groups**, **App Roles** and **Delegated Permissions** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
 In the sample, a dashboard component allows signed-in users to see the tasks assigned to them or other users based on their memberships to one of the two security groups, **GroupAdmin** and **GroupMember**.
 
