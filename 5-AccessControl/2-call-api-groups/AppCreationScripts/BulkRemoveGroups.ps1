@@ -72,6 +72,11 @@ Function ConfigureApplications {
 
 $ErrorActionPreference = "Stop"
 
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser
+    Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
+}
+
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
     Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
 }
