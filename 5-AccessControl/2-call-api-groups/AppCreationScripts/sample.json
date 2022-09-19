@@ -22,54 +22,61 @@
         ]
     },
     "AADApps": [
-        {
-            "Id": "client",
-            "Name": "msal-angular-app",
-            "Kind": "SinglePageApplication",
-            "Audience": "AzureADMyOrg",
-            "HomePage": "http://localhost:4200/",
-            "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
-            "GroupMembershipClaims": "SecurityGroup",
-            "Scopes": [
-                "access_via_group_assignments"
-            ],
-            "Sample": {
-                "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
-                "ProjectDirectory": "\\2-call-api-groups\\SPA"
-            },
-            "SecurityGroups":[
-                {"Name":"GroupAdmin", "Description":"Admin Security Group"},
-                {"Name":"GroupMember", "Description":"User Security Group"}
-            ],
-            "RequiredResourcesAccess": [
-                {
-                    "Resource": "client",
-                    "DelegatedPermissions": [
-                        "access_via_group_assignments"
-                    ]
-                },
-                {
-                    "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "User.Read",
-                        "GroupMember.Read.All"
-                    ]
-                }
-            ],
-            "OptionalClaims": {
-                "IdTokenClaims": [
-                    "acct"
-                ]
-            },
-            "ManualSteps": [
-                {
-                    "Comment": "On Azure portal, create a security group named 'GroupAdmin' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created."
-                },
-                {
-                    "Comment": "On Azure portal, create a security group named 'GroupMember' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created."
-                }
+      {
+        "Id": "client",
+        "Name": "msal-angular-app",
+        "Kind": "SinglePageApplication",
+        "Audience": "AzureADMyOrg",
+        "HomePage": "http://localhost:4200/",
+        "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
+        "GroupMembershipClaims": "SecurityGroup",
+        "PasswordCredentials": "Auto",
+        "Scopes": [
+          "access_via_group_assignments"
+        ],
+        "Sample": {
+          "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
+          "ProjectDirectory": "\\2-call-api-groups\\SPA"
+        },
+        "SecurityGroups": [
+          {
+            "Name": "GroupAdmin",
+            "Description": "Admin Security Group"
+          },
+          {
+            "Name": "GroupMember",
+            "Description": "User Security Group"
+          }
+        ],
+        "RequiredResourcesAccess": [
+          {
+            "Resource": "client",
+            "DelegatedPermissions": [
+              "access_via_group_assignments"
             ]
-        }
+          },
+          {
+            "Resource": "Microsoft Graph",
+            "DelegatedPermissions": [
+              "User.Read",
+              "GroupMember.Read.All"
+            ]
+          }
+        ],
+        "OptionalClaims": {
+          "IdTokenClaims": [
+            "acct"
+          ]
+        },
+        "ManualSteps": [
+          {
+            "Comment": "On Azure portal, create a security group named 'GroupAdmin' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created."
+          },
+          {
+            "Comment": "On Azure portal, create a security group named 'GroupMember' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created."
+          }
+        ]
+      }
     ],
     "CodeConfiguration": [
         {
