@@ -1,8 +1,5 @@
 ---
 page_type: sample
-services: ms-identity
-client: Angular SPA
-service: .NET Core web API
 level: 300
 languages:
 - typescript
@@ -14,14 +11,12 @@ products:
 - msal-js
 - msal-angular
 - microsoft-identity-web
-platform: javascript
-endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-angular-tutorial
-name: Angular single-page application calling a protected AspNet Core web API and using Security Groups to implement Role-Based Access Control
-description: Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
+name: Angular single-page application calling a protected ASP.NET Core web API using Security Groups to implement Role-Based Access Control
+description: Angular single-page application calling a protected ASP.NET Core web API using Security Groups to implement Role-Based Access Control (RBAC)
 ---
 
-# Angular single-page application calling a protected AspNet Core web API and using Security Groups to implement Role-Based Access Control
+# Angular single-page application calling a protected ASP.NET Core web API using Security Groups to implement Role-Based Access Control
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -38,7 +33,7 @@ description: Angular single-page application calling a protected AspNet web API 
 
 This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **Security Groups**.
 
-Access control in Azure AD can also be done with, **App Roles** (see the [previous tutorial](../1-call-api-roles/README.md)) and/or **Delegated Permissions**. **Security Groups**, **App Roles** and **Delegated Permissions** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
+Access control in Azure AD can also be done with, **App Roles** (see the [previous tutorial](../1-call-api-roles/README.md)) and/or **Delegated Permissions**. **Security Groups**, **App Roles** and **Delegated Permissions** in Azure AD are by no means mutually exclusive -they can be used in tandem to provide even finer grained access control.
 
 In the sample, a dashboard component allows signed-in users to see the tasks assigned to them or other users based on their memberships to one of the two security groups, **GroupAdmin** and **GroupMember**.
 
@@ -176,7 +171,6 @@ To manually register the apps, as a first step you'll need to:
     1. Select one of the available key durations (**6 months**, **12 months** or **Custom**) as per your security posture.
     1. The generated key value will be displayed when you select the **Add** button. Copy and save the generated value for use in later steps.
     1. You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
-    > :bulb: For enhanced security, instead of using client secrets, consider [using certificates](./README-use-certificate.md) and [Azure KeyVault](https://azure.microsoft.com/services/key-vault/#product-overview).
     1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
     1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
@@ -390,7 +384,9 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 
 #### Create the Overage scenario for testing
 
-1. You can use the `BulkCreateGroups.ps1` provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user Object ID when prompted by the `BulkCreateGroups.ps1` script.
+1. You can use the [BulkCreateGroups.ps1](./AppCreationScripts/BulkCreateGroups.ps1) provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user Object ID when prompted by the `BulkCreateGroups.ps1` script. If you would like to delete these groups, run the [BulkRemoveGroups.ps1](./AppCreationScripts/BulkRemoveGroups.ps1) after testing the overage scenario.
+
+When overage occurs, the user's ID and/or access token will not gave the **groups** claim. Instead, a new claim named **_claim_names** will appear. This confirms that the overage scenario is reproduced.
 
 When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [User.Read](https://docs.microsoft.com/graph/permissions-reference#user-permissions) and [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberGroups](https://docs.microsoft.com/graph/api/user-getmembergroups) API to execute successfully.
 
@@ -398,7 +394,7 @@ When attending to overage scenarios, which requires a call to [Microsoft Graph](
 
 ##### Angular GroupGuard service
 
-Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the token for the user has the `_claim_names` claim, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
+Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the token for the user's ID token has the `_claim_names` claim, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
 
 ```typescript
 @Injectable()

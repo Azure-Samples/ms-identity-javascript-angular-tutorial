@@ -115,6 +115,7 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
@@ -132,25 +133,6 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
     return $scope
 }
 
-<#.Description
-   This function creates a new Azure AD AppRole with default and provided values
-#>  
-Function CreateAppRole([string] $types, [string] $name, [string] $description)
-{
-    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
-    $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
-    $typesArr = $types.Split(',')
-    foreach($type in $typesArr)
-    {
-        $appRole.AllowedMemberTypes += $type;
-    }
-    $appRole.DisplayName = $name
-    $appRole.Id = New-Guid
-    $appRole.IsEnabled = $true
-    $appRole.Description = $description
-    $appRole.Value = $name;
-    return $appRole
-}
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -287,40 +269,29 @@ Function ConfigureApplications
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
     $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
-
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-app</a></td></tr>" -Path createdApps.html
-    # Declare a list to hold RRA items    
-
+    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+    
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app"`
-        -requiredDelegatedPermissions "access_via_group_assignments"
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
-    $requiredResourcesAccess.Add($requiredPermission)
-    Write-Host "Added 'client' to the RRA list."
-    # Useful for RRA troubleshooting
-    # $requiredResourcesAccess.Count
-    # $requiredResourcesAccess
-    
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app" `
+        -requiredDelegatedPermissions "access_via_group_assignments" `
 
+    $requiredResourcesAccess.Add($requiredPermission)
+    
     # Add Required Resources Access (from 'client' to 'Microsoft Graph')
     Write-Host "Getting access from 'client' to 'Microsoft Graph'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
-        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All"
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All" `
+
     $requiredResourcesAccess.Add($requiredPermission)
-    Write-Host "Added 'Microsoft Graph' to the RRA list."
-    # Useful for RRA troubleshooting
-    # $requiredResourcesAccess.Count
-    # $requiredResourcesAccess
-    
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
 
+    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at" -ForegroundColor Green
+
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl"
-    
-    
+    $clientPortalUrl
 Function UpdateLine([string] $line, [string] $value)
 {
     $index = $line.IndexOf(':')
@@ -363,7 +334,6 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
 
     Write-Host "Updating the sample config '$configFile' with the following config values:"
     $dictionary
-    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     
@@ -375,7 +345,6 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
 
     Write-Host "Updating the sample config '$configFile' with the following config values:"
     $dictionary
-    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
@@ -383,8 +352,7 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
     Write-Host "  - On Azure portal, create a security group named 'GroupAdmin' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red 
-    Write-Host "  - On Azure portal, create a security group named 'GroupMember' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red 
-    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
+    Write-Host "  - On Azure portal, create a security group named 'GroupMember' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
        if($isOpenSSL -eq 'Y')
     {
@@ -416,7 +384,6 @@ try
 }
 catch
 {
-    $_.Exception.ToString() | out-host
     $message = $_
     Write-Warning $Error[0]
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
