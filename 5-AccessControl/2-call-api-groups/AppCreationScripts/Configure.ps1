@@ -139,142 +139,6 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
     return $scope
 }
 
-<#.Description
-   This function creates a new Azure AD AppRole with default and provided values
-#>  
-Function CreateAppRole([string] $types, [string] $name, [string] $description)
-{
-    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
-    $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
-    $typesArr = $types.Split(',')
-    foreach($type in $typesArr)
-    {
-        $appRole.AllowedMemberTypes += $type;
-    }
-    $appRole.DisplayName = $name
-    $appRole.Id = New-Guid
-    $appRole.IsEnabled = $true
-    $appRole.Description = $description
-    $appRole.Value = $name;
-    return $appRole
-}
-<#.Description
-   This function takes a string input as a single line, matches a key value and replaces with the replacement value
-#> 
-Function UpdateLine([string] $line, [string] $value)
-{
-    $index = $line.IndexOf(':')
-    $lineEnd = ''
-
-    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
-    
-    if ($index -ige 0)
-    {
-        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
-    }
-    return $line
-}
-
-<#.Description
-   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
-#> 
-Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
-{
-    $lines = Get-Content $configFilePath
-    $index = 0
-    while($index -lt $lines.Length)
-    {
-        $line = $lines[$index]
-        foreach($key in $dictionary.Keys)
-        {
-            if ($line.Contains($key))
-            {
-                $lines[$index] = UpdateLine $line $dictionary[$key]
-            }
-        }
-        $index++
-    }
-
-    Set-Content -Path $configFilePath -Value $lines -Force
-}
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
-    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
-}
-
-Import-Module Microsoft.Graph.Groups
-
-<#.Description
-   This function creates a new Azure AD Security Group with provided values
-#>  
-Function CreateSecurityGroup([string] $name, [string] $description)
-{
-    Write-Host "Creating a security group by the name '$name'."
-    $newGroup = New-MgGroup -Description $description -DisplayName $name -MailEnabled:$false -SecurityEnabled:$true -MailNickName $name
-    return Get-MgGroup -Filter "DisplayName eq '$name'" 
-}
-
-<#.Description
-   This function first checks and then creates a new Azure AD Security Group with provided values, if required
-#>  
-Function CreateIfNotExistsSecurityGroup([string] $name, [string] $description,  [switch] $promptBeforeCreate)
-{
-
-    # check if Group exists
-    $group = Get-MgGroup -Filter "DisplayName eq '$name'"    
-    
-    if( $group -eq $null)
-    {
-        if ($promptBeforeCreate) 
-        {
-            $confirmation = Read-Host "Proceed to create a new security group named '$name' in the tenant ? (Y/N)"
-
-            if($confirmation -eq 'y')
-            {
-                $group = CreateSecurityGroup -name $name -description $description
-            }
-        }
-        else
-        {
-            Write-Host "No Security Group created!"
-        }     
-    }
-    
-    return $group    
-}
-
-<#.Description
-   This function first checks and then deletes an existing Azure AD Security Group, if required
-#>  
-Function RemoveSecurityGroup([string] $name, [switch] $promptBeforeDelete)
-{
-
-    # check if Group exists
-    $group = Get-MgGroup -Filter "DisplayName eq '$name'"
-    
-    if( $group -ne $null)
-    {
-        if ($promptBeforeDelete) 
-        {
-            $confirmation = Read-Host "Proceed to delete an existing group named '$name' in the tenant ?(Y/N)"
-
-            if($confirmation -eq 'y')
-            {
-               Remove-MgGroup -GroupId $group.Id
-               Write-Host "Security group '$name' successfully deleted"
-            }
-        }
-        else
-        {
-            Write-Host "No Security group by name '$name' exists in the tenant, no deletion needed."
-        }     
-    }
-    
-    return $group.Id    
-}
-
-<#.Description
-   This function takes a string as input and creates an instance of an Optional claim object
-#> 
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -414,15 +278,14 @@ Function ConfigureApplications
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
     $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$clientAadApplication.AppId+"/objectId/"+$clientAadApplication.Id+"/isMSAApp/"
-
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-app</a></td></tr>" -Path createdApps.html
-    # Declare a list to hold RRA items    
-
+    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+    
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app"`
-        -requiredDelegatedPermissions "access_via_group_assignments"
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app" `
+        -requiredDelegatedPermissions "access_via_group_assignments" `
+
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'client' to the RRA list."
     # Useful for RRA additions troubleshooting
@@ -432,9 +295,9 @@ Function ConfigureApplications
 
     # Add Required Resources Access (from 'client' to 'Microsoft Graph')
     Write-Host "Getting access from 'client' to 'Microsoft Graph'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
-        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All"
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph" `
+        -requiredDelegatedPermissions "User.Read|GroupMember.Read.All" `
+
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'Microsoft Graph' to the RRA list."
     # Useful for RRA additions troubleshooting
@@ -443,6 +306,8 @@ Function ConfigureApplications
     
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
+
+    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at" -ForegroundColor Green
 
     # print the registered app portal URL for any further navigation
     Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl"     -ForegroundColor Red 
@@ -464,7 +329,6 @@ Function ConfigureApplications
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
-    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     
@@ -476,7 +340,6 @@ Function ConfigureApplications
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
-    Write-Host "-----------------"
 
     ReplaceInTextFile -configFilePath $configFile -dictionary $dictionary
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
@@ -516,7 +379,6 @@ try
 }
 catch
 {
-    $_.Exception.ToString() | out-host
     $message = $_
     Write-Warning $Error[0]    
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red

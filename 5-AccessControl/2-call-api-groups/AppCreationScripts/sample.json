@@ -6,7 +6,7 @@
         "Service": ".NET Core web API",
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
-        "platform":"javascript",
+        "platform": "javascript",
         "Languages": [
             "typescript",
             "csharp",

@@ -51,8 +51,9 @@ export class GroupGuard extends BaseGuard {
                     activeAccount = this.authService.instance.getAllAccounts()[0] as AccountWithGroupClaims;
                 }
 
+                // check either the ID token or the graphService to see if the user is a member of any groups
                 if (!activeAccount?.idTokenClaims?.groups && this.graphService.getUser().groupIDs.length === 0) {
-                    if (activeAccount.idTokenClaims?._claim_names) {
+                    if (activeAccount.idTokenClaims?._claim_names && activeAccount.idTokenClaims?._claim_names.groups) {
                         window.alert('You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.');
                         return this.router.navigate(['/overage']);
                     }
@@ -61,6 +62,11 @@ export class GroupGuard extends BaseGuard {
                     return of(false);
                 }
 
+                /**
+                 * If an overage scenario occurs, the ID token will not have a groups claim. Instead, after
+                 * the overage is handled, the user object in the graphService will have the relevant group IDs.
+                 * If you like, you may want to cache the group IDs in sessionStorage as an alternative.
+                 */
                 const hasRequiredGroup = expectedGroups.some((group: string) =>
                     activeAccount?.idTokenClaims?.groups?.includes(group) 
                     ||

@@ -162,17 +162,7 @@ Import-Module Microsoft.Graph.Applications
 $ErrorActionPreference = "Stop"
 
 
-try
-{
-    Cleanup -tenantId $tenantId -environment $azureEnvironmentName
-}
-catch
-{
-    $_.Exception.ToString() | out-host
-    $message = $_
-    Write-Warning $Error[0]    
-    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
-}
+Cleanup -tenantId $tenantId -environment $azureEnvironmentName
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph
