@@ -36,7 +36,7 @@ description: Angular single-page application calling a protected AspNet web API 
 
 ## Overview
 
-This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **Security Groups**.
+This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **[Security Groups](https://learn.microsoft.com/azure/active-directory/fundamentals/how-to-manage-groups)**.
 
 Access control in Azure AD can also be done with, **App Roles** (see the [previous tutorial](../1-call-api-roles/README.md)) and/or **Delegated Permissions**. **Security Groups**, **App Roles** and **Delegated Permissions** in Azure AD are by no means mutually exclusive - they can be used in tandem to provide even finer grained access control.
 
@@ -243,7 +243,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 #### Create Security Groups
 
-> :warning: You may already have security groups with the names below defined in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of the groups.
+> :warning: You may already have security groups with the names defined below in your tenant and/or you may not have permissions to create new security groups. In that case, skip the steps below and update the configuration files in your project(s) with the desired names/IDs of existing groups in your tenant.
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select **Groups** blade on the left.
@@ -259,6 +259,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. For **Group Description**, enter **User Security Group**
     1. Add **Group Owners** and **Group Members** as you see fit.
     1. Select **Create**.
+1. Assign the user accounts that you plan to work with to these security groups.
 
 For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 
@@ -293,7 +294,7 @@ You have two different options available to you on how you can further configure
 1. Select `Groups assigned to the application`.
     1. Choosing additional options like `Security Groups` or `All groups (includes distribution lists but not groups assigned to the application)` will negate the benefits your app derives from choosing to use this option.
 1. Under the **ID** section, select `Group ID`. This will result in Azure AD sending the object [id](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the `groups` claim of the [ID Token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) that your app receives after signing-in a user.
-1. If you are exposing a Web API using the **Expose an API** option, then you can also choose the `Group ID` option under the **Access** section. This will result in Azure AD sending the [Object ID](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the `groups` claim of the [Access Token](https://aka.ms/access-tokens) issued to the client applications of your API.
+1. If you wish to have 'groups' claims available to *Access Tokens* issued to your Web API, then you can also choose the `Group ID` option under the **Access** section. This will result in Azure AD sending the [Object ID](https://docs.microsoft.com/graph/api/resources/group?view=graph-rest-1.0) of the groups the user is assigned to in the `groups` claim of the [Access Token](https://aka.ms/access-tokens) issued to the client applications of your API.
 1. In the app's registration screen, select on the **Overview** blade in the left to open the Application overview screen. Select the hyperlink with the name of your application in **Managed application in local directory** (note this field title can be truncated for instance `Managed application in ...`). When you select this link you will navigate to the **Enterprise Application Overview** page associated with the service principal for your application in the tenant where you created it. You can navigate back to the app registration page by using the *back* button of your browser.
 1. Select the **Users and groups** blade in the left to open the page where you can assign users and groups to your application.
     1. Select the **Add user** button on the top row.
@@ -317,8 +318,8 @@ You have two different options available to you on how you can further configure
 1. Find the key `Enter the objectID for GroupMember group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
-2. Find the key `Enter the objectID for GroupAdmin group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
-3. Find the key `Enter the objectID for GroupMember group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
+1. Find the key `Enter the objectID for 'GroupAdmin' group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupAdmin** group copied from the Azure portal.
+1. Find the key `Enter the objectID for 'GroupMember' group copied from Azure Portal` and replace the existing value with the **object ID** of the **GroupMember** group copied from the Azure portal.
 
 ### Step 6: Running the sample
 

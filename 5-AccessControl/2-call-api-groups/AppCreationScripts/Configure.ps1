@@ -13,7 +13,7 @@ param(
 
  In case you don't have Microsoft.Graph.Applications already installed, the script will automatically install it for the current user
  
- There are four ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
+ There are two ways to run this script. For more information, read the AppCreationScripts.md file in the same folder as this script.
 #>
 
 # Create an application key
@@ -85,6 +85,9 @@ Function GetRequiredPermissions([string] $applicationDisplayName, [string] $requ
 }
 
 
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#>     
 Function ReplaceInLine([string] $line, [string] $key, [string] $value)
 {
     $index = $line.IndexOf($key)
@@ -96,6 +99,9 @@ Function ReplaceInLine([string] $line, [string] $key, [string] $value)
     return $line
 }
 
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#>     
 Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
 {
     $lines = Get-Content $configFilePath
@@ -115,6 +121,7 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 
     Set-Content -Path $configFilePath -Value $lines -Force
 }
+
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
@@ -151,6 +158,123 @@ Function CreateAppRole([string] $types, [string] $name, [string] $description)
     $appRole.Value = $name;
     return $appRole
 }
+<#.Description
+   This function takes a string input as a single line, matches a key value and replaces with the replacement value
+#> 
+Function UpdateLine([string] $line, [string] $value)
+{
+    $index = $line.IndexOf(':')
+    $lineEnd = ''
+
+    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
+    
+    if ($index -ige 0)
+    {
+        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
+    }
+    return $line
+}
+
+<#.Description
+   This function takes a dictionary of keys to search and their replacements and replaces the placeholders in a text file
+#> 
+Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
+{
+    $lines = Get-Content $configFilePath
+    $index = 0
+    while($index -lt $lines.Length)
+    {
+        $line = $lines[$index]
+        foreach($key in $dictionary.Keys)
+        {
+            if ($line.Contains($key))
+            {
+                $lines[$index] = UpdateLine $line $dictionary[$key]
+            }
+        }
+        $index++
+    }
+
+    Set-Content -Path $configFilePath -Value $lines -Force
+}
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+<#.Description
+   This function creates a new Azure AD Security Group with provided values
+#>  
+Function CreateSecurityGroup([string] $name, [string] $description)
+{
+    Write-Host "Creating a security group by the name '$name'."
+    $newGroup = New-MgGroup -Description $description -DisplayName $name -MailEnabled:$false -SecurityEnabled:$true -MailNickName $name
+    return Get-MgGroup -Filter "DisplayName eq '$name'" 
+}
+
+<#.Description
+   This function first checks and then creates a new Azure AD Security Group with provided values, if required
+#>  
+Function CreateIfNotExistsSecurityGroup([string] $name, [string] $description,  [switch] $promptBeforeCreate)
+{
+
+    # check if Group exists
+    $group = Get-MgGroup -Filter "DisplayName eq '$name'"    
+    
+    if( $group -eq $null)
+    {
+        if ($promptBeforeCreate) 
+        {
+            $confirmation = Read-Host "Proceed to create a new security group named '$name' in the tenant ? (Y/N)"
+
+            if($confirmation -eq 'y')
+            {
+                $group = CreateSecurityGroup -name $name -description $description
+            }
+        }
+        else
+        {
+            Write-Host "No Security Group created!"
+        }     
+    }
+    
+    return $group    
+}
+
+<#.Description
+   This function first checks and then deletes an existing Azure AD Security Group, if required
+#>  
+Function RemoveSecurityGroup([string] $name, [switch] $promptBeforeDelete)
+{
+
+    # check if Group exists
+    $group = Get-MgGroup -Filter "DisplayName eq '$name'"
+    
+    if( $group -ne $null)
+    {
+        if ($promptBeforeDelete) 
+        {
+            $confirmation = Read-Host "Proceed to delete an existing group named '$name' in the tenant ?(Y/N)"
+
+            if($confirmation -eq 'y')
+            {
+               Remove-MgGroup -GroupId $group.Id
+               Write-Host "Security group '$name' successfully deleted"
+            }
+        }
+        else
+        {
+            Write-Host "No Security group by name '$name' exists in the tenant, no deletion needed."
+        }     
+    }
+    
+    return $group.Id    
+}
+
+<#.Description
+   This function takes a string as input and creates an instance of an Optional claim object
+#> 
 Function CreateOptionalClaim([string] $name)
 {
     <#.Description
@@ -165,6 +289,9 @@ Function CreateOptionalClaim([string] $name)
     return $appClaim
 }
 
+<#.Description
+   Primary entry method to create and configure app registrations
+#> 
 Function ConfigureApplications
 {
     $isOpenSSl = 'N' #temporary disable open certificate creation 
@@ -183,11 +310,11 @@ Function ConfigureApplications
     # Connect to the Microsoft Graph API, non-interactive is not supported for the moment (Oct 2021)
     Write-Host "Connecting to Microsoft Graph"
     if ($tenantId -eq "") {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
 
@@ -241,10 +368,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.AccessToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.Saml2Token += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.AccessToken += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.Saml2Token += ($newClaim)
 
 
     # Add Optional Claims
@@ -273,10 +400,10 @@ Function ConfigureApplications
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
     $scope = CreateScope -value access_via_group_assignments  `
-    -userConsentDisplayName "Access msal-angular-app"  `
-    -userConsentDescription "Allow the application to access msal-angular-app on your behalf."  `
-    -adminConsentDisplayName "Access msal-angular-app"  `
-    -adminConsentDescription "Allows the app to have the same access to information in the directory on behalf of an admin."
+        -userConsentDisplayName "Access 'msal-angular-app' as the signed-in user assigned to group memberships."  `
+        -userConsentDescription "Allow the app to access the 'msal-angular-app' on your behalf after assignment to one or more security groups."  `
+        -adminConsentDisplayName "Access 'msal-angular-app' as the signed-in user assigned to group memberships."  `
+        -adminConsentDescription "Allow the app to access the 'msal-angular-app' as a signed-in user assigned to one or more security groups."
             
     $scopes.Add($scope)
     
@@ -298,7 +425,7 @@ Function ConfigureApplications
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'client' to the RRA list."
-    # Useful for RRA troubleshooting
+    # Useful for RRA additions troubleshooting
     # $requiredResourcesAccess.Count
     # $requiredResourcesAccess
     
@@ -310,7 +437,7 @@ Function ConfigureApplications
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'Microsoft Graph' to the RRA list."
-    # Useful for RRA troubleshooting
+    # Useful for RRA additions troubleshooting
     # $requiredResourcesAccess.Count
     # $requiredResourcesAccess
     
@@ -318,42 +445,16 @@ Function ConfigureApplications
     Write-Host "Granted permissions."
 
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl"
+    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl"     -ForegroundColor Red 
     
-    
-Function UpdateLine([string] $line, [string] $value)
-{
-    $index = $line.IndexOf(':')
-    $lineEnd = ''
+    # Create any security groups that this app requires.
 
-    if($line[$line.Length - 1] -eq ','){   $lineEnd = ',' }
-    
-    if ($index -ige 0)
-    {
-        $line = $line.Substring(0, $index+1) + " " + '"' + $value+ '"' + $lineEnd
-    }
-    return $line
-}
+    $newGroup = CreateIfNotExistsSecurityGroup -name 'GroupAdmin' -description 'Admin Security Group' -promptBeforeCreate 'Y'
+    Write-Host "group id of 'GroupAdmin'" -> $newGroup.Id -ForegroundColor Green 
 
-Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable] $dictionary)
-{
-    $lines = Get-Content $configFilePath
-    $index = 0
-    while($index -lt $lines.Length)
-    {
-        $line = $lines[$index]
-        foreach($key in $dictionary.Keys)
-        {
-            if ($line.Contains($key))
-            {
-                $lines[$index] = UpdateLine $line $dictionary[$key]
-            }
-        }
-        $index++
-    }
-
-    Set-Content -Path $configFilePath -Value $lines -Force
-}
+    $newGroup = CreateIfNotExistsSecurityGroup -name 'GroupMember' -description 'User Security Group' -promptBeforeCreate 'Y'
+    Write-Host "group id of 'GroupMember'" -> $newGroup.Id -ForegroundColor Green 
+    Write-Host "Don't forget to assign the users you wish to work with to the newly created security groups !" -ForegroundColor Red 
     
     # Update config file for 'client'
     # $configFile = $pwd.Path + "\..\API\TodoListAPI\appsettings.json"
@@ -361,7 +462,7 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     
     $dictionary = @{ "Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $clientAppKey };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values:"
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
     Write-Host "-----------------"
 
@@ -373,7 +474,7 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     
     $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId };
 
-    Write-Host "Updating the sample config '$configFile' with the following config values:"
+    Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
     Write-Host "-----------------"
 
@@ -382,18 +483,17 @@ Function UpdateTextFile([string] $configFilePath, [System.Collections.HashTable]
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - On Azure portal, create a security group named 'GroupAdmin' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red 
-    Write-Host "  - On Azure portal, create a security group named 'GroupMember' and assign some users to it. Afterwards, update the configuration files with the Object ID of the gruop you've just created." -ForegroundColor Red 
     Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-       if($isOpenSSL -eq 'Y')
-    {
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-        Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-        Write-Host "Install the certificate on your system from current folder."
-        Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    }
-    Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
+   
+if($isOpenSSL -eq 'Y')
+{
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+    Write-Host "You have generated certificate using OpenSSL so follow below steps: "
+    Write-Host "Install the certificate on your system from current folder."
+    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
+}
+Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 } # end of ConfigureApplications function
 
 # Pre-requisites
@@ -418,7 +518,7 @@ catch
 {
     $_.Exception.ToString() | out-host
     $message = $_
-    Write-Warning $Error[0]
+    Write-Warning $Error[0]    
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
 }
 Write-Host "Disconnecting from tenant"

@@ -52,14 +52,14 @@ namespace TodoListAPI
                         
                         options.Events.OnTokenValidated = async context =>
                         {
-                           string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId
+                           string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId and we disallow all calls to this API, except from the SPA
 
                            string clientappId = context?.Principal?.Claims
                                .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
                            if (!allowedClientApps.Contains(clientappId))
                            {
-                               throw new System.Exception("This client is not authorized");
+                               throw new System.Exception("This client is not authorized to call this Api");
                            }
 
                            // calls method to process groups overage claim.
@@ -69,7 +69,7 @@ namespace TodoListAPI
                         };
                     }, options => { Configuration.Bind("AzureAd", options); })
                         .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
-                        .AddMicrosoftGraph(Configuration.GetSection("MsGraph"))
+                        .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
                         .AddInMemoryTokenCaches();
 
             // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the Authorize attribute and User.IsInrole()
