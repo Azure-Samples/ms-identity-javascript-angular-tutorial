@@ -451,7 +451,7 @@ Learn more about using [.NET Core with Visual Studio Code](https://docs.microsof
 
 ## Next Tutorial
 
-Learn more about how to offer your apps to other tenants (SaaS): [Multitenancy](../../6-Multitenancy/1-call-api-mt/README-incremental.md).
+Learn more about how to offer your apps to other tenants (SaaS): [Multitenancy](../../6-AdvancedScenarios/2-call-api-mt/README.md).
 
 ## More information
 

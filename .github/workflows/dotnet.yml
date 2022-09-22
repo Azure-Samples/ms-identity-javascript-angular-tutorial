@@ -26,7 +26,7 @@ jobs:
         dotnet test --no-build --verbosity normal
 
     - run: |
-        cd 7-AdvancedScenarios/1-call-api-obo/API
+        cd 6-AdvancedScenarios/1-call-api-obo/API
         dotnet restore
         dotnet build --no-restore
         cd ProfileAPI.Tests
