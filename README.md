@@ -103,7 +103,6 @@ Alternatively, choose below the sample you want to review.
 |                 |               |
 |-----------------|---------------|
 | <img src="./7-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./7-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
-| <img src="./7-AdvancedScenarios/2-call-api-pop/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Proof of Possession tokens**](./7-AdvancedScenarios/2-call-api-pop/README.md) </br> Acquire proof of possession (PoP) tokens. Learn how to prevent token replay attacks with PoP authentication scheme. Learn how to validate PoP tokens.|
 
 ## We'd love your feedback!
 

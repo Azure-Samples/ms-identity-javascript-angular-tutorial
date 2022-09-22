@@ -71,9 +71,3 @@ jobs:
         npm ci
         npm audit --production
         npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
-
-    - run: |
-        cd 7-AdvancedScenarios/2-call-api-pop/SPA
-        npm ci
-        npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
