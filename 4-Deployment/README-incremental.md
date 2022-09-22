@@ -148,7 +148,7 @@ See how to control access to your apps using:
 - [App Roles](../5-AccessControl/1-call-api-roles/README-incremental.md)
 - [Security Groups](../5-AccessControl/1-call-api-groups/README-incremental.md)
 
-Or learn more about how to offer your apps to other tenants (SaaS): [Multitenancy](../6-Multitenancy/1-call-api-mt/README-incremental.md).
+Or learn more about how to offer your apps to other tenants (SaaS): [Multitenancy](../6-AdvancedScenarios/2-call-api-mt/README.md).
 
 ## More information
 

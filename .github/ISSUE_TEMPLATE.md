@@ -17,9 +17,8 @@
     - [ ]   4) Deploy to Azure Storage and App Service
     - [ ] 5-1) Call a web API using App Roles
     - [ ] 5-2) Call a web API using Security Groups
-    - [ ] 6-1) Call a multi-tenant web API
-    - [ ] 7-1) Call Microsoft Graph using on-behalf-of flow
-    - [ ] 7-2) Call a web API using Proof of Possession tokens
+    - [ ] 6-1) Call Microsoft Graph using on-behalf-of flow
+    - [ ] 6-2) Call a multi-tenant web API
 ```
 
 ## This issue is for a

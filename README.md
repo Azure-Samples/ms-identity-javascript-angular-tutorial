@@ -92,18 +92,12 @@ Alternatively, choose below the sample you want to review.
 | <img src="./5-AccessControl/1-call-api-roles/ReadmeFiles/topology.png" width="200"> | [**Call a web API using App Roles**](./5-AccessControl/1-call-api-roles/README.md) </br> Define App Roles and use roles claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. |
 | <img src="./5-AccessControl/2-call-api-groups/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Security Groups**](/5-AccessControl/2-call-api-groups/README.md) </br> Create Security Groups and use groups claim in an ID Token to implement Role-based Access Control (RBAC) for your protected web API. Handle overage scenarios.  |
 
-### Chapter 6: Develop and provision a multi-tenant SaaS application
+### Chapter 6: Dive into advanced scenarios
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./6-Multitenancy/1-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-Multitenancy/1-call-api-mt/README.md) </br> Understand multitenancy in Azure AD. Handle provisioning your app to other tenants and control who can access your resources. |
-
-### Chapter 7: Dive into advanced scenarios
-
-|                 |               |
-|-----------------|---------------|
-| <img src="./7-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./7-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
-| <img src="./7-AdvancedScenarios/2-call-api-pop/ReadmeFiles/topology.png" width="200"> | [**Call a web API using Proof of Possession tokens**](./7-AdvancedScenarios/2-call-api-pop/README.md) </br> Acquire proof of possession (PoP) tokens. Learn how to prevent token replay attacks with PoP authentication scheme. Learn how to validate PoP tokens.|
+| <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./7-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
+| <img src="./6-AdvancedScenarios/2-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-Multitenancy/2-call-api-mt/README.md) </br> Develop and provision a multi-tenant SaaS application. Handle provisioning your app to other tenants and control who can access your resources. |
 
 ## We'd love your feedback!
 

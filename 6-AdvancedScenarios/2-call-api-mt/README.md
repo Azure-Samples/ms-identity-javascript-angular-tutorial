@@ -63,7 +63,7 @@ or download and extract the repository .zip file.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 6-Multitenancy/1-call-api-mt/API
+    cd 6-AdvancedScenarios/2-call-api-mt/API
     dotnet restore
 ```
 
