@@ -368,11 +368,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.AccessToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.Saml2Token += ($newClaim)
-
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.AccessToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
@@ -417,12 +416,13 @@ Function ConfigureApplications
 
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-app</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
+    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
     # Add Required Resources Access (from 'client' to 'client')
     Write-Host "Getting access from 'client' to 'client'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-angular-app"`
         -requiredDelegatedPermissions "access_via_group_assignments"
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'client' to the RRA list."
     # Useful for RRA additions troubleshooting
@@ -434,7 +434,7 @@ Function ConfigureApplications
     Write-Host "Getting access from 'client' to 'Microsoft Graph'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
         -requiredDelegatedPermissions "User.Read|GroupMember.Read.All"
-    $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
+
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'Microsoft Graph' to the RRA list."
     # Useful for RRA additions troubleshooting
@@ -443,9 +443,7 @@ Function ConfigureApplications
     
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
-
-    # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl"     -ForegroundColor Red 
+    
     
     # Create any security groups that this app requires.
 
@@ -455,12 +453,15 @@ Function ConfigureApplications
     $newGroup = CreateIfNotExistsSecurityGroup -name 'GroupMember' -description 'User Security Group' -promptBeforeCreate 'Y'
     Write-Host "group id of 'GroupMember'" -> $newGroup.Id -ForegroundColor Green 
     Write-Host "Don't forget to assign the users you wish to work with to the newly created security groups !" -ForegroundColor Red 
+
+    # print the registered app portal URL for any further navigation
+    Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl" -ForegroundColor Red 
     
     # Update config file for 'client'
     # $configFile = $pwd.Path + "\..\API\TodoListAPI\appsettings.json"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\API\TodoListAPI\appsettings.json"))
     
-    $dictionary = @{ "Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $clientAppKey };
+    $dictionary = @{ "Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $clientAppKey;"Enter the object ID for GroupAdmin group copied from Azure Portal" = $GroupAdmin.objectId;"Enter the object ID for GroupMember group copied from Azure Portal" = $GroupMember.objectId };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
@@ -472,7 +473,7 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\app\auth-config.ts"))
     
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId;"Enter the object ID for GroupAdmin group copied from Azure Portal" = $GroupAdmin.objectId;"Enter the object ID for GroupMember group copied from Azure Portal" = $GroupMember.objectId };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
@@ -483,6 +484,8 @@ Function ConfigureApplications
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
+    Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
+    Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
     Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    

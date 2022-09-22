@@ -67,6 +67,6 @@ export const loginRequest = {
 };
 
 export const groups = {
-    groupAdmin: "Enter the objectID for GroupAdmin group copied from Azure Portal",
-    groupMember: "Enter the objectID for GroupMember group copied from Azure Portal"
+    groupAdmin: "Enter the object ID for GroupAdmin group copied from Azure Portal",
+    groupMember: "Enter the object ID for GroupMember group copied from Azure Portal"
 }

@@ -22,53 +22,57 @@
         ]
     },
     "AADApps": [
-      {
-        "Id": "client",
-        "Name": "msal-angular-app",
-        "Kind": "SinglePageApplication",
-        "Audience": "AzureADMyOrg",
-        "HomePage": "http://localhost:4200/",
-        "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
-        "GroupMembershipClaims": "SecurityGroup",
-        "PasswordCredentials": "Auto",
-        "Scopes": [
-          "access_via_group_assignments"
-        ],
-        "Sample": {
-          "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
-          "ProjectDirectory": "\\2-call-api-groups\\SPA"
-        },
-        "SecurityGroups": [
-          {
-            "Name": "GroupAdmin",
-            "Description": "Admin Security Group"
-          },
-          {
-            "Name": "GroupMember",
-            "Description": "User Security Group"
-          }
-        ],
-        "RequiredResourcesAccess": [
-          {
-            "Resource": "client",
-            "DelegatedPermissions": [
-              "access_via_group_assignments"
-            ]
-          },
-          {
-            "Resource": "Microsoft Graph",
-            "DelegatedPermissions": [
-              "User.Read",
-              "GroupMember.Read.All"
-            ]
-          }
-        ],
-        "OptionalClaims": {
-          "IdTokenClaims": [
-            "acct"
-          ]
+        {
+            "Id": "client",
+            "Name": "msal-angular-app",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "HomePage": "http://localhost:4200/",
+            "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
+            "GroupMembershipClaims": "SecurityGroup",
+            "PasswordCredentials": "Auto",
+            "Scopes": [
+                "access_via_group_assignments"
+            ],
+            "Sample": {
+                "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
+                "ProjectDirectory": "\\2-call-api-groups\\SPA"
+            },
+            "SecurityGroups": [
+                {
+                    "Name": "GroupAdmin",
+                    "Description": "Admin Security Group"
+                },
+                {
+                    "Name": "GroupMember",
+                    "Description": "User Security Group"
+                }
+            ],
+            "RequiredResourcesAccess": [
+                {
+                    "Resource": "client",
+                    "DelegatedPermissions": [
+                        "access_via_group_assignments"
+                    ]
+                },
+                {
+                    "Resource": "Microsoft Graph",
+                    "DelegatedPermissions": [
+                        "User.Read",
+                        "GroupMember.Read.All"
+                    ]
+                }
+            ],
+            "OptionalClaims": {
+                "IdTokenClaims": [
+                    "acct"
+                ]
+            },
+            "ManualSteps": [
+                { "Comment": "This script has created a group named GroupAdmin for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." },
+                { "Comment": "This script has created a group named GroupMember for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." }
+              ]    
         }
-      }
     ],
     "CodeConfiguration": [
         {
@@ -87,6 +91,14 @@
                 {
                     "key": "Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal",
                     "value": "client.AppKey"
+                },
+                {
+                    "key": "Enter the object ID for GroupAdmin group copied from Azure Portal",
+                    "value": "$GroupAdmin.objectId"
+                },
+                {
+                    "key": "Enter the object ID for GroupMember group copied from Azure Portal",
+                    "value": "$GroupMember.objectId"
                 }
             ]
         },
@@ -106,6 +118,14 @@
                 {
                     "key": "Enter_the_Web_Api_Application_Id_Here",
                     "value": "client.AppId"
+                },
+                {
+                    "key": "Enter the object ID for GroupAdmin group copied from Azure Portal",
+                    "value": "$GroupAdmin.objectId"
+                },
+                {
+                    "key": "Enter the object ID for GroupMember group copied from Azure Portal",
+                    "value": "$GroupMember.objectId"
                 }
             ]
         }
