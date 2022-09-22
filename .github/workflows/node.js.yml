@@ -67,7 +67,13 @@ jobs:
         npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
 
     - run: |
-        cd 7-AdvancedScenarios/1-call-api-obo/SPA
+        cd 6-AdvancedScenarios/1-call-api-obo/SPA
+        npm ci
+        npm audit --production
+        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+
+    - run: |
+        cd 6-AdvancedScenarios/2-call-api-mt/SPA
         npm ci
         npm audit --production
         npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
