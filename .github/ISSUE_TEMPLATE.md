@@ -19,7 +19,6 @@
     - [ ] 5-2) Call a web API using Security Groups
     - [ ] 6-1) Call a multi-tenant web API
     - [ ] 7-1) Call Microsoft Graph using on-behalf-of flow
-    - [ ] 7-2) Call a web API using Proof of Possession tokens
 ```
 
 ## This issue is for a
