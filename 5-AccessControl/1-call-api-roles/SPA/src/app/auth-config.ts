@@ -48,7 +48,7 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
     apiTodoList: {
         endpoint: "https://localhost:44351/api/todolist",
-        scopes: ["api://Enter_the_Web_Api_Application_Id_Here/access_as_user"]
+        scopes: ["api://Enter_the_Web_Api_Application_Id_Here/access_via_approle_assignments"]
     }
 }
 

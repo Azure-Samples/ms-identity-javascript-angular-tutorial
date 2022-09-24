@@ -28,7 +28,7 @@
             "HomePage": "http://localhost:4200/",
             "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
             "Scopes": [
-                "access_as_user"
+                "access_via_approle_assignments"
             ],
             "Sample": {
                 "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
@@ -38,7 +38,7 @@
                 {
                     "Resource": "client",
                     "DelegatedPermissions": [
-                        "access_as_user"
+                        "access_via_approle_assignments"
                     ]
                 }
             ],
