@@ -3,15 +3,16 @@
         "Title": "Angular single-page application calling a protected web API and using App Roles to implement Role-Based Access Control",
         "Level": 300,
         "Client": "Angular SPA",
-        "Service": ".NET Core web API",
+        "Service": "ASP.NET Core Web Api",
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
+        "Platform": "JavaScript",
         "Languages": [
             "typescript",
             "csharp",
             "javascript"
         ],
-        "Description": "Angular single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
+        "Description": "An Angular single-page application calling a protected web API using App Roles to implement Role-Based Access Control",
         "products": [
             "azure-active-directory",
             "msal-js",
