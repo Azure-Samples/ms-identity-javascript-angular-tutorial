@@ -94,11 +94,11 @@
                 },
                 {
                     "key": "Enter the object ID for GroupAdmin group copied from Azure Portal",
-                    "value": "$GroupAdmin.objectId"
+                    "value": "$GroupAdmin.Id"
                 },
                 {
                     "key": "Enter the object ID for GroupMember group copied from Azure Portal",
-                    "value": "$GroupMember.objectId"
+                    "value": "$GroupMember.Id"
                 }
             ]
         },
@@ -121,11 +121,11 @@
                 },
                 {
                     "key": "Enter the object ID for GroupAdmin group copied from Azure Portal",
-                    "value": "$GroupAdmin.objectId"
+                    "value": "$GroupAdmin.Id"
                 },
                 {
                     "key": "Enter the object ID for GroupMember group copied from Azure Portal",
-                    "value": "$GroupMember.objectId"
+                    "value": "$GroupMember.Id"
                 }
             ]
         }
