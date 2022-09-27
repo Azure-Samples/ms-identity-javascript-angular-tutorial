@@ -7,6 +7,7 @@ param(
     [string] $azureEnvironmentName
 )
 
+
 Function Cleanup
 {
     if (!$azureEnvironmentName)
@@ -24,11 +25,13 @@ Function Cleanup
 
     # Connect to the Microsoft Graph API
     Write-Host "Connecting to Microsoft Graph"
-    if ($tenantId -eq "") {
+    if ($tenantId -eq "") 
+    {
         Connect-MgGraph -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
-    else {
+    else 
+    {
         Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All" -Environment $azureEnvironmentName
     }
     
@@ -38,15 +41,17 @@ Function Cleanup
     Write-Host "Removing 'client' (msal-angular-app) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'"  | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
-        Write-Host "Unable to remove the application 'msal-angular-app' . Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove the application 'msal-angular-app'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
     Write-Host "Making sure there are no more (msal-angular-app) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'"
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -62,11 +67,13 @@ Function Cleanup
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-angular-app'" | ForEach-Object {Remove-MgServicePrincipal -ApplicationId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-angular-app'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
-        Write-Host "Unable to remove ServicePrincipal 'msal-angular-app' . Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        $message = $_
+        Write-Warning $Error[0]
+        Write-Host "Unable to remove ServicePrincipal 'msal-angular-app'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 
@@ -77,7 +84,17 @@ Import-Module Microsoft.Graph.Applications
 $ErrorActionPreference = "Stop"
 
 
-Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+try
+{
+    Cleanup -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph

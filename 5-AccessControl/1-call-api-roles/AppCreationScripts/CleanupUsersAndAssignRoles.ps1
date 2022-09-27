@@ -23,12 +23,12 @@ Function CleanupRolesUsersAndRoleAssignments
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
 
@@ -46,6 +46,10 @@ Function CleanupRolesUsersAndRoleAssignments
         $userEmail =  $appName +"-" + "TaskUser" + "@" + $tenantName
         RemoveUser -userPrincipal $userEmail
         Write-Host "user name ($userEmail)"
+    }
+    else
+    {
+        Write-Host "Couldn't find application (msal-angular-app)"  -BackgroundColor Red
     }
 }
 
@@ -67,8 +71,18 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
 
 Import-Module Microsoft.Graph.Users
 
-# Run interactively (will ask you for the tenant ID)
-CleanupRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
+try
+{
+    # Run interactively (will ask you for the tenant ID)
+    CleanupRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to cleanup app roles and assignments. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph
