@@ -347,10 +347,9 @@ Function ConfigureApplications
     
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
        
-    # delete default scope i.e. User_impersonation
-    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
+    # delete default scope i.e. user_impersonation
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
+    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "user_impersonation" }
     
     if($scope -ne $null)
     {    
@@ -412,12 +411,11 @@ Function ConfigureApplications
     
     # Create any security groups that this app requires.
 
-    $newGroup = CreateIfNotExistsSecurityGroup -name 'GroupAdmin' -description 'Admin Security Group' -promptBeforeCreate 'Y'
+    $GroupAdmin = CreateIfNotExistsSecurityGroup -name 'GroupAdmin' -description 'Admin Security Group' -promptBeforeCreate 'Y'
     Write-Host "group id of 'GroupAdmin'" -> $newGroup.Id -ForegroundColor Green 
 
-    $newGroup = CreateIfNotExistsSecurityGroup -name 'GroupMember' -description 'User Security Group' -promptBeforeCreate 'Y'
-    Write-Host "group id of 'GroupMember'" -> $newGroup.Id -ForegroundColor Green 
-    Write-Host "Don't forget to assign the users you wish to work with to the newly created security groups !" -ForegroundColor Red 
+    $GroupMember = CreateIfNotExistsSecurityGroup -name 'GroupMember' -description 'User Security Group' -promptBeforeCreate 'Y'
+    Write-Host "group id of 'GroupMember'" -> $newGroup.Id -ForegroundColor Green
 
     # print the registered app portal URL for any further navigation
     Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl" -ForegroundColor Red 
@@ -438,7 +436,7 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\app\auth-config.ts"))
     
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId;"Enter the object ID for GroupAdmin group copied from Azure Portal" = $GroupAdmin.objectId;"Enter the object ID for GroupMember group copied from Azure Portal" = $GroupMember.objectId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $clientAadApplication.AppId;"Enter the object ID for GroupAdmin group copied from Azure Portal" = $GroupAdmin.Id;"Enter the object ID for GroupMember group copied from Azure Portal" = $GroupMember.Id };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
