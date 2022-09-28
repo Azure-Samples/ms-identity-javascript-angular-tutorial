@@ -180,7 +180,7 @@ To manually register the apps, as a first step you'll need to:
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
     1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
- 
+
 ##### Publish Delegated Permissions
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
@@ -206,17 +206,16 @@ To manually register the apps, as a first step you'll need to:
    1. Select the **Add a permission** button and then:
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `msal-angular-app`.
-        1. Select **delegated permissions**, which is is requested by apps when signing-in users.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
         1. In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
    1. Select the **Add a permission** button and then:
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-        1. Select **delegated permissions**, which is is requested by apps when signing-in users.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
         1. In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
-
-> :warning: For the overage scenario, make sure you have granted **Admin Consent** for the MS Graph API's **GroupMember.Read.All** scope (see the **App Registration** steps above).
+   > :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
@@ -515,8 +514,8 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             options.Events = new JwtBearerEvents();
             options.Events.OnTokenValidated = async context =>
             {
-                // calls method to process groups overage claim.
-                  await GraphHelper.GetSignedInUsersGroups(context);
+                // calls method to process groups overage claim and save it in Session to avoid repeated calls.
+                           await GraphHelper.FetchSignedInUsersGroups(context);
             };
         }, options => { Configuration.Bind("AzureAd", options); })
             .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
@@ -529,7 +528,7 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 1. In [GraphHelper.cs](./API/TodoListAPI/Utils/GraphHelper.cs), **GetSignedInUsersGroups** method checks if incoming token contains *Group Overage* claim then it will call **ProcessUserGroupsForOverage** method to retrieve groups.
 
 ```csharp
-public static async Task GetSignedInUsersGroups(TokenValidatedContext context)
+public static async Task FetchSignedInUsersGroups(TokenValidatedContext context)
 {
     // Checks if the incoming token contained a 'Group Overage' claim.
     if (HasOverageOccurred(context.Principal))

@@ -30,18 +30,21 @@ Function GetGroupName([int] $val) {
 <#.Description
     This function removes security groups from tenant
 #>
-Function RemoveGroup {
+Function RemoveGroups {
     $val = 1;
     while ($val -ne 223) {
        
         $groupName = GetGroupName -val $val
        
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
-        if ($group) {
+
+        if ($group) 
+        {
             Remove-MgGroup -GroupId $group.Id
             Write-Host "Successfully deleted $($group.DisplayName)"
         }
-        else {
+        else 
+        {
             Write-Host "Couldn't find group $($groupName) with ID: $($group.Id)"
         }
        
@@ -59,41 +62,50 @@ Function ConfigureApplications {
     }
 
     Write-Host "Connecting to Microsoft Graph"
-    if ($tenantId -eq "") {
+    if ($tenantId -eq "") 
+    {
         Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
-    else {
+    else 
+    {
         Connect-MgGraph -TenantId $tenantId -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
-    RemoveGroup 
+    RemoveGroups 
 }
 
 $ErrorActionPreference = "Stop"
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) 
+{
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser
     Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
 }
+Import-Module Microsoft.Graph.Authentication
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) 
+{
     Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Groups
 
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) 
+{
     Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
 }
 
 Import-Module Microsoft.Graph.Users
 
 
-try {
+try 
+{
     ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
 }
-catch {
+catch 
+{
+    $_.Exception.ToString() | out-host
     $message = $_
     Write-Warning $Error[0]
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red

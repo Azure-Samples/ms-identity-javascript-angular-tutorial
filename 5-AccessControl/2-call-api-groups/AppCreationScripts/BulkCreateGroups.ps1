@@ -24,34 +24,37 @@ Function GetGroupName([int] $val) {
     }
 
     return $groupName;
-
 }
 
 <#.Description
     This function creates security groups and assigns the user to the security groups
 #>
-Function CreateGroupsAndAssignUser($user) {
+Function CreateGroupsAndAssignUser($user) 
+{
     $val = 1;
-     while ($val -ne 223) {
+     
+    while ($val -ne 223) 
+    {
         $groupName = GetGroupName -val $val
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
         $groupNameLower =  $groupName.ToLower();
         $nickName = $groupNameLower.replace(' ','');
+
         if ($group) 
         {
             Write-Host "Group $($group.DisplayName) already exists"
-
         }
         else
         {
             $newsg = New-MgGroup -DisplayName $groupName -MailEnabled:$False -MailNickName $nickName  -SecurityEnabled
+            Write-Host "Successfully created group '$($newsg.DisplayName)'"            
             $userId = $user.Id
             $params = @{
                 "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/{$userId}"
             }
 
             New-MgGroupMemberByRef -GroupId $newsg.Id -BodyParameter $params
-            Write-Host "Successfully created $($newsg.DisplayName)"
+            Write-Host "Successfully assigned user to group '$($newsg.DisplayName)'"
         }
        
         $val += 1;
@@ -63,7 +66,8 @@ Function CreateGroupsAndAssignUser($user) {
     This function signs in the user to the tenant using Graph SDK.
     Add the user object_id below to assign the user the groups
 #> 
-Function ConfigureApplications {
+Function ConfigureApplications 
+{
 
     if (!$azureEnvironmentName) {
         $azureEnvironmentName = "Global"
@@ -79,9 +83,12 @@ Function ConfigureApplications {
     }
 
     # Add user object Id here
-    $usersobjectId = Read-Host -Prompt "Enter the user object ID"
+    $usersobjectId = Read-Host -Prompt "Enter the object Id (from Azure portal) of the user who will assigned to these security groups: "
 
-    $user = Get-MgUser -UserId $usersobjectId
+    $user = Get-MgUser -UserId $usersobjectId 
+
+    Write-Host 'Found user -' 
+    $user | Format-List  ID, DisplayName, Mail, UserPrincipalName
 
     CreateGroupsAndAssignUser -user $user
 }
@@ -90,6 +97,8 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser
     Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
 }
+
+Import-Module Microsoft.Graph.Authentication
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
     Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser
@@ -105,10 +114,13 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
 
 Import-Module Microsoft.Graph.Users
 
-try {
+try 
+{
     ConfigureApplications -tenantId $tenantId -environment $azureEnvironmentName
 }
-catch {
+catch 
+{
+    $_.Exception.ToString() | out-host
     $message = $_
     Write-Warning $Error[0]
     Write-Host "Unable to register apps. Error is $message." -ForegroundColor White -BackgroundColor Red

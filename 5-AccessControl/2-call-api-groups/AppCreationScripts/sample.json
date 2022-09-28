@@ -65,15 +65,15 @@
       ],
       "OptionalClaims": {
         "IdTokenClaims": [
-          "acct"
+          "acct"          
         ]
       },
       "ManualSteps": [
         {
-          "Comment": "This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
+          "Comment": "This script has created a group named 'GroupAdmin' and 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
         },
         {
-          "Comment": "This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
+          "Comment": "To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal."
         }
       ]
     }

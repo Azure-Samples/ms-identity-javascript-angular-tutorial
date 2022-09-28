@@ -62,8 +62,8 @@ namespace TodoListAPI
                                throw new System.Exception("This client is not authorized to call this Api");
                            }
 
-                           // calls method to process groups overage claim.
-                           await GraphHelper.GetSignedInUsersGroups(context);
+                           // calls method to process groups overage claim and save it in Session to avoid repeated calls.
+                           await GraphHelper.FetchSignedInUsersGroups(context);
 
                            await Task.CompletedTask;
                         };
@@ -72,11 +72,11 @@ namespace TodoListAPI
                         .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
                         .AddInMemoryTokenCaches();
 
-            // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the Authorize attribute and User.IsInrole()
+            // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the Authorize attribute, policy.RequireRole() and User.IsInrole()
             // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
             services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
             {
-                // The claim in the Jwt token where Security Groups are available.
+                // The claim in the Jwt token where Security Groups are available. Also
                 options.TokenValidationParameters.RoleClaimType = "groups";
             });
 
@@ -90,6 +90,9 @@ namespace TodoListAPI
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
 
             services.AddControllers();
+
+            services.AddDistributedMemoryCache();
+            services.AddSession();
 
             // Allowing CORS for all domains and HTTP methods for the purpose of the sample
             // In production, modify this with the actual domains and HTTP methods you want to allow
@@ -124,6 +127,7 @@ namespace TodoListAPI
             app.UseCors("default");
             app.UseHttpsRedirection();
             app.UseRouting();
+            app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

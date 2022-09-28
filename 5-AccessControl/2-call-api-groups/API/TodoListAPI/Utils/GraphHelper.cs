@@ -1,30 +1,83 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Graph;
+using System;
+using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using TodoListAPI.Infrastructure;
 
 namespace TodoListAPI.Utils
 {
     public class GraphHelper
     {
+        private const string Groups_Session_Key = "groupClaims";
+
         /// <summary>
         /// This method inspects the claims collection created from the ID or Access token issued to a user and returns the groups that are present in the token.
         /// If groups claims are already present in Session then it returns the list of groups by calling GetSessionGroupList method.
         /// If it detects groups overage, the method then makes calls to ProcessUserGroupsForOverage method.
         /// </summary>
         /// <param name="context">TokenValidatedContext</param>
-        public static async Task GetSignedInUsersGroups(TokenValidatedContext context)
+        public static async Task FetchSignedInUsersGroups(TokenValidatedContext context)
         {
             // Checks if the incoming token contained a 'Group Overage' claim.
             if (HasOverageOccurred(context.Principal))
             {
-                await ProcessUserGroupsForOverage(context);
+                // Gets group values from session variable if exists.
+                var usergroups = GetUserGroupsFromSession(context.HttpContext.Session);
+
+                if (usergroups == null || usergroups?.Count == 0)
+                {
+                    usergroups = await ProcessUserGroupsForOverage(context);
+                }
+
+                // Populate the groups claim will all the groups to ensure that policy check works as expected
+                if (usergroups?.Count > 0)
+                {
+                    var identity = (ClaimsIdentity)context.Principal.Identity;
+
+                    if (identity != null)
+                    {
+                        //Remove any existing 'groups' claim
+                        RemoveExistingGroupsClaims(identity);
+
+                        // Re-populate the `groups` claim with the complete list of groups fetched from MS Graph
+                        foreach (var group in usergroups)
+                        {
+                            // The following code adds group ids to the 'groups' claim. But depending upon your requirement and the format of the 'groups' claim selected in
+                            // the app registration, you might want to add other attributes than id to the `groups` claim, examples being;
+
+                            // For instance if the required format is 'NetBIOSDomain\sAMAccountName' then the code is as commented below:
+                            // identity.AddClaim(new Claim("groups", group.OnPremisesNetBiosName+"\\"+group.OnPremisesSamAccountName));
+                            identity.AddClaim(new Claim("groups", group));
+                        }
+
+                        // Here we add the groups in a session variable that is used in authorization policy handler.
+                        context.HttpContext.Session.SetAsByteArray(Groups_Session_Key, usergroups);
+                    }
+                }
             }
+        }
+
+        /// <summary>
+        /// Retrieves all the groups saved in Session.
+        /// </summary>
+        /// <param name="_httpContextSession"></param>
+        /// <returns></returns>
+        public static List<string> GetUserGroupsFromSession(ISession _httpContextSession)
+        {
+            // Checks if Session contains data for groupClaims.
+            // The data will exist for 'Group Overage' claim if already populated.
+            if (_httpContextSession.Keys.Contains(Groups_Session_Key))
+            {
+                return _httpContextSession.GetAsByteArray(Groups_Session_Key) as List<string>;
+            }
+            return null;
         }
 
         /// <summary>
@@ -39,13 +92,13 @@ namespace TodoListAPI.Utils
 
         /// <summary>
         /// ID Token does not contain 'scp' claim.
-        /// This claims exist for Access Token.
+        /// This claims only exists in the Access Token.
         /// </summary>
         /// <param name="identity"></param>
         /// <returns></returns>
         private static bool IsAccessToken(ClaimsIdentity identity)
         {
-            return identity.Claims.Any(x => x.Type == "scp" || x.Type== "http://schemas.microsoft.com/identity/claims/scope");
+            return identity.Claims.Any(x => x.Type == "scp" || x.Type == "http://schemas.microsoft.com/identity/claims/scope");
         }
 
         /// <summary>
@@ -53,8 +106,11 @@ namespace TodoListAPI.Utils
         /// the method then makes calls to Microsoft Graph to fetch the group membership of the authenticated user.
         /// </summary>
         /// <param name="context">TokenValidatedContext</param>
-        private static async Task ProcessUserGroupsForOverage(TokenValidatedContext context)
+        private static async Task<List<string>> ProcessUserGroupsForOverage(TokenValidatedContext context)
         {
+            //IUserMemberOfCollectionWithReferencesPage memberPage = new UserMemberOfCollectionWithReferencesPage();
+            var allgroups = new List<DirectoryObject>();
+
             try
             {
                 // Before instatntiating GraphServiceClient, the app should have granted admin consent for 'GroupMember.Read.All' permission.
@@ -62,12 +118,12 @@ namespace TodoListAPI.Utils
 
                 if (graphClient == null)
                 {
-                    Console.WriteLine("No service for type 'Microsoft.Graph.GraphServiceClient' has been registered in the Startup.");
+                    throw new ArgumentNullException("GraphServiceClient", "No service for type 'Microsoft.Graph.GraphServiceClient' has been registered in the Startup.");
                 }
 
                 // Checks if the SecurityToken is not null.
                 // For the Web App, SecurityToken contains value of the ID Token.
-                else if (context.SecurityToken != null)
+                if (context.SecurityToken != null)
                 {
                     // Checks if 'JwtSecurityTokenUsedToCallWebAPI' key already exists.
                     // This key is required to acquire Access Token for Graph Service Client.
@@ -82,49 +138,23 @@ namespace TodoListAPI.Utils
                     // The properties that we want to retrieve from MemberOf endpoint.
                     string select = "id,displayName,onPremisesNetBiosName,onPremisesDomainName,onPremisesSamAccountNameonPremisesSecurityIdentifier";
 
-                    IUserMemberOfCollectionWithReferencesPage memberPage = new UserMemberOfCollectionWithReferencesPage();
                     try
                     {
                         //Request to get groups and directory roles that the user is a direct member of.
-                        memberPage = await graphClient.Me.MemberOf.Request().Select(select).GetAsync().ConfigureAwait(false);
+                        var memberPages = await graphClient.Me.MemberOf.Request().Select(select).GetAsync().ConfigureAwait(false);
+
+                        // There is a limit to number of groups returned, so we paginate to get all groups.
+                        allgroups = await CollectionProcessor<DirectoryObject>.ProcessGraphCollectionPageAsync(graphClient, memberPages);
                     }
                     catch (Exception graphEx)
                     {
                         var exMsg = graphEx.InnerException != null ? graphEx.InnerException.Message : graphEx.Message;
                         Console.WriteLine("Call to Microsoft Graph failed: " + exMsg);
                     }
-
-                    if (memberPage?.Count > 0)
-                    {
-                        // There is a limit to number of groups returned, below method make calls to Microsoft graph to get all the groups.
-                        var allgroups = ProcessIGraphServiceMemberOfCollectionPage(memberPage);
-
-                        if (allgroups?.Count > 0)
-                        {
-                            var identity = (ClaimsIdentity)context.Principal.Identity;
-
-                            if (identity != null)
-                            {
-                                // Checks if token is for protected APIs i.e., if token is 'Access Token'.
-                                 if (IsAccessToken(identity))
-                                {
-                                    //Remove existing groups claims
-                                    RemoveExistingGroupsClaims(identity);
-
-                                    // Re-populate the `groups` claim with the complete list of groups fetched from MS Graph
-                                    foreach (Group group in allgroups)
-                                    {
-                                        // The following code adds group ids to the 'groups' claim. But depending upon your reequirement and the format of the 'groups' claim selected in
-                                        // the app registration, you might want to add other attributes than id to the `groups` claim, examples being;
-
-                                        // For instance if the required format is 'NetBIOSDomain\sAMAccountName' then the code is as commented below:
-                                        // identity.AddClaim(new Claim("groups", group.OnPremisesNetBiosName+"\\"+group.OnPremisesSamAccountName));
-                                        identity.AddClaim(new Claim("groups", group.Id));
-                                    }
-                                }
-                            }
-                        }
-                    }
+                }
+                else
+                {
+                    throw new ArgumentNullException("SecurityToken", "Group membership cannot be fetched if no tken has been provided.");
                 }
             }
             catch (Exception ex)
@@ -142,6 +172,8 @@ namespace TodoListAPI.Utils
                     context.HttpContext.Items.Remove("JwtSecurityTokenUsedToCallWebAPI");
                 }
             }
+
+            return allgroups.Select(x => x.Id).ToList();
         }
 
         /// <summary>
@@ -162,49 +194,32 @@ namespace TodoListAPI.Utils
         }
 
         /// <summary>
-        /// Returns all the groups that the user is a direct member of.
+        /// Checks if user is member of the required group.
         /// </summary>
-        /// <param name="membersCollectionPage">First page having collection of directory roles and groups</param>
-        /// <returns>List of groups</returns>
-        private static List<Group> ProcessIGraphServiceMemberOfCollectionPage(IUserMemberOfCollectionWithReferencesPage membersCollectionPage)
+        /// <param name="context"></param>
+        /// <param name="GroupName"></param>
+        /// <param name="_httpContextAccessor"></param>
+        /// <returns></returns>
+        public static bool CheckUsersGroupMembership(AuthorizationHandlerContext context, string GroupName, IHttpContextAccessor _httpContextAccessor)
         {
-            List<Group> allGroups = new List<Group>();
-
-            try
+            bool result = false;
+            // Checks if groups claim exists in claims collection of signed-in User.
+            if (HasOverageOccurred(context.User))
             {
-                if (membersCollectionPage != null)
-                {
-                    do
-                    {
-                        // Page through results
-                        foreach (DirectoryObject directoryObject in membersCollectionPage.CurrentPage)
-                        {
-                            //Collection contains directory roles and groups of the user.
-                            //Checks and adds groups only to the list.
-                            if (directoryObject is Group)
-                            {
-                                allGroups.Add(directoryObject as Group);
-                            }
-                        }
+                // Calls method GetSessionGroupList to get groups from session.
+                var groups = GetUserGroupsFromSession(_httpContextAccessor.HttpContext.Session);
 
-                        // are there more pages (Has a @odata.nextLink ?)
-                        if (membersCollectionPage.NextPageRequest != null)
-                        {
-                            membersCollectionPage = membersCollectionPage.NextPageRequest.GetAsync().Result;
-                        }
-                        else
-                        {
-                            membersCollectionPage = null;
-                        }
-                    } while (membersCollectionPage != null);
+                // Checks if required group exists in Session.
+                if (groups?.Count > 0 && groups.Contains(GroupName))
+                {
+                    result = true;
                 }
             }
-            catch (ServiceException ex)
+            else if (context.User.Claims.Any(x => x.Type == "groups" && x.Value == GroupName))
             {
-                Console.WriteLine($"We could not process the groups list: {ex}");
-                return null;
+                result = true;
             }
-            return allGroups;
+            return result;
         }
     }
 }

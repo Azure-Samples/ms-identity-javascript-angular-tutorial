@@ -123,6 +123,42 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 }
 
 <#.Description
+   This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
+#>  
+Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
+{
+    $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
+    $scope.Id = New-Guid
+    $scope.Value = $value
+    $scope.UserConsentDisplayName = $userConsentDisplayName
+    $scope.UserConsentDescription = $userConsentDescription
+    $scope.AdminConsentDisplayName = $adminConsentDisplayName
+    $scope.AdminConsentDescription = $adminConsentDescription
+    $scope.IsEnabled = $true
+    $scope.Type = "User"
+    return $scope
+}
+
+<#.Description
+   This function creates a new Azure AD AppRole with default and provided values
+#>  
+Function CreateAppRole([string] $types, [string] $name, [string] $description)
+{
+    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
+    $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
+    $typesArr = $types.Split(',')
+    foreach($type in $typesArr)
+    {
+        $appRole.AllowedMemberTypes += $type;
+    }
+    $appRole.DisplayName = $name
+    $appRole.Id = New-Guid
+    $appRole.IsEnabled = $true
+    $appRole.Description = $description
+    $appRole.Value = $name;
+    return $appRole
+}
+<#.Description
    This function takes a string input as a single line, matches a key value and replaces with the replacement value
 #> 
 Function UpdateLine([string] $line, [string] $value)
@@ -347,9 +383,10 @@ Function ConfigureApplications
     
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
        
-    # delete default scope i.e. user_impersonation
+    # delete default scope i.e. User_impersonation
+    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "user_impersonation" }
+    $scope = $clientAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
     
     if($scope -ne $null)
     {    
@@ -412,10 +449,11 @@ Function ConfigureApplications
     # Create any security groups that this app requires.
 
     $GroupAdmin = CreateIfNotExistsSecurityGroup -name 'GroupAdmin' -description 'Admin Security Group' -promptBeforeCreate 'Y'
-    Write-Host "group id of 'GroupAdmin'" -> $newGroup.Id -ForegroundColor Green 
+    Write-Host "group id of 'GroupAdmin'" -> $GroupAdmin.Id -ForegroundColor Green 
 
     $GroupMember = CreateIfNotExistsSecurityGroup -name 'GroupMember' -description 'User Security Group' -promptBeforeCreate 'Y'
-    Write-Host "group id of 'GroupMember'" -> $newGroup.Id -ForegroundColor Green
+    Write-Host "group id of 'GroupMember'" -> $GroupMember.Id -ForegroundColor Green 
+    Write-Host "Don't forget to assign the users you wish to work with to the newly created security groups !" -ForegroundColor Red 
 
     # print the registered app portal URL for any further navigation
     Write-Host "Successfully registered and configured that app registration for 'msal-angular-app' at `n $clientPortalUrl" -ForegroundColor Red 
@@ -424,7 +462,7 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\API\TodoListAPI\appsettings.json"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\API\TodoListAPI\appsettings.json"))
     
-    $dictionary = @{ "Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $clientAppKey;"Enter the object ID for GroupAdmin group copied from Azure Portal" = $GroupAdmin.objectId;"Enter the object ID for GroupMember group copied from Azure Portal" = $GroupMember.objectId };
+    $dictionary = @{ "Enter the ID of your Azure AD tenant copied from the Azure portal" = $tenantId;"Enter the application ID (clientId) of the 'TodoListAPI' application copied from the Azure portal" = $clientAadApplication.AppId;"Enter the Client Secret of the 'TodoListAPI' application copied from the Azure portal" = $clientAppKey;"Enter the object ID for GroupAdmin group copied from Azure Portal" = $GroupAdmin.Id;"Enter the object ID for GroupMember group copied from Azure Portal" = $GroupMember.Id };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Green 
     $dictionary
@@ -468,6 +506,18 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Applications")) 
 }
 
 Import-Module Microsoft.Graph.Applications
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) {
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Groups
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Users
 
 Set-Content -Value "<html><body><table>" -Path createdApps.html
 Add-Content -Value "<thead><tr><th>Application</th><th>AppId</th><th>Url in the Azure portal</th></tr></thead><tbody>" -Path createdApps.html
