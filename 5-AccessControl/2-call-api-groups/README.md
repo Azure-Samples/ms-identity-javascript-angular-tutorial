@@ -1,22 +1,27 @@
 ---
 page_type: sample
+services: ms-identity
+client: Angular SPA
+service: .NET Core web API
 level: 300
 languages:
-- typescript
-- csharp
-- javascript
+	- typescript
+	- csharp
+	- javascript
 products:
-- azure-active-directory
-- ms-graph
-- msal-js
-- msal-angular
-- microsoft-identity-web
+	- azure-active-directory
+	- ms-graph
+	- msal-js
+	- msal-angular
+	- microsoft-identity-web
+platform: javascript
+endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-angular-tutorial
-name: Angular single-page application calling a protected ASP.NET Core web API using Security Groups to implement Role-Based Access Control
-description: Angular single-page application calling a protected ASP.NET Core web API using Security Groups to implement Role-Based Access Control (RBAC)
+name: Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
+description: An Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
 ---
 
-# Angular single-page application calling a protected ASP.NET Core web API using Security Groups to implement Role-Based Access Control
+# Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -37,9 +42,9 @@ Access control in Azure AD can also be done with, **App Roles** (see the [previo
 
 In the sample, a dashboard component allows signed-in users to see the tasks assigned to them or other users based on their memberships to one of the two security groups, **GroupAdmin** and **GroupMember**.
 
-> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
-
 > :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
+
+> :information_source: See the community call: [Implement authorization in your applications with the Microsoft identity platform](https://www.youtube.com/watch?v=LRoc-na27l0)
 
 ## Scenario
 
@@ -74,7 +79,7 @@ In the sample, a dashboard component allows signed-in users to see the tasks ass
 From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
+git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
 ```
 
 or download and extract the repository *.zip* file.
@@ -182,10 +187,10 @@ To manually register the apps, as a first step you'll need to:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
     1. For **Scope name**, use `access_via_group_assignments`.
     1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in *Access 'msal-angular-app' as the signed-in user assigned to group memberships.*.
-    1. For **Admin consent description** type in *Allow the app to access the 'msal-angular-app' as a signed-in user assigned to one or more security groups.*.
-    1. For **User consent display name** type in *Access 'msal-angular-app' on your behalf after security group assignment.*.
-    1. For **User consent description** type in *Allow the app to access the 'msal-angular-app' on your behalf after assignment to one or more security groups.*.
+    1. For **Admin consent display name** type in *Access 'msal-angular-app' as the signed-in user assigned to group memberships*.
+    1. For **Admin consent description** type in *Allow the app to access the 'msal-angular-app' as a signed-in user assigned to one or more security groups*.
+    1. For **User consent display name** type in *Access 'msal-angular-app' on your behalf after security group assignment*.
+    1. For **User consent description** type in *Allow the app to access the 'msal-angular-app' on your behalf after assignment to one or more security groups*.
     1. Keep **State** as **Enabled**.
     1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.

@@ -123,42 +123,6 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 }
 
 <#.Description
-   This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
-#>  
-Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
-{
-    $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
-    $scope.Id = New-Guid
-    $scope.Value = $value
-    $scope.UserConsentDisplayName = $userConsentDisplayName
-    $scope.UserConsentDescription = $userConsentDescription
-    $scope.AdminConsentDisplayName = $adminConsentDisplayName
-    $scope.AdminConsentDescription = $adminConsentDescription
-    $scope.IsEnabled = $true
-    $scope.Type = "User"
-    return $scope
-}
-
-<#.Description
-   This function creates a new Azure AD AppRole with default and provided values
-#>  
-Function CreateAppRole([string] $types, [string] $name, [string] $description)
-{
-    $appRole = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphAppRole
-    $appRole.AllowedMemberTypes = New-Object System.Collections.Generic.List[string]
-    $typesArr = $types.Split(',')
-    foreach($type in $typesArr)
-    {
-        $appRole.AllowedMemberTypes += $type;
-    }
-    $appRole.DisplayName = $name
-    $appRole.Id = New-Guid
-    $appRole.IsEnabled = $true
-    $appRole.Description = $description
-    $appRole.Value = $name;
-    return $appRole
-}
-<#.Description
    This function takes a string input as a single line, matches a key value and replaces with the replacement value
 #> 
 Function UpdateLine([string] $line, [string] $value)
@@ -338,12 +302,14 @@ Function ConfigureApplications
                                                        -SignInAudience AzureADMyOrg `
                                                       -GroupMembershipClaims "SecurityGroup" `
                                                       #end of command
+
     #add a secret to the application
     $pwdCredential = Add-MgApplicationPassword -ApplicationId $clientAadApplication.Id -PasswordCredential $key
     $clientAppKey = $pwdCredential.SecretText
 
     $clientIdentifierUri = 'api://'+$clientAadApplication.AppId
     Update-MgApplication -ApplicationId $clientAadApplication.Id -IdentifierUris @($clientIdentifierUri)
+
     
     # create the service principal of the newly created application 
     $currentAppId = $clientAadApplication.AppId
@@ -368,10 +334,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.AccessToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "groups" 
-    $optionalClaims.Saml2Token += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.AccessToken += ($newClaim)
+    # $newClaim =  CreateOptionalClaim  -name "groups" 
+    # $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
@@ -399,10 +365,10 @@ Function ConfigureApplications
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
     $scope = CreateScope -value access_via_group_assignments  `
-        -userConsentDisplayName "Access 'msal-angular-app' as the signed-in user assigned to group memberships."  `
-        -userConsentDescription "Allow the app to access the 'msal-angular-app' on your behalf after assignment to one or more security groups."  `
-        -adminConsentDisplayName "Access 'msal-angular-app' as the signed-in user assigned to group memberships."  `
-        -adminConsentDescription "Allow the app to access the 'msal-angular-app' as a signed-in user assigned to one or more security groups."
+        -userConsentDisplayName "Access 'msal-angular-app' as the signed-in user assigned to group memberships"  `
+        -userConsentDescription "Allow the app to access the 'msal-angular-app' on your behalf after assignment to one or more security groups"  `
+        -adminConsentDisplayName "Access 'msal-angular-app' as the signed-in user assigned to group memberships"  `
+        -adminConsentDescription "Allow the app to access the 'msal-angular-app' as a signed-in user assigned to one or more security groups"
             
     $scopes.Add($scope)
     
@@ -442,8 +408,7 @@ Function ConfigureApplications
     # $requiredResourcesAccess
     
     Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
-    Write-Host "Granted permissions."
-    
+    Write-Host "Granted permissions."    
     
     # Create any security groups that this app requires.
 
@@ -484,8 +449,9 @@ Function ConfigureApplications
     Write-Host "IMPORTANT: Please follow the instructions below to complete a few manual step(s) in the Azure portal":
     Write-Host "- For client"
     Write-Host "  - Navigate to $clientPortalUrl"
-    Write-Host "  - This script has created a group named GroupAdmin for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
-    Write-Host "  - This script has created a group named GroupMember for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red
+    Write-Host "  - This script has created a group named 'GroupAdmin' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
+    Write-Host "  - This script has created a group named 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it." -ForegroundColor Red 
+    Write-Host "  - Security groups matching the names you provided have been created in this tenant (if not present already). On Azure portal, assign some users to it, and configure ID & Access tokens to emit Group IDs" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    
 if($isOpenSSL -eq 'Y')
