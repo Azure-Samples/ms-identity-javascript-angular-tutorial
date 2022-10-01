@@ -1,10 +1,8 @@
 ---
 page_type: sample
-services: ms-identity
-client: Angular SPA
-service: .NET Core web API
-level: 300
-languages:
+name: Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
+description: An Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
+- languages:
 	- typescript
 	- csharp
 	- javascript
@@ -14,11 +12,14 @@ products:
 	- msal-js
 	- msal-angular
 	- microsoft-identity-web
-platform: javascript
-endpoint: AAD v2.0
 urlFragment: ms-identity-javascript-angular-tutorial
-name: Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
-description: An Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
+extensions:
+- services: ms-identity
+- platform: javascript
+- endpoint: AAD v2.0
+- level: 300
+- client: Angular SPA
+- service: .NET Core web API
 ---
 
 # Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control

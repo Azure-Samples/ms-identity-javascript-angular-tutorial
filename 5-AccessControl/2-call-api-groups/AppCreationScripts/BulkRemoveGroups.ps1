@@ -1,3 +1,4 @@
+
 [CmdletBinding()]
 param(
     [PSCredential] $Credential,
@@ -8,18 +9,21 @@ param(
 )
 
 <#.Description
-    This function generates groups names
+    This function generates groups names.
 #> 
-Function GetGroupName([int] $val) {
+Function GetGroupName([int] $val) 
+{
 
     if ($val -lt 10) 
     {
         $groupName = "Test Group 00" + $val;
     }
-    elseif ($val -lt 100) { 
+    elseif ($val -lt 100) 
+    { 
         $groupName = "Test Group 0" + $val;
     }
-    else {
+    else 
+    {
         $groupName = "Test Group " + $val;
     }
 
@@ -28,40 +32,43 @@ Function GetGroupName([int] $val) {
 }
 
 <#.Description
-    This function removes security groups from tenant
-#>
-Function RemoveGroups {
+   This function removes security groups from tenant
+#> 
+Function RemoveGroups
+{
     $val = 1;
-    while ($val -ne 223) {
+    while ($val -ne 223) 
+    {
        
         $groupName = GetGroupName -val $val
        
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
-
         if ($group) 
         {
             Remove-MgGroup -GroupId $group.Id
-            Write-Host "Successfully deleted $($group.DisplayName)"
+            Write-Host "Successfully deleted '$($group.DisplayName)'"
         }
         else 
         {
             Write-Host "Couldn't find group $($groupName) with ID: $($group.Id)"
-        }
-       
+        }       
        
         $val += 1;
     }
 }
-<#.Description
-    This function signs in the user to the tenant using Graph SDK 
-#> 
-Function ConfigureApplications {
 
-    if (!$azureEnvironmentName) {
+<#.Description
+    This function signs in the user to the tenant using Graph SDK.
+#>
+Function ConfigureApplications 
+{
+    if (!$azureEnvironmentName) 
+    {
         $azureEnvironmentName = "Global"
     }
 
     Write-Host "Connecting to Microsoft Graph"
+
     if ($tenantId -eq "") 
     {
         Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
@@ -72,16 +79,18 @@ Function ConfigureApplications {
         Connect-MgGraph -TenantId $tenantId -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
-    RemoveGroups 
+    # now remove groups
+    RemoveGroups
+
 }
 
 $ErrorActionPreference = "Stop"
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) 
 {
-    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser
-    Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
 }
+
 Import-Module Microsoft.Graph.Authentication
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) 
@@ -97,7 +106,6 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users"))
 }
 
 Import-Module Microsoft.Graph.Users
-
 
 try 
 {
