@@ -6,6 +6,8 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -118,6 +120,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MatButtonModule,
         MatCardModule,
         MatTableModule,
+        MatMenuModule,
         HttpClientModule,
     ],
     providers: [

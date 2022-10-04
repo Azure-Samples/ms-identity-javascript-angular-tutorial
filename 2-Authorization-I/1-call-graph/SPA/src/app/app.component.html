@@ -5,12 +5,23 @@
     <a mat-button [routerLink]="['profile']">Profile</a>
     <a mat-button [routerLink]="['contacts']"> Contacts</a>
 
+
+    
+
+
     <button mat-raised-button *ngIf="!loginDisplay" (click)="login()">
         Login
     </button>
-    <button mat-raised-button color="accent" *ngIf="loginDisplay" (click)="logout()">
-        Logout
-    </button>
+
+    <button mat-button #ddTrigger="matMenuTrigger" [matMenuTriggerFor]="menu">Menu</button>
+
+    <mat-menu #menu="matMenu" [overlapTrigger]="false">
+        <div (click)="cancelClick($event)" class="dropdown">
+             <button mat-flat-button color="primary">Save</button>
+            <button mat-button >Cancel</button>
+        </div>
+    </mat-menu>
+
 </mat-toolbar>
 
 <div class="container">
