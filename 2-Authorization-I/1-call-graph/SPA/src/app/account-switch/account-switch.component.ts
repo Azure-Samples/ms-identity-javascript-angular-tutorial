@@ -9,15 +9,16 @@ import {
   RedirectRequest,
   InteractionRequiredAuthError,
   SilentRequest,
+  AccountInfo,
 } from '@azure/msal-browser';
 
 @Component({
   selector: 'app-account-switch-component',
-  templateUrl: './account-switch-component.component.html',
-  styleUrls: ['./account-switch-component.component.css'],
+  templateUrl: './account-switch.component.html',
+  styleUrls: ['./account-switch.component.css'],
 })
-export class AccountSwitchComponentComponent implements OnInit {
-  accounts: any = [];
+export class AccountSwitchComponent implements OnInit {
+  accounts: AccountInfo[] = [];
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
@@ -26,7 +27,7 @@ export class AccountSwitchComponentComponent implements OnInit {
 
   ngOnInit(): void {}
 
-  switchAccount(account: any) {
+  switchAccount(account: AccountInfo | null) {
     const activeAccount = this.authService.instance.getActiveAccount();
     if (!account) {
       this.authService.instance.setActiveAccount(account);

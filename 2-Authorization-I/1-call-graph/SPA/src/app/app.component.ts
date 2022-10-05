@@ -1,11 +1,18 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
 import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
-import { AuthenticationResult, InteractionStatus, InteractionType, PopupRequest, RedirectRequest } from '@azure/msal-browser';
+import {
+  AuthenticationResult,
+  InteractionStatus,
+  InteractionType,
+  PopupRequest,
+  RedirectRequest,
+  AccountInfo,
+} from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { clearStorage } from './utils/storage-utils';
 import { MatDialog } from '@angular/material/dialog';
-import { AccountSwitchComponentComponent } from "./account-switch-component/account-switch-component.component"
+import { AccountSwitchComponent } from "./account-switch/account-switch.component"
 
 @Component({
   selector: 'app-root',
@@ -17,7 +24,7 @@ export class AppComponent implements OnInit, OnDestroy {
   loginDisplay = false;
   isIframe = false;
   name: string | undefined;
-  accounts : any[] = [];
+  accounts: AccountInfo[] = [];
 
   private readonly _destroying$ = new Subject<void>();
 
@@ -58,18 +65,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.accounts = this.authService.instance.getAllAccounts();
   }
 
-  
-
   openDialog(): void {
-    let dialogRef = this.dialog.open(AccountSwitchComponentComponent, {
+    let dialogRef = this.dialog.open(AccountSwitchComponent, {
       data: {
         accounts: this.accounts,
       },
     });
-    dialogRef.afterClosed().subscribe(result => {
-        console.log(result);
-    })
-
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log(result);
+    });
   }
 
   checkAndSetActiveAccount() {
@@ -89,8 +93,6 @@ export class AppComponent implements OnInit, OnDestroy {
       this.authService.instance.setActiveAccount(accounts[0]);
     }
   }
-
-
 
   login() {
     if (this.msalGuardConfig.interactionType === InteractionType.Popup) {

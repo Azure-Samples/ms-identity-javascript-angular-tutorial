@@ -16,6 +16,7 @@ import { AppComponent } from './app.component';
 import { ProfileComponent } from './profile/profile.component';
 import { HomeComponent } from './home/home.component';
 import { ContactsComponent } from './contacts/contacts.component';
+import { AccountSwitchComponent } from './account-switch/account-switch.component';
 
 
 
@@ -42,7 +43,6 @@ import {
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
 import { getClaimsFromStorage } from './utils/storage-utils';
 import { GraphService } from './graph.service';
-import { AccountSwitchComponentComponent } from './account-switch-component/account-switch-component.component';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -118,9 +118,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     ProfileComponent,
     HomeComponent,
     ContactsComponent,
-    AccountSwitchComponentComponent,
+    AccountSwitchComponent,
   ],
-  entryComponents: [AccountSwitchComponentComponent],
+  entryComponents: [AccountSwitchComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

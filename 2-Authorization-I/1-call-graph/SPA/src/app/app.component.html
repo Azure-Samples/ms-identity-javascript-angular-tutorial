@@ -9,7 +9,10 @@
         Login
     </button>
 
-    <button mat-raised-button *ngIf="loginDisplay" [matMenuTriggerFor]="menu">{{name}}</button>
+    <button mat-raised-button color="accent" *ngIf="loginDisplay" [matMenuTriggerFor]="menu">
+        <mat-icon>keyboard_arrow_down</mat-icon>
+        {{name}}
+    </button>
 
     <mat-menu #menu="matMenu">
         <button mat-menu-item (click)="openDialog()">Switch Account</button>
