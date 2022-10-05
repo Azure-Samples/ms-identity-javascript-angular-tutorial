@@ -8,6 +8,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
   RedirectRequest,
   InteractionRequiredAuthError,
+  SilentRequest,
 } from '@azure/msal-browser';
 
 @Component({
@@ -38,12 +39,15 @@ export class AccountSwitchComponentComponent implements OnInit {
       activeAccount?.homeAccountId != account.homeAccountId
     ) {
       this.authService.instance.setActiveAccount(account);
-      this.authService.instance.ssoSilent({
+      this.authService.instance
+        .ssoSilent({
           ...this.msalGuardConfig.authRequest,
           account: account,
-        }).then(() => {
-          window.location.reload()
-        }).catch((error) => {
+        } as SilentRequest)
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((error) => {
           if (error instanceof InteractionRequiredAuthError) {
             this.authService.instance.loginRedirect({
               ...this.msalGuardConfig.authRequest,
