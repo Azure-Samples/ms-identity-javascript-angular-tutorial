@@ -1,10 +1,11 @@
-import { Component, OnInit, Inject, OnDestroy, ViewChild } from '@angular/core';
+import { Component, OnInit, Inject, OnDestroy, ViewChild, AfterViewInit } from '@angular/core';
 import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
 import { AuthenticationResult, InteractionStatus, InteractionType, PopupRequest, RedirectRequest } from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { clearStorage } from './utils/storage-utils';
-import { MatMenuTrigger } from '@angular/material/menu';
+import { MatDialog } from '@angular/material/dialog';
+import { AccountSwitchComponentComponent } from "./account-switch-component/account-switch-component.component"
 
 @Component({
   selector: 'app-root',
@@ -15,12 +16,16 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'Microsoft identity platform';
   loginDisplay = false;
   isIframe = false;
+  name: string | undefined;
+  accounts : any[] = [];
+
   private readonly _destroying$ = new Subject<void>();
 
   constructor(
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private authService: MsalService,
-    private msalBroadcastService: MsalBroadcastService
+    private msalBroadcastService: MsalBroadcastService,
+    public dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -47,15 +52,24 @@ export class AppComponent implements OnInit, OnDestroy {
 
   setLoginDisplay() {
     this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
+    this.name = this.authService.instance.getActiveAccount()
+      ? this.authService.instance.getActiveAccount()?.username
+      : 'Unknown';
+    this.accounts = this.authService.instance.getAllAccounts();
   }
 
-  cancelClick(ev: MouseEvent) {
-    ev.stopPropagation();
-  }
+  
 
-  onCancel() {
-    this.value = undefined;
-    this.ddTrigger.closeMenu();
+  openDialog(): void {
+    let dialogRef = this.dialog.open(AccountSwitchComponentComponent, {
+      data: {
+        accounts: this.accounts,
+      },
+    });
+    dialogRef.afterClosed().subscribe(result => {
+        console.log(result);
+    })
+
   }
 
   checkAndSetActiveAccount() {
@@ -75,6 +89,8 @@ export class AppComponent implements OnInit, OnDestroy {
       this.authService.instance.setActiveAccount(accounts[0]);
     }
   }
+
+
 
   login() {
     if (this.msalGuardConfig.interactionType === InteractionType.Popup) {

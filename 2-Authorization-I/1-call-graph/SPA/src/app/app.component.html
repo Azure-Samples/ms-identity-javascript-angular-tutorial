@@ -5,29 +5,25 @@
     <a mat-button [routerLink]="['profile']">Profile</a>
     <a mat-button [routerLink]="['contacts']"> Contacts</a>
 
-
-    
-
-
     <button mat-raised-button *ngIf="!loginDisplay" (click)="login()">
         Login
     </button>
 
-    <button mat-button #ddTrigger="matMenuTrigger" [matMenuTriggerFor]="menu">Menu</button>
+    <button mat-raised-button *ngIf="loginDisplay" [matMenuTriggerFor]="menu">{{name}}</button>
 
-    <mat-menu #menu="matMenu" [overlapTrigger]="false">
-        <div (click)="cancelClick($event)" class="dropdown">
-             <button mat-flat-button color="primary">Save</button>
-            <button mat-button >Cancel</button>
-        </div>
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="openDialog()">Switch Account</button>
+        <button mat-menu-item (click)="logout()">Logout</button>
     </mat-menu>
 
 </mat-toolbar>
+
 
 <div class="container">
     <!--This is to avoid reload during acquireTokenSilent() because of hidden iframe -->
     <router-outlet *ngIf="!isIframe"></router-outlet>
 </div>
+
 
 <footer *ngIf="loginDisplay">
     <mat-toolbar>
