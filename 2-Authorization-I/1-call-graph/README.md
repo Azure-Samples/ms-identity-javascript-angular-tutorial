@@ -54,7 +54,7 @@ Here you'll learn about [Access Tokens](https://aka.ms/access-tokens), [acquirin
 | `src/app/app.module.ts`                                   | MSAL-Angular configuration parameters reside here.                    |
 | `src/app/app-routing.module.ts`                           | Configure your MSAL-Guard here.                                       |
 | `src/app/graph.service.ts`                                | Class to call graph API.                                              |
-| `src/app/account-switch-account-switch.component.ts`      | Contains logic to handle multiple account selection with MSAL.js.     |
+| `src/app/account-switch/account-switch.component.ts`      | Contains logic to handle multiple account selection with MSAL.js.     |
 
 
 ## Prerequisites
