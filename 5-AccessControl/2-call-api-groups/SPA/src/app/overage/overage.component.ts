@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+
 import { GraphService } from '../graph.service';
 
 import { groups } from '../auth-config';
@@ -10,62 +11,22 @@ import { groups } from '../auth-config';
 })
 export class OverageComponent implements OnInit {
 
-    groups: string[] = [];
+    allGroups: string[] = [];
 
     constructor(private graphService: GraphService) { }
 
     ngOnInit(): void {
-        this.handleResponse();
+        this.getGroups();
     }
 
-    handleResponse(): void {
-        this.graphService.getGroups()
-            .subscribe((response: any) => {
-                response.value.map((v: any) => this.groups.push(v.id));
+    async getGroups(): Promise<void> {
+        this.allGroups = await this.graphService.getGroups();
 
-                /**
-                 * Some queries against Microsoft Graph return multiple pages of data either due to server-side paging 
-                 * or due to the use of the $top query parameter to specifically limit the page size in a request. 
-                 * When a result set spans multiple pages, Microsoft Graph returns an @odata.nextLink property in 
-                 * the response that contains a URL to the next page of results.
-                 * learn more at https://docs.microsoft.com/graph/paging
-                 */
-                if (response['@odata.nextLink']) {
-                    this.handleNextPage(response['@odata.nextLink'])
-                } else {
-                    if (this.groups.includes(groups.groupAdmin)) {
-                        this.graphService.addGroup(groups.groupAdmin)
-                    }
-
-                    if (this.groups.includes(groups.groupMember)) {
-                        this.graphService.addGroup(groups.groupMember)
-                    }
-                }
-
-            });
+        // Filter out the required groups defined in auth-config.ts
+        const requiredGroups = this.allGroups.filter((id) => id === groups.groupAdmin || id === groups.groupMember);
+            
+        // Set the groups in the graph service
+        this.graphService.setGroups(requiredGroups);
     }
 
-    handleNextPage(nextPage: any): void {
-        this.graphService.getNextPage(nextPage)
-            .subscribe((response: any) => {
-
-                response.value.map((v: any) => {
-                    if (!this.groups.includes(v.id)) {
-                        this.groups.push(v.id);
-                    }
-                });
-
-                if (response['@odata.nextLink']) {
-                    this.handleNextPage(response['@odata.nextLink'])
-                } else {
-                    if (this.groups.includes(groups.groupAdmin)) {
-                        this.graphService.addGroup(groups.groupAdmin)
-                    }
-
-                    if (this.groups.includes(groups.groupMember)) {
-                        this.graphService.addGroup(groups.groupMember)
-                    }
-                }
-            })
-    }
 }

@@ -152,6 +152,15 @@ export const createClaimsTable = (claims: Record<string, string>): any[] => {
                     claimsTable
                 );
                 break;
+            case "_claim_names":
+            case "_claim_sources":
+                populateClaim(
+                    key,
+                    claims[key],
+                    'Indicates that the user is member of more groups than the overage limit (200 for JWT tokens). In this case, Azure AD does not emit the group IDs in the groups claim in the token. Instead, it includes an overage claim in the token that indicates to the application to query Microsoft Graph to retrieve the user’s group membership.',
+                    claimsTable
+                );
+                break;
             case 'uti':
             case 'rh':
                 break;

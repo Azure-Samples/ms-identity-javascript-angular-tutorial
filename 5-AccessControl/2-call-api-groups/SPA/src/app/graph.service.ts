@@ -1,5 +1,8 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+
+import { AuthenticationResult, InteractionRequiredAuthError } from '@azure/msal-browser';
+import { MsalService } from '@azure/msal-angular';
+import { Client, PageCollection, PageIterator, PageIteratorCallback } from '@microsoft/microsoft-graph-client';
 
 import { User } from './user';
 import { protectedResources } from './auth-config';
@@ -14,27 +17,79 @@ export class GraphService {
         groupIDs: [],
     };
 
-    uri = protectedResources.apiGraph.endpoint;
+    constructor(private authService: MsalService) { }
 
-    constructor(private http: HttpClient) { }
+    private getGraphClient(accessToken: string) {
+        // Initialize Graph client
+        const graphClient = Client.init({
+            // Use the provided access token to authenticate requests
+            authProvider: (done) => {
+                done(null, accessToken);
+            },
+        });
 
-    getUser() {
+        return graphClient;
+    };
+
+    private async getToken(scopes: string[]): Promise<string> {
+        let authResponse: AuthenticationResult | null = null;
+        
+        try {
+            authResponse = await this.authService.instance.acquireTokenSilent({
+                account: this.authService.instance.getActiveAccount()!,
+                scopes: scopes,
+            });
+            
+        } catch (error) {
+            if (error instanceof InteractionRequiredAuthError) {
+                authResponse = await this.authService.instance.acquireTokenPopup({
+                    scopes: protectedResources.apiGraph.scopes,
+                });
+            }
+
+            console.log(error);
+        }
+
+        return authResponse ? authResponse.accessToken : "";
+    }
+
+    getUser(): User {
         return this.user;
     };
 
-    getGroups() {
-        return this.http.get(this.uri);
-    };
-
-    setGroups(groups: any) {
+    setGroups(groups: any): void {
         this.user.groupIDs = groups;
     };
 
-    addGroup(group: string) {
-        this.user.groupIDs.push(group);
-    };
+    async getGroups(): Promise<string[]> {
+        const allGroups: string[] = [];
 
-    getNextPage(nextPage: any) {
-        return this.http.get(nextPage);
-    };
+        try {
+            const accessToken = await this.getToken(protectedResources.apiGraph.scopes);
+
+            // Get a graph client instance for the given access token
+            const graphClient = this.getGraphClient(accessToken);
+
+            // Makes request to fetch mails list. Which is expected to have multiple pages of data.
+            let response: PageCollection = await graphClient.api(protectedResources.apiGraph.endpoint).get();
+            
+            // A callback function to be called for every item in the collection. This call back should return boolean indicating whether not to continue the iteration process.
+            let callback: PageIteratorCallback = (data) => {
+                allGroups.push(data.id); // Add the group id to the groups array
+                return true;
+            };
+            
+            // Creating a new page iterator instance with client a graph client instance, page collection response from request and callback
+            let pageIterator = new PageIterator(graphClient, response, callback);
+            
+            // This iterates the collection until the nextLink is drained out.
+            await pageIterator.iterate();
+
+            return allGroups;
+        } catch (error) {
+            console.log(error);
+        }
+
+        return allGroups;
+    }
 }

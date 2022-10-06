@@ -49,23 +49,23 @@ namespace TodoListAPI
                         /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
                         /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
                         /// </summary>
-                        
+
                         options.Events.OnTokenValidated = async context =>
                         {
-                           string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId and we disallow all calls to this API, except from the SPA
+                            string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId and we disallow all calls to this API, except from the SPA
 
-                           string clientappId = context?.Principal?.Claims
-                               .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
+                            string clientappId = context?.Principal?.Claims
+                                .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
-                           if (!allowedClientApps.Contains(clientappId))
-                           {
-                               throw new System.Exception("This client is not authorized to call this Api");
-                           }
+                            if (!allowedClientApps.Contains(clientappId))
+                            {
+                                throw new System.Exception("This client is not authorized to call this Api");
+                            }
 
-                           // calls method to process groups overage claim and save it in Session to avoid repeated calls.
-                           await GraphHelper.FetchSignedInUsersGroups(context);
+                            // calls method to process groups overage claim and save it in Session to avoid repeated calls.
+                            await GraphHelper.FetchSignedInUsersGroups(context);
 
-                           await Task.CompletedTask;
+                            await Task.CompletedTask;
                         };
                     }, options => { Configuration.Bind("AzureAd", options); })
                         .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
@@ -113,7 +113,7 @@ namespace TodoListAPI
                 // Since IdentityModel version 5.2.1 (or since Microsoft.AspNetCore.Authentication.JwtBearer version 2.2.0),
                 // Personal Identifiable Information is not written to the logs by default, to be compliant with GDPR.
                 // For debugging/development purposes, one can enable additional detail in exceptions by setting IdentityModelEventSource.ShowPII to true.
-                
+
                 Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = false;
 
                 app.UseDeveloperExceptionPage();

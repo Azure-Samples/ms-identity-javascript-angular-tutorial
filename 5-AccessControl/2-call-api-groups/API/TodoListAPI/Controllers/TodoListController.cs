@@ -73,7 +73,7 @@ namespace TodoListAPI.Controllers
         [Authorize(Policy = AuthorizationPolicies.AssignmentToGroupMemberGroupRequired)]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
-            if (id != todoItem.Id  || !_context.TodoItems.Any(x => x.Id == id))
+            if (id != todoItem.Id || !_context.TodoItems.Any(x => x.Id == id))
             {
                 return NotFound();
             }

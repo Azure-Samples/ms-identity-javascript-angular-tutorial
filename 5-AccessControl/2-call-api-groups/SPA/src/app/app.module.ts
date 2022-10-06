@@ -50,7 +50,6 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
     const protectedResourceMap = new Map<string, Array<string | ProtectedResourceScopes> | null>();
 
     protectedResourceMap.set(protectedResources.apiTodoList.endpoint, protectedResources.apiTodoList.scopes);
-    protectedResourceMap.set(protectedResources.apiGraph.endpoint, protectedResources.apiGraph.scopes);
 
     return {
         interactionType: InteractionType.Popup,
