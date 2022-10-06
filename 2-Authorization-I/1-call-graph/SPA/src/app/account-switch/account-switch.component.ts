@@ -29,17 +29,16 @@ export class AccountSwitchComponent implements OnInit {
 
   switchAccount(account: AccountInfo | null) {
     const activeAccount = this.authService.instance.getActiveAccount();
+    this.authService.instance.setActiveAccount(account);
     if (!account) {
-      this.authService.instance.setActiveAccount(account);
       this.authService.instance.loginRedirect({
         ...this.msalGuardConfig.authRequest,
         prompt: 'login',
       } as RedirectRequest);
     } else if (
       account &&
-      activeAccount?.homeAccountId != account.homeAccountId
+      activeAccount?.homeAccountId !== account.homeAccountId
     ) {
-      this.authService.instance.setActiveAccount(account);
       this.authService.instance
         .ssoSilent({
           ...this.msalGuardConfig.authRequest,

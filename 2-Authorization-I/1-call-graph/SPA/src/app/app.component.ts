@@ -1,5 +1,10 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
-import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
+import {
+  MsalService,
+  MsalBroadcastService,
+  MSAL_GUARD_CONFIG,
+  MsalGuardConfiguration,
+} from '@azure/msal-angular';
 import {
   AuthenticationResult,
   InteractionStatus,
@@ -7,6 +12,8 @@ import {
   PopupRequest,
   RedirectRequest,
   AccountInfo,
+  EventMessage,
+  EventType
 } from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
@@ -55,6 +62,31 @@ export class AppComponent implements OnInit, OnDestroy {
         this.setLoginDisplay();
         this.checkAndSetActiveAccount();
       });
+
+    this.msalBroadcastService.msalSubject$
+      .pipe(
+        filter(
+          (msg: EventMessage) => msg.eventType === EventType.LOGOUT_SUCCESS
+        ),
+        takeUntil(this._destroying$)
+      )
+      .subscribe((result: EventMessage) => {
+        this.setLoginDisplay();
+        this.checkAndSetActiveAccount();
+      });
+
+
+      this.msalBroadcastService.msalSubject$
+        .pipe(
+          filter(
+            (msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS
+          ),
+          takeUntil(this._destroying$)
+        )
+        .subscribe((result: EventMessage) => {
+          const payload = result.payload as AuthenticationResult;
+          this.authService.instance.setActiveAccount(payload.account);
+        });
   }
 
   setLoginDisplay() {
@@ -124,7 +156,9 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout() {
     clearStorage(this.authService.instance.getActiveAccount());
-    this.authService.logout();
+    this.authService.logout({
+      account: this.authService.instance.getActiveAccount(),
+    });
   }
 
   // unsubscribe to events when component is destroyed
