@@ -1,7 +1,7 @@
-﻿using Microsoft.Graph;
+﻿using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Graph;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace TodoListAPI.Utils
@@ -10,20 +10,27 @@ namespace TodoListAPI.Utils
     /// Processes a collection page with next-links from Graph
     /// </summary>
     /// <typeparam name="T">The type of Graph entity</typeparam>
-    public static class CollectionProcessor<T>
+    public class CollectionProcessor<T> : ICollectionProcessor<T>
     {
+        private GraphServiceClient _graphServiceClient;
+
+        public CollectionProcessor(GraphServiceClient graphServiceClient)
+        {
+            _graphServiceClient = graphServiceClient ?? throw new ArgumentNullException(nameof(graphServiceClient));
+        }
+
         /// <summary>
         /// Processes the MS Graph collection page.
         /// </summary>
         /// <param name="graphServiceClient">The graph service client.</param>
         /// <param name="collectionPage">The collection page.</param>
         /// <returns></returns>
-        public static async Task<List<T>> ProcessGraphCollectionPageAsync(GraphServiceClient graphServiceClient, ICollectionPage<T> collectionPage, int maxRows = -1)
+        public async Task<List<T>> ProcessGraphCollectionPageAsync(ICollectionPage<T> collectionPage, int maxRows = -1)
         {
             List<T> allItems = new List<T>();
             bool breaktime = false;
 
-            var pageIterator = PageIterator<T>.CreatePageIterator(graphServiceClient, collectionPage, (item) =>
+            var pageIterator = PageIterator<T>.CreatePageIterator(_graphServiceClient, collectionPage, (item) =>
             {
                 allItems.Add(item);
 
