@@ -10,7 +10,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TodoListAPI.Infrastructure;
 using TodoListAPI.Models;
-using TodoListAPI.Utils;
 
 namespace TodoListAPI.Controllers
 {
@@ -21,7 +20,6 @@ namespace TodoListAPI.Controllers
     {
         private readonly TodoContext _TodoListContext;
         private readonly IHttpContextAccessor _contextAccessor;
-        private readonly IGraphHelper _graphHelper;
         private ClaimsPrincipal _currentPrincipal;
 
         /// <summary>
@@ -29,14 +27,10 @@ namespace TodoListAPI.Controllers
         /// </summary>
         private string _currentPrincipalId = string.Empty;
 
-        public TodoListController(TodoContext context, IHttpContextAccessor contextAccessor, IGraphHelper graphHelper)
+        public TodoListController(TodoContext context, IHttpContextAccessor contextAccessor)
         {
             _TodoListContext = context;
             _contextAccessor = contextAccessor;
-            _graphHelper = graphHelper;
-
-            // calls method to process groups overage claim and save it in Session to avoid repeated calls.
-            //await _graphHelper.FetchSignedInUsersGroups();
 
             // We seek the details of the user/app represented by the access token presented to this API, This can be empty unless authN succeeded
             // If a user signed-in, the value will be the unique identifier of the user.
@@ -45,58 +39,8 @@ namespace TodoListAPI.Controllers
             if (!IsAppOnlyToken() && _currentPrincipal != null)
             {
                 _currentPrincipalId = _currentPrincipal.GetObjectId();
-
                 PopulateDefaultToDos(_currentPrincipalId);
             }
-        }
-
-        private async void PopulateDefaultToDos(string _currentPrincipalId)
-        {
-            // Pre-populate with sample data
-            if (_TodoListContext.TodoItems.Count() == 0 && !string.IsNullOrEmpty(_currentPrincipalId))
-            {
-                _TodoListContext.TodoItems.Add(new TodoItem() { Id = 1, Owner = $"{_currentPrincipalId}", Description = "Pick up groceries", Status = false });
-                _TodoListContext.TodoItems.Add(new TodoItem() { Id = 2, Owner = $"{_currentPrincipalId}", Description = "Finish invoice report", Status = false });
-
-                await _TodoListContext.SaveChangesAsync();
-            }
-
-            await _graphHelper.FetchSignedInUsersGroups();
-        }
-
-        /// <summary>
-        /// returns the current claimsPrincipal (user/Client app) dehydrated from the Access token
-        /// </summary>
-        /// <returns></returns>
-        private ClaimsPrincipal GetCurrentClaimsPrincipal()
-        {
-            // Irrespective of whether a user signs in or not, the AspNet security middle-ware dehydrates the claims in the
-            // HttpContext.User.Claims collection
-
-            if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.User != null)
-            {
-                return _contextAccessor.HttpContext.User;
-            }
-
-            return null;
-        }
-
-        /// <summary>
-        /// Indicates of the AT presented was for an app-only token or not.
-        /// </summary>
-        /// <returns></returns>
-        private bool IsAppOnlyToken()
-        {
-            // Add in the optional 'idtyp' claim to check if the access token is coming from an application or user.
-            //
-            // See: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims
-
-            if (GetCurrentClaimsPrincipal() != null)
-            {
-                return GetCurrentClaimsPrincipal().Claims.Any(c => c.Type == "idtyp" && c.Value == "app");
-            }
-
-            return false;
         }
 
         // GET: api/todolist/getAll
@@ -208,6 +152,53 @@ namespace TodoListAPI.Controllers
             }
 
             return NoContent();
+        }
+
+        private async void PopulateDefaultToDos(string _currentPrincipalId)
+        {
+            //Pre - populate with sample data
+            if (_TodoListContext.TodoItems.Count() == 0 && !string.IsNullOrEmpty(_currentPrincipalId))
+            {
+                _TodoListContext.TodoItems.Add(new TodoItem() { Owner = $"{_currentPrincipalId}", Description = "Pick up groceries", Status = false });
+                _TodoListContext.TodoItems.Add(new TodoItem() { Owner = $"{_currentPrincipalId}", Description = "Finish invoice report", Status = false });
+
+                await _TodoListContext.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// returns the current claimsPrincipal (user/Client app) dehydrated from the Access token
+        /// </summary>
+        /// <returns></returns>
+        private ClaimsPrincipal GetCurrentClaimsPrincipal()
+        {
+            // Irrespective of whether a user signs in or not, the AspNet security middle-ware dehydrates the claims in the
+            // HttpContext.User.Claims collection
+
+            if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.User != null)
+            {
+                return _contextAccessor.HttpContext.User;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Indicates of the AT presented was for an app-only token or not.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsAppOnlyToken()
+        {
+            // Add in the optional 'idtyp' claim to check if the access token is coming from an application or user.
+            //
+            // See: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims
+
+            if (GetCurrentClaimsPrincipal() != null)
+            {
+                return GetCurrentClaimsPrincipal().Claims.Any(c => c.Type == "idtyp" && c.Value == "app");
+            }
+
+            return false;
         }
     }
 }

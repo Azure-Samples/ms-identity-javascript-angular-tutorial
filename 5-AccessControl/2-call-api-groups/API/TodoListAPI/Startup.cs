@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +11,7 @@ using System;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
+using TodoListAPI.Infrastructure;
 using TodoListAPI.Models;
 using TodoListAPI.Utils;
 
@@ -37,67 +37,63 @@ namespace TodoListAPI
 
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                    .AddMicrosoftIdentityWebApi(options =>
+                .AddMicrosoftIdentityWebApi(options =>
+                    {
+                        // Ensure default token validation is carried out
+                        Configuration.Bind("AzureAd");
+
+                        options.Events = new JwtBearerEvents();
+
+                        // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the [Authorize] attribute, policy.RequireRole() and User.IsInrole()
+                        // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
+                        options.TokenValidationParameters.RoleClaimType = "groups";
+
+                        /// <summary>
+                        /// Below you can do extended token validation and check for additional claims, such as:
+                        ///
+                        /// - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
+                        /// - check if the caller's account is homed or guest via the 'acct' optional claim
+                        /// - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
+                        ///
+                        /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
+                        /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
+                        /// </summary>
+
+                        options.Events.OnTokenValidated = async context =>
                         {
-                            Configuration.Bind("AzureAd");
+                            string[] allowedClientApps = { Configuration["AzureAd:ClientId"] };
 
-                            options.Events = new JwtBearerEvents();
+                            string clientappId = context?.Principal?.Claims
+                                .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
-                            /// <summary>
-                            /// Below you can do extended token validation and check for additional claims, such as:
-                            ///
-                            /// - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
-                            /// - check if the caller's account is homed or guest via the 'acct' optional claim
-                            /// - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
-                            ///
-                            /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
-                            /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
-                            /// </summary>
-
-                            options.Events.OnTokenValidated = async context =>
+                            // In this scenario, client and service (API) share the same clientId and we disallow all calls to this API, except from the SPA
+                            if (!allowedClientApps.Contains(clientappId))
                             {
-                                string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId and we disallow all calls to this API, except from the SPA
+                                throw new Exception("This client is not authorized to call this Api");
+                            }
 
-                                string clientappId = context?.Principal?.Claims
-                                    .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
-
-                                if (!allowedClientApps.Contains(clientappId))
-                                {
-                                    throw new System.Exception("This client is not authorized to call this Api");
-                                }
-
-                                await Task.CompletedTask;
-                            };
-                        }, options =>
+                            if (context != null)
                             {
-                                Configuration.Bind("AzureAd", options);
-                            }, "Bearer", true)
-                    .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
-                    .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
-                        .AddInMemoryTokenCaches();
+                                // Calls method to process groups overage claim (before policy checks kick-in)
+                                await GraphHelper.ProcessAnyGroupsOverage(context);
+                            }
 
-            // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the Authorize attribute, policy.RequireRole() and User.IsInrole()
-            // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
-            services.Configure<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme, options =>
+                            await Task.CompletedTask;
+                        };
+                    }, options =>
+                        {
+                            Configuration.Bind("AzureAd", options);
+                        }, "Bearer", true)
+                .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
+                .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
+                .AddInMemoryTokenCaches();
+
+            // Adding authorization policies that enforce authorization using Azure AD security groups.
+            services.AddAuthorization(options =>
             {
-                // The claim in the Jwt token where Security Groups are available. Also
-                options.TokenValidationParameters.RoleClaimType = "groups";
-                //options.TokenValidationParameters.ValidateIssuerSigningKey = true;
+                options.AddPolicy(AuthorizationPolicies.AssignmentToGroupMemberGroupRequired, policy => policy.RequireRole(Configuration["AzureAd:Groups:GroupMember"], Configuration["AzureAd:Groups:GroupAdmin"]));
+                options.AddPolicy(AuthorizationPolicies.AssignmentToGroupAdminGroupRequired, policy => policy.RequireRole(Configuration["AzureAd:Groups:GroupAdmin"]));
             });
-
-            //// Adds Microsoft Identity platform (AAD v2.0) support to authenticate users
-            //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-            //         .AddMicrosoftIdentityWebApp(Configuration, "AzureAd", subscribeToOpenIdConnectMiddlewareDiagnosticsEvents: true)
-            //             .EnableTokenAcquisitionToCallDownstreamApi()
-            //                 .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
-            //             .AddInMemoryTokenCaches();
-
-            //// Adding authorization policies that enforce authorization using Azure AD roles.
-            //services.AddAuthorization(options =>
-            //{
-            //    options.AddPolicy(AuthorizationPolicies.AssignmentToGroupMemberGroupRequired, policy => policy.RequireRole(Configuration["AzureAd:Groups:GroupMember"], Configuration["AzureAd:Groups:GroupAdmin"]));
-            //    options.AddPolicy(AuthorizationPolicies.AssignmentToGroupAdminGroupRequired, policy => policy.RequireRole(Configuration["AzureAd:Groups:GroupAdmin"]));
-            //});
 
             // The in-memory toDo list Db
             services.AddDbContext<TodoContext>(opt => opt.UseInMemoryDatabase("TodoList"));
@@ -108,8 +104,8 @@ namespace TodoListAPI
             //Added for session state
             //services.AddDistributedMemoryCache();
 
-            services.AddScoped<IGraphHelper, GraphHelper>();
-            services.AddScoped(typeof(ICollectionProcessor<>), typeof(CollectionProcessor<>));
+            //services.AddScoped<IGraphHelper, GraphHelper>();
+            //services.AddScoped(typeof(ICollectionProcessor<>), typeof(CollectionProcessor<>));
 
             //services.AddSession(options =>
             //{
