@@ -3,6 +3,7 @@ import {
   MsalService,
   MSAL_GUARD_CONFIG,
   MsalGuardConfiguration,
+  
 } from '@azure/msal-angular';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
@@ -11,6 +12,9 @@ import {
   SilentRequest,
   AccountInfo,
 } from '@azure/msal-browser';
+import {
+PromptValue
+} from '@azure/msal-common';
 
 @Component({
   selector: 'app-account-switch-component',
@@ -33,7 +37,7 @@ export class AccountSwitchComponent implements OnInit {
     if (!account) {
       this.authService.instance.loginRedirect({
         ...this.msalGuardConfig.authRequest,
-        prompt: 'login',
+        prompt: PromptValue.LOGIN,
       } as RedirectRequest);
     } else if (
       account &&
@@ -51,7 +55,8 @@ export class AccountSwitchComponent implements OnInit {
           if (error instanceof InteractionRequiredAuthError) {
             this.authService.instance.loginRedirect({
               ...this.msalGuardConfig.authRequest,
-              prompt: 'login',
+              ...this.msalGuardConfig.authRequest,
+              prompt: PromptValue.LOGIN,
             } as RedirectRequest);
           }
         });
