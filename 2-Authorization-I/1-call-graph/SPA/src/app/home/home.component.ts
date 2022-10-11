@@ -30,18 +30,7 @@ export class HomeComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.msalBroadcastService.msalSubject$
-      .pipe(
-        filter(
-          (msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS
-        ),
-        takeUntil(this._destroying$)
-      )
-      .subscribe((result: EventMessage) => {
-        const payload = result.payload as AuthenticationResult;
-        this.authService.instance.setActiveAccount(payload.account);
-      });
-
+    
     this.msalBroadcastService.inProgress$
       .pipe(
         filter((status: InteractionStatus) => status === InteractionStatus.None)

@@ -6,12 +6,20 @@ import { MatToolbarModule } from "@angular/material/toolbar";
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatDialogModule } from '@angular/material/dialog';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatIconModule } from '@angular/material/icon';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ProfileComponent } from './profile/profile.component';
 import { HomeComponent } from './home/home.component';
 import { ContactsComponent } from './contacts/contacts.component';
+import { AccountSwitchComponent } from './account-switch/account-switch.component';
+
+
+
 
 import {
     IPublicClientApplication,
@@ -105,44 +113,50 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
 }
 
 @NgModule({
-    declarations: [
-        AppComponent,
-        ProfileComponent,
-        HomeComponent,
-        ContactsComponent,
-    ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        MatToolbarModule,
-        MatButtonModule,
-        MatCardModule,
-        MatTableModule,
-        HttpClientModule,
-    ],
-    providers: [
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: MsalInterceptor,
-            multi: true,
-        },
-        {
-            provide: MSAL_INSTANCE,
-            useFactory: MSALInstanceFactory,
-        },
-        {
-            provide: MSAL_GUARD_CONFIG,
-            useFactory: MsalGuardConfigurationFactory,
-        },
-        {
-            provide: MSAL_INTERCEPTOR_CONFIG,
-            useFactory: MSALInterceptorConfigFactory,
-        },
-        MsalService,
-        MsalBroadcastService,
-        MsalGuard,
-        GraphService
-    ],
-    bootstrap: [AppComponent, MsalRedirectComponent],
+  declarations: [
+    AppComponent,
+    ProfileComponent,
+    HomeComponent,
+    ContactsComponent,
+    AccountSwitchComponent,
+  ],
+  entryComponents: [AccountSwitchComponent],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatCardModule,
+    MatTableModule,
+    MatMenuModule,
+    HttpClientModule,
+    BrowserAnimationsModule,
+    MatDialogModule,
+    MatIconModule,
+  ],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: MsalInterceptor,
+      multi: true,
+    },
+    {
+      provide: MSAL_INSTANCE,
+      useFactory: MSALInstanceFactory,
+    },
+    {
+      provide: MSAL_GUARD_CONFIG,
+      useFactory: MsalGuardConfigurationFactory,
+    },
+    {
+      provide: MSAL_INTERCEPTOR_CONFIG,
+      useFactory: MSALInterceptorConfigFactory,
+    },
+    MsalService,
+    MsalBroadcastService,
+    MsalGuard,
+    GraphService,
+  ],
+  bootstrap: [AppComponent, MsalRedirectComponent],
 })
-export class AppModule { }
+export class AppModule {}

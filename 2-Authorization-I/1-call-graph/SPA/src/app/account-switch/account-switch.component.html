@@ -1,0 +1,21 @@
+<h2 mat-dialog-title>Pick an account</h2>
+<div mat-dialog-content>
+    <ul>
+        <li *ngFor="let account of data.accounts" mat-dialog-close (click)="switchAccount(account)" mat-dialog-close="true">
+            <mat-icon>account_circle</mat-icon>
+            <span >{{account.username}}</span>
+        </li>
+       <li (click)="switchAccount(null)">
+         <mat-icon>library_add</mat-icon>
+         <span>New account</span>
+       </li>
+    </ul>
+</div>
+<mat-dialog-actions>
+    <button mat-button mat-dialog-close mat-dialog-close="true">
+        Cancel
+    </button>
+</mat-dialog-actions>
+
+
+

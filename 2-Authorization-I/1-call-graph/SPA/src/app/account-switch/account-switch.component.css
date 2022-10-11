@@ -1,0 +1,13 @@
+ul {
+    list-style-type: none;
+    
+}
+
+li {
+    cursor: pointer;
+}
+
+span {
+    font-size: medium;
+    margin: 0 .5rem;
+}
