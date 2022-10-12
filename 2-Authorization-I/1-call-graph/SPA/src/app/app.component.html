@@ -8,15 +8,25 @@
     <button mat-raised-button *ngIf="!loginDisplay" (click)="login()">
         Login
     </button>
-    <button mat-raised-button color="accent" *ngIf="loginDisplay" (click)="logout()">
-        Logout
+
+    <button mat-raised-button color="accent" *ngIf="loginDisplay" [matMenuTriggerFor]="menu">
+        <mat-icon>keyboard_arrow_down</mat-icon>
+        {{name}}
     </button>
+
+    <mat-menu #menu="matMenu">
+        <button mat-menu-item (click)="openDialog()">Switch Account</button>
+        <button mat-menu-item (click)="logout()">Logout</button>
+    </mat-menu>
+
 </mat-toolbar>
+
 
 <div class="container">
     <!--This is to avoid reload during acquireTokenSilent() because of hidden iframe -->
     <router-outlet *ngIf="!isIframe"></router-outlet>
 </div>
+
 
 <footer *ngIf="loginDisplay">
     <mat-toolbar>

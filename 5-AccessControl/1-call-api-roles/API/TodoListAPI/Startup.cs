@@ -51,7 +51,7 @@ namespace TodoListAPI
                         
                         options.Events.OnTokenValidated = async context =>
                         {
-                           string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId
+                           string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; // In this scenario, client and service share the same clientId and this app's API only allows call from its own SPA
 
                            string clientappId = context?.Principal?.Claims
                                .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;

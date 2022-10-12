@@ -90,12 +90,12 @@ Function CreateRolesUsersAndRoleAssignments
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
         $tenantId = (Get-MgContext).TenantId
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Application.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Application.Read.All AppRoleAssignment.ReadWrite.All User.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
     $userAccount = (Get-MgContext).Account
@@ -105,10 +105,10 @@ Function CreateRolesUsersAndRoleAssignments
      Write-Host "get the AAD application (msal-angular-app)"
     $app = Get-MgApplication -Filter "DisplayName eq 'msal-angular-app'" 
 
-    if ($app)
-    {
-       $servicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
-       $appName = $app.DisplayName
+        if ($app)
+        {
+           $servicePrincipal = Get-MgServicePrincipal -Filter "AppId eq '$($app.AppId)'"
+           $appName = $app.DisplayName
 
        $TaskAdmin = $servicePrincipal.AppRoles | Where-Object { $_.DisplayName -eq "TaskAdmin" }
        # Creating a user 
@@ -120,7 +120,11 @@ Function CreateRolesUsersAndRoleAssignments
        $newUser = CreateUser -appName $appName -role $TaskUser -tenantName $tenantName
        $assignRole = New-MgUserAppRoleAssignment -Userid $newUser.Id -PrincipalId $newUser.Id -ResourceId $servicePrincipal.Id -AppRoleID $TaskUser.Id
 
-    }
+        }
+        else
+        {
+            Write-Host "Couldn't find application (msal-angular-app)"  -BackgroundColor Red
+        }
 }
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
@@ -141,8 +145,18 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) {
 
 Import-Module Microsoft.Graph.Users
 
-# Run interactively (will ask you for the tenant ID)
-CreateRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
+try
+{
+    # Run interactively (will ask you for the tenant ID)
+    CreateRolesUsersAndRoleAssignments -tenantId $tenantId -environment $azureEnvironmentName
+}
+catch
+{
+    $_.Exception.ToString() | out-host
+    $message = $_
+    Write-Warning $Error[0]    
+    Write-Host "Unable to configure app roles and assignments. Error is $message." -ForegroundColor White -BackgroundColor Red
+}
 
 Write-Host "Disconnecting from tenant"
 Disconnect-MgGraph

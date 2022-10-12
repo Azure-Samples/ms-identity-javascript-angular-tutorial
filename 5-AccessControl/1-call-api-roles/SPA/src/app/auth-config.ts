@@ -18,7 +18,7 @@ export const msalConfig: Configuration = {
     auth: {
         clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
-        redirectUri: '/', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
+        redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
         postLogoutRedirectUri: '/', // Points to window.location.origin by default.
         clientCapabilities: ['CP1'] // This lets the resource server know that this client can handle claim challenges.
     },
@@ -48,7 +48,7 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
     apiTodoList: {
         endpoint: "https://localhost:44351/api/todolist",
-        scopes: ["api://Enter_the_Web_Api_Application_Id_Here/access_as_user"]
+        scopes: ["api://Enter_the_Web_Api_Application_Id_Here/access_via_approle_assignments"]
     }
 }
 
