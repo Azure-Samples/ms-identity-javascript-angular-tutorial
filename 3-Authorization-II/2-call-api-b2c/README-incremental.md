@@ -39,7 +39,7 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 3-Authorization-II/2-call-api-b2c/API
+    cd 3-Authorization-II/2-call-api-b2c/API/TodoListAPI
     dotnet restore
 ```
 
@@ -88,7 +88,7 @@ The first thing that we need to do is to declare the unique [resource](https://d
    - For this sample, accept the proposed Application ID URI (`https://{tenantName}.onmicrosoft.com/{clientId}`) by selecting **Save**.
 1. All APIs have to publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code) for the client's to obtain an access token successfully. To publish a scope, follow the following steps:
    - Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-        - For **Scope name**, use `access_as_user`.
+        - For **Scope name**, use `demo.read`.
         - For **Admin consent display name** type `Access msal-dotnet-api`.
         - For **Admin consent description** type `Allows the app to access msal-dotnet-api as the signed-in user.`
         - Keep **State** as **Enabled**.
@@ -104,9 +104,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\appsettings.json` file.
-1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name.
+1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name e.g.`https://{tenantName}.b2clogin.com`.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
-1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name.
+1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name e.g.`{tenantName}.onmicrosoft.com`
 
 1. Find the key `SignUpSignInPolicyId` and replace the existing value with your sign-up/sign-in user-flow string e.g. `b2c_1_susi`.
 1. Find the key `EditProfilePolicyId` and replace the existing value with your profile-edit user-flow string e.g. `b2c_1_edit`.
@@ -141,7 +141,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `clientId` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `protectedResources.todoListApi.scopes` and replace the existing value with the scope of the web API that you have just exposed during the web API registration steps, for example `https://{tenantName}.onmicrosoft.com/{service_clientId}/access_as_user`
+1. Find the key `protectedResources.todoListApi.scopes` and replace the existing value with the scope of the web API that you have just exposed during the web API registration steps, for example `https://{tenantName}.onmicrosoft.com/{service_clientId}/demo.read`
 
 To setup your B2C user-flows, do the following:
 
@@ -161,7 +161,7 @@ Using a command line interface such as VS Code integrated terminal, locate the a
 In a separate console window, execute the following commands:
 
 ```console
-    cd API
+    cd API/TodoListAPI
     dotnet run
 ```
 
