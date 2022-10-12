@@ -4,6 +4,8 @@ import { AuthenticationResult, EventMessage, EventType, InteractionStatus, Inter
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
+import { clearGroupsInStorage } from './utils/storage-utils';
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -28,8 +30,8 @@ export class AppComponent implements OnInit, OnDestroy {
         this.authService.instance.enableAccountStorageEvents(); // Optional - This will enable ACCOUNT_ADDED and ACCOUNT_REMOVED events emitted when a user logs in or out of another tab or window
 
         /**
-         * You can subscribe to MSAL events as shown below. For more info,
-         * visit: https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/events.md
+         * You can subscribe to MSAL events as shown below. For more information, visit:
+         * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/events.md
          */
 
         this.msalBroadcastService.msalSubject$
@@ -97,7 +99,18 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     logout() {
-        this.authService.logout();
+        const activeAccount = this.authService.instance.getActiveAccount() || this.authService.instance.getAllAccounts()[0];
+        clearGroupsInStorage(activeAccount); // make sure to remove groups from storage
+
+        if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+            this.authService.logoutPopup({
+                account: activeAccount
+            });
+        } else {
+            this.authService.logoutRedirect({
+                account: activeAccount
+            });
+        }
     }
 
     // unsubscribe to events when component is destroyed

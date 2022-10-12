@@ -1,3 +1,7 @@
+using System;
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,10 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
-using System;
-using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
-using System.Threading.Tasks;
 using TodoListAPI.Infrastructure;
 using TodoListAPI.Models;
 using TodoListAPI.Utils;
@@ -101,19 +101,8 @@ namespace TodoListAPI
             services.AddControllers();
             services.AddHttpContextAccessor();
 
-            //Added for session state
-            //services.AddDistributedMemoryCache();
-
-            //services.AddScoped<IGraphHelper, GraphHelper>();
-            //services.AddScoped(typeof(ICollectionProcessor<>), typeof(CollectionProcessor<>));
-
-            //services.AddSession(options =>
-            //{
-            //    options.IdleTimeout = TimeSpan.FromMinutes(10);
-            //});
-
             // The following flag can be used to get more descriptive errors in development environments
-            // Enable diagnostic logging to help with troubleshooting.  For more details, see https://aka.ms/IdentityModel/PII.
+            // Enable diagnostic logging to help with troubleshooting. For more details, see https://aka.ms/IdentityModel/PII.
             // You might not want to keep this following flag on for production
             IdentityModelEventSource.ShowPII = true;
 
@@ -150,7 +139,6 @@ namespace TodoListAPI
             app.UseCors("default");
             app.UseHttpsRedirection();
             app.UseRouting();
-            //app.UseSession();
             app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>

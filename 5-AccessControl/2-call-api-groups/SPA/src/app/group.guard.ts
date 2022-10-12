@@ -8,16 +8,16 @@ import { MsalBroadcastService, MsalGuardConfiguration, MsalService, MSAL_GUARD_C
 import { AccountInfo } from "@azure/msal-browser";
 
 import { BaseGuard } from "./base.guard";
-import { GraphService } from "./graph.service";
+import { checkGroupsInStorage, getGroupsFromStorage } from "./utils/storage-utils";
 
 type AccountWithGroupClaims = AccountInfo & {
     idTokenClaims?: {
         groups?: string[],
         _claim_names?: {
-            groups: string | string[]
+            groups?: string | string[]
         },
         _claim_sources?: {
-            src1: {
+            src1?: {
                 endpoint: string | string[]
             }
         }
@@ -33,7 +33,6 @@ export class GroupGuard extends BaseGuard {
         protected override authService: MsalService,
         protected override location: Location,
         protected override router: Router,
-        private graphService: GraphService
     ) {
         super(msalGuardConfig, msalBroadcastService, authService, location, router);
     }
@@ -51,10 +50,11 @@ export class GroupGuard extends BaseGuard {
                     activeAccount = this.authService.instance.getAllAccounts()[0] as AccountWithGroupClaims;
                 }
 
-                // check either the ID token or the graphService to see if the user is a member of any groups
-                if (!activeAccount?.idTokenClaims?.groups && this.graphService.getUser().groupIDs.length === 0) {
+                // check either the ID token or a non-expired storage entry for the groups membership claim
+                if (!activeAccount?.idTokenClaims?.groups && !checkGroupsInStorage(activeAccount)) {
+
                     if (activeAccount.idTokenClaims?._claim_names && activeAccount.idTokenClaims?._claim_names.groups) {
-                        window.alert('You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.');
+                        window.alert('You have too many group memberships. The application will now query Microsoft Graph to check if you are a member of any of the groups required.');
                         return this.router.navigate(['/overage']);
                     }
                     
@@ -68,9 +68,7 @@ export class GroupGuard extends BaseGuard {
                  * If you like, you may want to cache the group IDs in sessionStorage as an alternative.
                  */
                 const hasRequiredGroup = expectedGroups.some((group: string) =>
-                    activeAccount?.idTokenClaims?.groups?.includes(group) 
-                    ||
-                    this.graphService.getUser().groupIDs.includes(group)
+                    activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
                 );
 
                 if (!hasRequiredGroup) {

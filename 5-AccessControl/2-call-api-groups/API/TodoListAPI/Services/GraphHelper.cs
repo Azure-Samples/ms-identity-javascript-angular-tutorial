@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Graph;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Graph;
 
 namespace TodoListAPI.Utils
 {
@@ -35,12 +35,13 @@ namespace TodoListAPI.Utils
 
             // ensure MemoryCache is available
             _memoryCache = context.HttpContext.RequestServices.GetService<IMemoryCache>();
+
             if (_memoryCache == null)
             {
                 throw new ArgumentNullException("_memoryCache", "Memory cache is not available.");
             }
 
-            // Checks if the incoming token contained a 'Group Overage' claim.
+            // Checks if the incoming token contains a 'Group Overage' claim.
             if (HasOverageOccurred(principal))
             {
                 // Gets group values from cache if available.
@@ -71,7 +72,7 @@ namespace TodoListAPI.Utils
                     }
 
                     // Here we add the groups in a cache variable so that calls to Graph can be minimized to fetch all the groups for a user.
-                    // IMPORTANT: Group list is cached for 1 hr by default, and thus Cached groups will miss any changes to a users group membership for this duration.
+                    // IMPORTANT: Group list is cached for 1 hr by default, and thus cached groups will miss any changes to a users group membership for this duration.
                     // For capturing real-time changes to a user's group membership, consider implementing MS Graph change notifications (https://learn.microsoft.com/graph/api/resources/webhooks)
                     SaveUsersGroupsToCache(usergroups, principal);
                 }
@@ -140,7 +141,7 @@ namespace TodoListAPI.Utils
                     IUserMemberOfCollectionWithReferencesPage memberPage = new UserMemberOfCollectionWithReferencesPage();
                     try
                     {
-                        //Request to get groups and directory roles that the user is a direct member of.
+                        // Request to get groups and directory roles that the user is a direct member of.
                         memberPage = await graphClient.Me.MemberOf.Request().Select(select).GetAsync().ConfigureAwait(false);
                     }
                     catch (Exception graphEx)
@@ -179,7 +180,7 @@ namespace TodoListAPI.Utils
                     }
                     else
                     {
-                        throw new ArgumentNullException("SecurityToken", "Group membership cannot be fetched if no tken has been provided.");
+                        throw new ArgumentNullException("SecurityToken", "Group membership cannot be fetched if no token has been provided.");
                     }
                 }
             }
@@ -280,9 +281,8 @@ namespace TodoListAPI.Utils
 
             Debug.WriteLine($"Adding users groups for '{cacheKey}'.");
 
-            // IMPORTANT: Group list is cached for 1 hr by default, and thus Cached groups will miss any changes to a users group membership for this duration.
+            // IMPORTANT: Group list is cached for 1 hr by default, and thus cached groups will miss any changes to a users group membership for this duration.
             // For capturing real-time changes to a user's group membership, consider implementing MS Graph change notifications (https://learn.microsoft.com/en-us/graph/api/resources/webhooks)
-
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                     .SetSlidingExpiration(TimeSpan.FromSeconds(60))
                     .SetAbsoluteExpiration(TimeSpan.FromSeconds(3600))

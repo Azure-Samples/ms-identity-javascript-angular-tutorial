@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { MsalService } from '@azure/msal-angular';
 
 import { GraphService } from '../graph.service';
+import { setGroupsInStorage } from '../utils/storage-utils';
 
 import { groups } from '../auth-config';
 
@@ -11,22 +13,25 @@ import { groups } from '../auth-config';
 })
 export class OverageComponent implements OnInit {
 
-    allGroups: string[] = [];
+    requiredGroupsByApplication: string[] = [];
 
-    constructor(private graphService: GraphService) { }
+    constructor(private authService: MsalService, private graphService: GraphService) { }
 
     ngOnInit(): void {
         this.getGroups();
     }
 
     async getGroups(): Promise<void> {
-        this.allGroups = await this.graphService.getGroups();
-
-        // Filter out the required groups defined in auth-config.ts
-        const requiredGroups = this.allGroups.filter((id) => id === groups.groupAdmin || id === groups.groupMember);
+        try {
+            // Filter out the required groups defined in auth-config.ts
+            this.requiredGroupsByApplication = await this.graphService.getFilteredGroups(Object.values(groups));
             
-        // Set the groups in the graph service
-        this.graphService.setGroups(requiredGroups);
+            const activeAccount = this.authService.instance.getActiveAccount() || this.authService.instance.getAllAccounts()[0];
+            
+            // Store the groups in session storage for this user
+            setGroupsInStorage(activeAccount, this.requiredGroupsByApplication);
+        } catch (error) {
+            console.log(error);
+        }
     }
-
 }

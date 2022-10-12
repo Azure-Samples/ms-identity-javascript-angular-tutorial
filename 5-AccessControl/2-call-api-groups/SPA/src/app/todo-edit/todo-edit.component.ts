@@ -2,7 +2,7 @@ import { TodoService } from './../todo.service';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 
-import { Todo } from '../todo';
+import { Todo } from '../todo.service';
 
 @Component({
     selector: 'app-todo-edit',

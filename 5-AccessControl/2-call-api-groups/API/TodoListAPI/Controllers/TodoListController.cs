@@ -1,13 +1,13 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
 using TodoListAPI.Infrastructure;
 using TodoListAPI.Models;
 
@@ -172,7 +172,7 @@ namespace TodoListAPI.Controllers
         /// <returns></returns>
         private ClaimsPrincipal GetCurrentClaimsPrincipal()
         {
-            // Irrespective of whether a user signs in or not, the AspNet security middle-ware dehydrates the claims in the
+            // Irrespective of whether a user signs in or not, the AspNet security middleware dehydrates the claims in the
             // HttpContext.User.Claims collection
 
             if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.User != null)

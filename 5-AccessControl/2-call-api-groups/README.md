@@ -406,7 +406,7 @@ When attending to overage scenarios, which requires a call to [Microsoft Graph](
 
 ##### Angular GroupGuard service
 
-Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the token for the user's ID token has the `_claim_names` claim, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the full list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
+Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the token for the user's ID token has the `_claim_names` claim, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
 
 ```typescript
 @Injectable()
@@ -423,7 +423,7 @@ export class GroupGuard extends BaseGuard {
         super(msalGuardConfig, msalBroadcastService, authService, location, router);
     }
 
-    override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
         let result = super.activateHelper(state, route);
 
         const expectedGroups: string[] = route ? route.data['expectedGroups'] : [];
@@ -436,9 +436,11 @@ export class GroupGuard extends BaseGuard {
                     activeAccount = this.authService.instance.getAllAccounts()[0] as AccountWithGroupClaims;
                 }
 
-                if (!activeAccount?.idTokenClaims?.groups && this.graphService.getUser().groupIDs.length === 0) {
-                    if (activeAccount.idTokenClaims?._claim_names) {
-                        window.alert('You have too many group memberships. The application will now query Microsoft Graph to get the full list of groups that you are a member of.');
+                // check either the ID token or a non-expired storage entry for the groups membership claim
+                if (!activeAccount?.idTokenClaims?.groups && !checkGroupsInStorage(activeAccount)) {
+
+                    if (activeAccount.idTokenClaims?._claim_names && activeAccount.idTokenClaims?._claim_names.groups) {
+                        window.alert('You have too many group memberships. The application will now query Microsoft Graph to check if you are a member of any of the groups required.');
                         return this.router.navigate(['/overage']);
                     }
                     
@@ -446,10 +448,13 @@ export class GroupGuard extends BaseGuard {
                     return of(false);
                 }
 
+                /**
+                 * If an overage scenario occurs, the ID token will not have a groups claim. Instead, after
+                 * the overage is handled, the user object in the graphService will have the relevant group IDs.
+                 * If you like, you may want to cache the group IDs in sessionStorage as an alternative.
+                 */
                 const hasRequiredGroup = expectedGroups.some((group: string) =>
-                    activeAccount?.idTokenClaims?.groups?.includes(group) 
-                    ||
-                    this.graphService.getUser().groupIDs.includes(group)
+                    activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
                 );
 
                 if (!hasRequiredGroup) {
@@ -509,7 +514,7 @@ const routes: Routes = [
 
 #### .NET Core web API and how to handle the overage scenario
 
-1. In [Startup.cs](./API/TodoListAPI/Startup.cs), `OnTokenValidated` event calls **GetSignedInUsersGroups** method defined in *GraphHelper.cs* to process groups overage claim.
+1. In [Startup.cs](./API/TodoListAPI/Startup.cs), `OnTokenValidated` event calls **GetSignedInUsersGroups** method defined in [GraphHelper.cs](./API//TodoListAPI/Services/GraphHelper.cs) to process groups overage claim.
 
 ```csharp
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

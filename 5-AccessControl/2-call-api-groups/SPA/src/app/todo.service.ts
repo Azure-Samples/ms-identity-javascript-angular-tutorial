@@ -1,8 +1,14 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Todo } from './todo';
 
 import { protectedResources } from './auth-config';
+
+export type Todo = {
+    id: number;
+    description: string;
+    owner?: string;
+    status: boolean;
+}
 
 @Injectable({
     providedIn: 'root'
