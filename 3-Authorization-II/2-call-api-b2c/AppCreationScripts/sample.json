@@ -27,7 +27,7 @@
         {
           "Resource": "service",
           "DelegatedPermissions": [
-            "access_as_user"
+            "demo.read"
           ]
         }
       ],
@@ -42,7 +42,7 @@
     {
       "App": "service",
       "SettingKind": "Replace",
-      "SettingFile": "\\..\\API\\appsettings.json",
+      "SettingFile": "\\..\\API\\TodoListAPI\\appsettings.json",
       "Mappings": [
         {
           "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
