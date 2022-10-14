@@ -172,9 +172,8 @@ namespace TodoListAPI.Controllers
         /// <returns></returns>
         private ClaimsPrincipal GetCurrentClaimsPrincipal()
         {
-            // Irrespective of whether a user signs in or not, the AspNet security middleware dehydrates the claims in the
-            // HttpContext.User.Claims collection
-
+            // Irrespective of whether a user signs in or not, the AspNet security middleware dehydrates 
+            // the claims in the HttpContext.User.Claims collection
             if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.User != null)
             {
                 return _contextAccessor.HttpContext.User;

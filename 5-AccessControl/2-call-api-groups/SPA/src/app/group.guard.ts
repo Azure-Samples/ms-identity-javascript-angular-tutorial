@@ -40,7 +40,7 @@ export class GroupGuard extends BaseGuard {
     override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
         let result = super.activateHelper(state, route);
 
-        const expectedGroups: string[] = route ? route.data['expectedGroups'] : [];
+        const requiredGroups: string[] = route ? route.data['requiredGroups'] : [];
 
         return result.pipe(
             concatMap(() => {
@@ -62,12 +62,7 @@ export class GroupGuard extends BaseGuard {
                     return of(false);
                 }
 
-                /**
-                 * If an overage scenario occurs, the ID token will not have a groups claim. Instead, after
-                 * the overage is handled, the user object in the graphService will have the relevant group IDs.
-                 * If you like, you may want to cache the group IDs in sessionStorage as an alternative.
-                 */
-                const hasRequiredGroup = expectedGroups.some((group: string) =>
+                const hasRequiredGroup = requiredGroups.some((group: string) =>
                     activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
                 );
 

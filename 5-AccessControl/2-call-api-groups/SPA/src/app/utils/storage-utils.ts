@@ -1,5 +1,7 @@
 import { AccountInfo } from '@azure/msal-browser';
 
+import { CACHE_TTL_IN_MS } from '../auth-config';
+
 type GroupMembershipEntry = {
     groups: string[],
     lastAccessed: number,
@@ -13,12 +15,12 @@ type GroupMembershipEntry = {
  * @param {Array} groups 
  */
 export const setGroupsInStorage = (account: AccountInfo, groups: string[]): void => {
-    if (!account.idTokenClaims) throw new Error('No idTokenClaims found in account');
+    if (!account.idTokenClaims) return;
 
     const newEntry: GroupMembershipEntry = {
         groups: groups,
         lastAccessed: Date.now(),
-        expiresOn: account.idTokenClaims.exp!,
+        expiresOn: Date.now() + CACHE_TTL_IN_MS,
         sourceTokenId: account.idTokenClaims['uti'] as string,
     };
 
@@ -31,14 +33,14 @@ export const setGroupsInStorage = (account: AccountInfo, groups: string[]): void
  * @returns 
  */
 export const checkGroupsInStorage = (account: AccountInfo): boolean => {
-    if (!account.idTokenClaims) throw new Error('No idTokenClaims found in account');
+    if (!account.idTokenClaims) return false;
 
     const storageEntry = sessionStorage.getItem(`gmc.${account.idTokenClaims.aud}.${account.idTokenClaims.oid}`);
     
     if (!storageEntry) return false;
 
     const parsedStorageEntry = JSON.parse(storageEntry);
-    return parsedStorageEntry.groups && parsedStorageEntry.expiresOn <= account.idTokenClaims.exp! && parsedStorageEntry.sourceTokenId === account.idTokenClaims['uti'];
+    return parsedStorageEntry.groups && parsedStorageEntry.expiresOn >= Date.now() && parsedStorageEntry.sourceTokenId === account.idTokenClaims['uti'];
 };
 
 /**
@@ -47,7 +49,7 @@ export const checkGroupsInStorage = (account: AccountInfo): boolean => {
  * @returns 
  */
 export const getGroupsFromStorage = (account: AccountInfo): string[] | null => {
-    if (!account.idTokenClaims) throw new Error('No idTokenClaims found in account');
+    if (!account.idTokenClaims) return null;
 
     const storageEntry = sessionStorage.getItem(`gmc.${account.idTokenClaims.aud}.${account.idTokenClaims.oid}`);
     
@@ -61,8 +63,10 @@ export const getGroupsFromStorage = (account: AccountInfo): string[] | null => {
  * @param {AccountInfo} account
  */
 export const clearGroupsInStorage = (account: AccountInfo): void => {
+    if (!account.idTokenClaims) return;
+
     for (var key in sessionStorage) {
-        if (key.startsWith(`gmc.${account.idTokenClaims?.aud}.${account.idTokenClaims?.oid}`)) {
+        if (key.startsWith(`gmc.${account.idTokenClaims.aud}.${account.idTokenClaims.oid}`)) {
             sessionStorage.removeItem(key);
         }
     }

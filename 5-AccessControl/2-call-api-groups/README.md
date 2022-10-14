@@ -1,8 +1,6 @@
 ---
 page_type: sample
-name: Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
-description: An Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
-- languages:
+languages:
 	- typescript
 	- csharp
 	- javascript
@@ -12,6 +10,8 @@ products:
 	- msal-js
 	- msal-angular
 	- microsoft-identity-web
+name: Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
+description: An Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
 urlFragment: ms-identity-javascript-angular-tutorial
 extensions:
 - services: ms-identity
@@ -49,9 +49,9 @@ In the sample, a dashboard component allows signed-in users to see the tasks ass
 
 ## Scenario
 
-- The **TodoListSPA** uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user with the Microsoft identity platform.
-- The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure Active Directory (Azure AD) on behalf of the authenticated user for the **TodoListAPI**.
-- **TodoListAPI** uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept only authorized calls.
+* The **TodoListSPA** uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user with the Microsoft identity platform.
+* The app then obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure Active Directory (Azure AD) on behalf of the authenticated user for the **TodoListAPI**.
+* **TodoListAPI** uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept only authorized calls.
 
 ![Topology](./ReadmeFiles/topology.png)
 
@@ -203,20 +203,19 @@ To manually register the apps, as a first step you'll need to:
 ##### Grant Delegated Permissions to msal-angular-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-   1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-   1. Select the **Add a permission** button and then:
-   1. Ensure that the **My APIs** tab is selected.
-   1. In the list of APIs, select the API `msal-angular-app`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
-      * In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
-   1. Select the **Add permissions** button at the bottom.
-   1. Select the **Add a permission** button and then:
-   1. Ensure that the **Microsoft APIs** tab is selected.
-   1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
-      * In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
-   1. Select the **Add permissions** button at the bottom.
-   > :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+    1. Select the **Add a permission** button and then:
+        1. Ensure that the **My APIs** tab is selected.
+        1. In the list of APIs, select the API `msal-angular-app`.
+        1. In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
+        1. Select the **Add permissions** button at the bottom.
+    1. Select the **Add a permission** button and then:
+        1. Ensure that the **Microsoft APIs** tab is selected.
+        1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+        1. In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+        1. Select the **Add permissions** button at the bottom.
+
+> :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
@@ -226,9 +225,9 @@ To manually register the apps, as a first step you'll need to:
     1. Select the optional claim **acct**.
     > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
     1. Select **optional claim type**, then choose **Access**.
-     1. Select the optional claim **idtyp**.
+    1. Select the optional claim **idtyp**.
     > Indicates token type. This claim is the most accurate way for an API to determine if a token is an app token or an app+user token. This is not issued in tokens issued to users.
-    1. Select **Add** to save your changes.
+1. Select **Add** to save your changes.
 
 ##### Configure the client app (msal-angular-app) to use your app registration
 
@@ -406,27 +405,26 @@ When attending to overage scenarios, which requires a call to [Microsoft Graph](
 
 ##### Angular GroupGuard service
 
-Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the token for the user's ID token has the `_claim_names` claim, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated `groupID` among this list.
+Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the user's ID token has the `_claim_names` claim with the value `groups`, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated `groupID`s among this list.
 
 ```typescript
 @Injectable()
 export class GroupGuard extends BaseGuard {
 
-    constructor(
+constructor(
         @Inject(MSAL_GUARD_CONFIG) protected override msalGuardConfig: MsalGuardConfiguration,
         protected override msalBroadcastService: MsalBroadcastService,
         protected override authService: MsalService,
         protected override location: Location,
         protected override router: Router,
-        private graphService: GraphService
     ) {
         super(msalGuardConfig, msalBroadcastService, authService, location, router);
     }
 
-override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
+    override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnapshot): Observable<boolean | UrlTree> {
         let result = super.activateHelper(state, route);
 
-        const expectedGroups: string[] = route ? route.data['expectedGroups'] : [];
+        const requiredGroups: string[] = route ? route.data['requiredGroups'] : [];
 
         return result.pipe(
             concatMap(() => {
@@ -448,12 +446,7 @@ override activateHelper(state?: RouterStateSnapshot, route?: ActivatedRouteSnaps
                     return of(false);
                 }
 
-                /**
-                 * If an overage scenario occurs, the ID token will not have a groups claim. Instead, after
-                 * the overage is handled, the user object in the graphService will have the relevant group IDs.
-                 * If you like, you may want to cache the group IDs in sessionStorage as an alternative.
-                 */
-                const hasRequiredGroup = expectedGroups.some((group: string) =>
+                const hasRequiredGroup = requiredGroups.some((group: string) =>
                     activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
                 );
 
@@ -479,7 +472,7 @@ const routes: Routes = [
             GroupGuard
         ],
         data: {
-            expectedGroups: [groups.groupMember, groups.groupAdmin]
+            requiredGroups: [groups.groupMember, groups.groupAdmin]
         }
     },
     {
@@ -489,7 +482,7 @@ const routes: Routes = [
             GroupGuard
         ],
         data: {
-            expectedGroups: [groups.groupMember, groups.groupAdmin]
+            requiredGroups: [groups.groupMember, groups.groupAdmin]
         }
     },
     {
@@ -499,7 +492,7 @@ const routes: Routes = [
             GroupGuard,
         ],
         data: {
-            expectedGroups: [groups.groupAdmin]
+            requiredGroups: [groups.groupAdmin]
         }
     },
     {
@@ -572,7 +565,7 @@ const routes: Routes = [
 
 `AddMicrosoftGraph` registers the service for `GraphServiceClient`. The values for `BaseUrl` and `Scopes` defined in `GraphAPI` section of the **appsettings.json**.
 
-1. In [GraphHelper.cs](./API/TodoListAPI/Utils/GraphHelper.cs), **ProcessAnyGroupsOverage** method checks if incoming token contains *Group Overage* claim then it will call **ProcessUserGroupsForOverage** method to retrieve groups.
+1. In [GraphHelper.cs](./API/TodoListAPI/Utils/GraphHelper.cs), **ProcessAnyGroupsOverage** method checks if incoming token contains the *Group Overage* claim. If so, it will call **ProcessUserGroupsForOverage** method to retrieve groups.
 
 ```csharp
 public static async Task ProcessAnyGroupsOverage(TokenValidatedContext context)

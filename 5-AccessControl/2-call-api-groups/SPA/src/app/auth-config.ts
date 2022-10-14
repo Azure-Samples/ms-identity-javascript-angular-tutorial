@@ -70,3 +70,11 @@ export const groups = {
     groupAdmin: "Enter the object ID for GroupAdmin group copied from Azure Portal",
     groupMember: "Enter the object ID for GroupMember group copied from Azure Portal"
 }
+
+/**
+ * IMPORTANT: In case of overage, group list is cached for 1 hr by default, and thus cached groups 
+ * will miss any changes to a users group membership for this duration. For capturing real-time 
+ * changes to a user's group membership, consider implementing Microsoft Graph change notifications. 
+ * For more information, visit: https://learn.microsoft.com/graph/api/resources/webhooks
+ */
+ export const CACHE_TTL_IN_MS = 60 * 60 * 1000; // 1 hour in milliseconds

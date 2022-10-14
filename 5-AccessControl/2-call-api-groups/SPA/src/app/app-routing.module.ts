@@ -25,7 +25,7 @@ const routes: Routes = [
             GroupGuard
         ],
         data: {
-            expectedGroups: [groups.groupMember, groups.groupAdmin]
+            requiredGroups: [groups.groupMember, groups.groupAdmin]
         }
     },
     {
@@ -35,7 +35,7 @@ const routes: Routes = [
             GroupGuard
         ],
         data: {
-            expectedGroups: [groups.groupMember, groups.groupAdmin]
+            requiredGroups: [groups.groupMember, groups.groupAdmin]
         }
     },
     {
@@ -45,7 +45,7 @@ const routes: Routes = [
             GroupGuard,
         ],
         data: {
-            expectedGroups: [groups.groupAdmin]
+            requiredGroups: [groups.groupAdmin]
         }
     },
     {

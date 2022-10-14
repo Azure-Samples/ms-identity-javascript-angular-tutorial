@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ using Microsoft.Identity.Web;
 using Microsoft.IdentityModel.Logging;
 using TodoListAPI.Infrastructure;
 using TodoListAPI.Models;
-using TodoListAPI.Utils;
+using TodoListAPI.Services;
 
 namespace TodoListAPI
 {
@@ -63,11 +64,20 @@ namespace TodoListAPI
                         {
                             string[] allowedClientApps = { Configuration["AzureAd:ClientId"] };
 
-                            string clientappId = context?.Principal?.Claims
+                            List<string> requiredGroupsIds = Configuration.GetSection("AzureAd:Groups")
+                                .AsEnumerable().Select(x => x.Value).Where(x => x != null).ToList();
+
+                            CacheSettings cacheSettings = new CacheSettings
+                            {
+                                SlidingExpirationInSeconds = Configuration.GetValue<string>("CacheSettings:SlidingExpirationInSeconds"),
+                                AbsoluteExpirationInSeconds = Configuration.GetValue<string>("CacheSettings:AbsoluteExpirationInSeconds")
+                            };
+
+                            string clientAppId = context?.Principal?.Claims
                                 .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
                             // In this scenario, client and service (API) share the same clientId and we disallow all calls to this API, except from the SPA
-                            if (!allowedClientApps.Contains(clientappId))
+                            if (!allowedClientApps.Contains(clientAppId))
                             {
                                 throw new Exception("This client is not authorized to call this Api");
                             }
@@ -75,7 +85,7 @@ namespace TodoListAPI
                             if (context != null)
                             {
                                 // Calls method to process groups overage claim (before policy checks kick-in)
-                                await GraphHelper.ProcessAnyGroupsOverage(context);
+                                await GraphHelper.ProcessAnyGroupsOverage(context, requiredGroupsIds, cacheSettings);
                             }
 
                             await Task.CompletedTask;
