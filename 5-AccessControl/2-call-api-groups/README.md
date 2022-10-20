@@ -39,7 +39,7 @@ extensions:
 
 This sample demonstrates a cross-platform application suite involving an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with the Microsoft identity platform. In doing so, it implements **Role-based Access Control** (RBAC) by using Azure AD **[Security Groups](https://learn.microsoft.com/azure/active-directory/fundamentals/how-to-manage-groups)**.
 
-Access control in Azure AD can also be done with, **App Roles** (see the [previous tutorial](../1-call-api-roles/README.md)), **Security Groups** and **Delegated Permissions**. **Security Groups** in Azure AD are by no means mutually exclusive -they can be used in tandem to provide even finer grained access control.
+Access control in Azure AD can also be done with, **App Roles** (see the [previous tutorial](../1-call-api-roles/README.md)), **Security Groups** and **Delegated Permissions**. These are by no means mutually exclusive -they can be used in tandem to provide even finer grained access control.
 
 In the sample, a dashboard component allows signed-in users to see the tasks assigned to them or other users based on their memberships to one of the two security groups, **GroupAdmin** and **GroupMember**.
 
@@ -203,20 +203,19 @@ To manually register the apps, as a first step you'll need to:
 ##### Grant Delegated Permissions to msal-angular-app
 
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then:
         1. Ensure that the **My APIs** tab is selected.
         1. In the list of APIs, select the API `msal-angular-app`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
-      * In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
+        1. In the **Delegated permissions** section, select **access_via_group_assignments** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
     1. Select the **Add a permission** button and then:
         1. Ensure that the **Microsoft APIs** tab is selected.
         1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that sign-in users.
-      * In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
+        1. In the **Delegated permissions** section, select **User.Read**, **GroupMember.Read.All** in the list. Use the search box if necessary.
         1. Select the **Add permissions** button at the bottom.
-   > :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
+
+> :warning: To handle the groups overage scenario, please grant [admin consent](https://learn.microsoft.com/azure/active-directory/manage-apps/grant-admin-consent?source=recommendations#grant-admin-consent-in-app-registrations) to the Microsoft Graph **GroupMember.Read.All** [permission](https://learn.microsoft.com/graph/permissions-reference). See the section on how to [create the overage scenario for testing](#create-the-overage-scenario-for-testing) below for more.
 
 ##### Configure Optional Claims
 
@@ -264,9 +263,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. For **Group Description**, enter **User Security Group**
     1. Add **Group Owners** and **Group Members** as you see fit.
     1. Select **Create**.
-1. Assign the user accounts that you plan to work with to these security groups.
-
-For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
+1. Assign the user accounts that you plan to work with to these security groups. For more information, visit: [Create a basic group and add members using Azure AD](https://docs.microsoft.com/azure/active-directory/fundamentals/active-directory-groups-create-azure-portal)
 
 #### Configure Security Groups
 
@@ -396,13 +393,9 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 
 #### Create the Overage Scenario for testing
 
-1. You can use the `BulkCreateGroups.ps1` provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. :warning: Remember to change the user's **objectId** provided in the `BulkCreateGroups.ps1` script.
+1. You can use the [BulkCreateGroups.ps1](./AppCreationScripts/BulkCreateGroups.ps1) provided in the [App Creation Scripts](./AppCreationScripts/) folder to create a large number of groups and assign users to them. This will help test overage scenarios during development. You'll need to enter a user Object ID when prompted by the `BulkCreateGroups.ps1` script. If you would like to delete these groups, run the [BulkRemoveGroups.ps1](./AppCreationScripts/BulkRemoveGroups.ps1) after testing the overage scenario.
 
 > When attending to overage scenarios, which requires a call to [Microsoft Graph](https://graph.microsoft.com) to read the signed-in user's group memberships, your app will need to have the [User.Read](https://docs.microsoft.com/graph/permissions-reference#user-permissions) and [GroupMember.Read.All](https://docs.microsoft.com/graph/permissions-reference#group-permissions) for the [getMemberGroups](https://docs.microsoft.com/graph/api/user-getmembergroups) function to execute successfully.
-
-> :warning: For the overage scenario, make sure you have granted **Admin Consent** for the MS Graph API's **GroupMember.Read.All** scope for both the Client and the Service apps (see the **App Registration** steps above).
-
-##### Detecting group overage in your code by examining claims
 
 1. When you run this sample and an overage occurred, then you'd see the `_claim_names` in the home page after the user signs-in.
 1. We strongly advise you use the [group filtering feature](#configure-your-application-to-receive-the-groups-claim-values-from-a-filtered-set-of-groups-a-user-may-be-assigned-to) (if possible) to avoid running into group overages.
@@ -414,9 +407,9 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 
 > You can gain a good familiarity of programming for Microsoft Graph by going through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
 
-##### Angular GroupGuard service
+##### Angular Group Guard
 
-Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the user's ID token has the `_claim_names` claim with the value `groups`, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated `groupID`s among this list.
+Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the user's ID token has the `_claim_names` claim with the value `groups`, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated groupIDs among this list.
 
 ```typescript
 @Injectable()
@@ -457,15 +450,7 @@ constructor(
                     return of(false);
                 }
 
-                const hasRequiredGroup = requiredGroups.some((group: string) =>
-                    activeAccount?.idTokenClaims?.groups?.includes(group) || getGroupsFromStorage(activeAccount)?.includes(group)
-                );
-
-                if (!hasRequiredGroup) {
-                    window.alert('You do not have access. Please ensure that your account is assigned to the required security group and then sign-out and sign-in again.');
-                }
-
-                return of(hasRequiredGroup);
+                // code omitted for brevity...
             })
         );
     }
@@ -476,16 +461,6 @@ In [app-routing.module.ts](./SPA/src/app/app-routing.module.ts), we add **GroupG
 
 ```typescript
 const routes: Routes = [
-    {
-        path: 'todo-edit/:id',
-        component: TodoEditComponent,
-        canActivate: [
-            GroupGuard
-        ],
-        data: {
-            requiredGroups: [groups.groupMember, groups.groupAdmin]
-        }
-    },
     {
         path: 'todo-view',
         component: TodoViewComponent,
@@ -521,57 +496,30 @@ const routes: Routes = [
 1. In [Startup.cs](./API/TodoListAPI/Startup.cs), `OnTokenValidated` event calls **GetSignedInUsersGroups** method defined in [GraphHelper.cs](./API//TodoListAPI/Services/GraphHelper.cs) to process groups overage claim.
 
 ```csharp
-            services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(options =>
-                    {
-                        // Ensure default token validation is carried out
-                        Configuration.Bind("AzureAd");
+services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddMicrosoftIdentityWebApi(options =>
+        {
+            // code omitted for brevity...
 
-                        options.Events = new JwtBearerEvents();
+            options.Events.OnTokenValidated = async context =>
+            {
+                // code omitted for brevity...
 
-                        // The following lines code instruct the asp.net core middleware to use the data in the "roles" claim in the [Authorize] attribute, policy.RequireRole() and User.IsInrole()
-                        // See https://docs.microsoft.com/aspnet/core/security/authorization/roles for more info.
-                        options.TokenValidationParameters.RoleClaimType = "groups";
+                if (context != null)
+                {
+                    // Calls method to process groups overage claim (before policy checks kick-in)
+                    await GraphHelper.ProcessAnyGroupsOverage(context);
+                }
 
-                        /// <summary>
-                        /// Below you can do extended token validation and check for additional claims, such as:
-                        ///
-                        /// - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
-                        /// - check if the caller's account is homed or guest via the 'acct' optional claim
-                        /// - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
-                        ///
-                        /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
-                        /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
-                        /// </summary>
-
-                        options.Events.OnTokenValidated = async context =>
-                        {
-                            string[] allowedClientApps = { Configuration["AzureAd:ClientId"] }; 
-
-                            string clientappId = context?.Principal?.Claims
-                                .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
-
-                            // In this scenario, client and service (API) share the same clientId and we disallow all calls to this API, except from the SPA
-                            if (!allowedClientApps.Contains(clientappId))
-                            {
-                                throw new Exception("This client is not authorized to call this Api");
-                            }
-
-                            if (context != null)
-                            {
-                                // Calls method to process groups overage claim (before policy checks kick-in)
-                                await GraphHelper.ProcessAnyGroupsOverage(context);
-                            }
-
-                            await Task.CompletedTask;
-                        };
-                    }, options =>
-                        {
-                            Configuration.Bind("AzureAd", options);
-                        }, "Bearer", true)
-                .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
-                .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
-                .AddInMemoryTokenCaches();
+                await Task.CompletedTask;
+            };
+        }, options =>
+            {
+                Configuration.Bind("AzureAd", options);
+            }, "Bearer", true)
+    .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
+    .AddMicrosoftGraph(Configuration.GetSection("MSGraph"))
+    .AddInMemoryTokenCaches();
 ```
 
 `AddMicrosoftGraph` registers the service for `GraphServiceClient`. The values for `BaseUrl` and `Scopes` defined in `GraphAPI` section of the **appsettings.json**.
@@ -589,7 +537,11 @@ public static async Task ProcessAnyGroupsOverage(TokenValidatedContext context)
 }
 ```
 
-> :warning: In the sample, the group list is cached for 1 hr by default, and thus Cached groups will miss any changes to a users group membership for this duration. For capturing real-time changes to a user's group membership, consider implementing MS Graph change notifications (https://learn.microsoft.com/graph/api/resources/webhooks)
+> :warning: In the sample, the group list is cached for 1 hr by default, and thus Cached groups will miss any changes to a users group membership for this duration. For capturing real-time changes to a user's group membership, consider implementing [Microsoft Graph change notifications](https://learn.microsoft.com/graph/api/resources/webhooks)
+
+#### Caching user group memberships in overage scenario
+
+Lorem ipsum...
 
 ##### Group authorization policy
 

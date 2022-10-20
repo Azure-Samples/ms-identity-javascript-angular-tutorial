@@ -127,7 +127,7 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
     Install-Module "Microsoft.Graph" -Scope CurrentUser 
 }
 
-#Import-Module Microsoft.Graph
+Import-Module Microsoft.Graph
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
@@ -145,14 +145,6 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")
 {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
     Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
-}
-
-Import-Module Microsoft.Graph.Authentication
-
-if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) 
-{
-    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
-    Write-Host "Installed Microsoft.Graph.Groups module. If you are having issues, please create a new PowerShell session and try again."
 }
 
 Import-Module Microsoft.Graph.Groups
