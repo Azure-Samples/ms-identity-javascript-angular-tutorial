@@ -51,11 +51,13 @@ Function RemoveGroups
         else 
         {
             Write-Host "Couldn't find group $($groupName) with ID: $($group.Id)"
-        }       
+        }
+       
        
         $val += 1;
     }
 }
+
 
 <#.Description
     This function signs in the user to the tenant using Graph SDK.
@@ -71,18 +73,35 @@ Function ConfigureApplications
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
-        $tenantId = (Get-MgContext).TenantId
+        Connect-MgGraph -Scopes "Organization.Read.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
+            
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$currentUserPrincipalName'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
+    
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
 
     # now remove groups
     RemoveGroups
 
 }
+
 
 $ErrorActionPreference = "Stop"
 

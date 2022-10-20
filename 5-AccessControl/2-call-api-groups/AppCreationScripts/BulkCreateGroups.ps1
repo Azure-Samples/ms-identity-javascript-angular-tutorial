@@ -62,7 +62,9 @@ Function CreateGroupsAndAssignUser($user)
        
         $val += 1;
     }
+
 }
+
 
 <#.Description
     This function signs in the user to the tenant using Graph SDK.
@@ -80,24 +82,64 @@ Function ConfigureApplications
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "User.Read.All Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
-        $tenantId = (Get-MgContext).TenantId
+        Connect-MgGraph -Scopes "Organization.Read.All User.Read.All Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else 
     {
-        Connect-MgGraph -TenantId $tenantId -Scopes "User.Read.All Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -TenantId $tenantId -Scopes "Organization.Read.All User.Read.All Group.ReadWrite.All GroupMember.ReadWrite.All" -Environment $azureEnvironmentName
     }
 
-    # Add user object Id here
-    $usersobjectId = Read-Host -Prompt "Enter the object Id (from Azure portal) of the user who will assigned to these security groups"
+    $context = Get-MgContext
+    $tenantId = $context.TenantId
+
+    # Get the user running the script
+    $currentUserPrincipalName = $context.Account
+    $user = Get-MgUser -Filter "UserPrincipalName eq '$($context.Account)'"
+
+    # get the tenant we signed in to
+    $Tenant = Get-MgOrganization
+    $tenantName = $Tenant.DisplayName
     
-    $user = Get-MgUser -UserId $usersobjectId
+    $verifiedDomain = $Tenant.VerifiedDomains | where {$_.Isdefault -eq $true}
+    $verifiedDomainName = $verifiedDomain.Name
+    $tenantId = $Tenant.Id
+
+    Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
+
+    # Add user object Id here
+    $usersobjectId = Read-Host -Prompt "Enter the object Id (from Azure portal) of the user who will assigned to these security groups, or press enter to use the currently signed-in user's object Id - '$($user.Id)'"
+    
+    if ($usersobjectId -eq '')
+    {
+        $usersobjectId = $user.Id
+    }
+
+    $userassigned = Get-MgUser -UserId $usersobjectId
 
     Write-Host 'Found user -' 
-    $user | Format-List  ID, DisplayName, Mail, UserPrincipalName
+    $userassigned | Format-List  ID, DisplayName, Mail, UserPrincipalName
 
-    CreateGroupsAndAssignUser -user $user
+    CreateGroupsAndAssignUser -user $userassigned
 }
+
+# Pre-requisites
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
+    Install-Module "Microsoft.Graph" -Scope CurrentUser 
+}
+
+#Import-Module Microsoft.Graph
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
+    Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Identity.DirectoryManagement")) {
+    Install-Module "Microsoft.Graph.Identity.DirectoryManagement" -Scope CurrentUser 
+}
+
+Import-Module Microsoft.Graph.Identity.DirectoryManagement
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) 
 {
@@ -109,7 +151,7 @@ Import-Module Microsoft.Graph.Authentication
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) 
 {
-    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
     Write-Host "Installed Microsoft.Graph.Groups module. If you are having issues, please create a new PowerShell session and try again."
 }
 
@@ -117,7 +159,7 @@ Import-Module Microsoft.Graph.Groups
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Users")) 
 {
-    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser
+    Install-Module "Microsoft.Graph.Users" -Scope CurrentUser 
     Write-Host "Installed Microsoft.Graph.Users module. If you are having issues, please create a new PowerShell session and try again."
 }
 
