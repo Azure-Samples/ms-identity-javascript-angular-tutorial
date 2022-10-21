@@ -50,7 +50,7 @@ export class GraphService {
     }
 
     async getFilteredGroups(filterGroups: string[] = []): Promise<string[]> {
-        const groups: string[] = [];
+        let groups: string[] = [];
 
         try {
             const accessToken = await this.getToken(protectedResources.apiGraph.scopes);
@@ -64,7 +64,8 @@ export class GraphService {
                     groupIds: filterGroups
                 });
 
-            return response.value;
+            groups = response.value;
+            return groups;
         } catch (error) {
             console.log(error);
         }
