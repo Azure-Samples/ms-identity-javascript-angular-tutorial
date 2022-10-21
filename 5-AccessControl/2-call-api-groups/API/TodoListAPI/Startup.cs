@@ -20,11 +20,25 @@ namespace TodoListAPI
 {
     public class Startup
     {
+        public List<string> allowedClientApps;
+        public List<string> requiredGroupsIds;
+        public CacheSettings cacheSettings;
         public IConfiguration Configuration { get; }
 
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+
+            allowedClientApps = new List<string>() { Configuration["AzureAd:ClientId"] };
+
+            requiredGroupsIds = Configuration.GetSection("AzureAd:Groups")
+                .AsEnumerable().Select(x => x.Value).Where(x => x != null).ToList();
+
+            cacheSettings = new CacheSettings
+            {
+                SlidingExpirationInSeconds = Configuration.GetValue<string>("CacheSettings:SlidingExpirationInSeconds"),
+                AbsoluteExpirationInSeconds = Configuration.GetValue<string>("CacheSettings:AbsoluteExpirationInSeconds")
+            };
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
@@ -62,24 +76,13 @@ namespace TodoListAPI
 
                         options.Events.OnTokenValidated = async context =>
                         {
-                            string[] allowedClientApps = { Configuration["AzureAd:ClientId"] };
-
-                            List<string> requiredGroupsIds = Configuration.GetSection("AzureAd:Groups")
-                                .AsEnumerable().Select(x => x.Value).Where(x => x != null).ToList();
-
-                            CacheSettings cacheSettings = new CacheSettings
-                            {
-                                SlidingExpirationInSeconds = Configuration.GetValue<string>("CacheSettings:SlidingExpirationInSeconds"),
-                                AbsoluteExpirationInSeconds = Configuration.GetValue<string>("CacheSettings:AbsoluteExpirationInSeconds")
-                            };
-
                             string clientAppId = context?.Principal?.Claims
                                 .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
                             // In this scenario, client and service (API) share the same clientId and we disallow all calls to this API, except from the SPA
                             if (!allowedClientApps.Contains(clientAppId))
                             {
-                                throw new Exception("This client is not authorized to call this Api");
+                                throw new Exception("This client is not authorized to call this API");
                             }
 
                             if (context != null)

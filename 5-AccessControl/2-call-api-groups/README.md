@@ -156,7 +156,7 @@ To manually register the apps, as a first step you'll need to:
 
 #### Register the app (msal-angular-app)
 
-> :information_source: Below, we are using a single app registration for both SPA and web API projects.
+> :information_source: Below, we are using a single app registration for both SPA and web API projects. We will configure the web API to accept only the calls coming from this client SPA.
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
@@ -285,7 +285,7 @@ You have two different options available to you on how you can further configure
 
 ###### Prerequisites, benefits and limitations of using this option
 
-1. This option is useful when your application is interested in a selected set of groups that a signing-in user may be assigned to and not every security group this user is assigned to in the tenant.  This option also saves your application from running into the [overage](#groups-overage-claim) issue.
+1. This option is useful when your application is interested in a selected set of groups that a signing-in user may be assigned to and not every security group this user is assigned to in the tenant.  This option also saves your application from running into the [overage](#the-groups-overage-claim) issue.
 1. This feature is not available in the [Azure AD Free edition](https://azure.microsoft.com/pricing/details/active-directory/).
 1. **Nested group assignments** are not available when this option is utilized.
 
@@ -381,7 +381,7 @@ To provide feedback on or suggest features for Azure Active Directory, visit [Us
 
 ## About the code
 
-Much of the specifics of implementing **RBAC** with **Security Groups** is the same with implementing **RBAC** with **App Roles** discussed in the [previous tutorial](../1-call-api-roles/README.md). In order to avoid redundancy, here we discuss particular issues that might arise with using the **groups** claim.
+Much of the specifics of implementing **RBAC** with **Security Groups** is the same with implementing **RBAC** with **App Roles** discussed in the [previous tutorial](../1-call-api-roles/README.md). In order to avoid redundancy, here we discuss particular issues, such as **groups overage**, that might arise with using the **groups** claim.
 
 ### The Groups Overage Claim
 
@@ -403,13 +403,13 @@ If a user is member of more groups than the overage limit (**150 for SAML tokens
 1. In case you cannot avoid running into group overage, we suggest you use the following logic to process groups claim in your token.  
     1. Check for the claim `_claim_names` with one of the values being `groups`. This indicates overage.
     1. If found, make a call to the endpoint specified in `_claim_sources` to fetch user’s groups.
-    1. If none found, look into the `groups`  claim for user’s groups.
+    1. If none found, look into the `groups` claim for user’s groups.
 
 > You can gain a good familiarity of programming for Microsoft Graph by going through the [An introduction to Microsoft Graph for developers](https://www.youtube.com/watch?v=EBbnpFdB92A) recorded session.
 
 ##### Angular Group Guard
 
-Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the user's ID token has the `_claim_names` claim with the value `groups`, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/memberOf` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated groupIDs among this list.
+Consider the [group.guard.ts](./SPA/src/app/group.guard.ts). Here, we are checking whether the user's ID token has the `_claim_names` claim with the value `groups`, which indicates that the user has too many group memberships. If so, we redirect the user to the [overage](./SPA/src/app/overage/overage.component.ts) component. There, we initiate a call to MS Graph API's `https://graph.microsoft.com/v1.0/me/checkMemberGroups` endpoint to query the required list of groups that the user belongs to. Finally we check for the designated group IDs among this list:
 
 ```typescript
 @Injectable()
@@ -493,7 +493,7 @@ const routes: Routes = [
 
 #### .NET Core web API and how to handle the overage scenario
 
-1. In [Startup.cs](./API/TodoListAPI/Startup.cs), `OnTokenValidated` event calls **GetSignedInUsersGroups** method defined in [GraphHelper.cs](./API//TodoListAPI/Services/GraphHelper.cs) to process groups overage claim.
+1. In [Startup.cs](./API/TodoListAPI/Startup.cs), `OnTokenValidated` event calls **ProcessAnyGroupsOverage** method defined in [GraphHelper.cs](./API//TodoListAPI/Services/GraphHelper.cs) to process groups overage claim.
 
 ```csharp
 services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -508,7 +508,7 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 if (context != null)
                 {
                     // Calls method to process groups overage claim (before policy checks kick-in)
-                    await GraphHelper.ProcessAnyGroupsOverage(context);
+                    await GraphHelper.ProcessAnyGroupsOverage(context, requiredGroupsIds);
                 }
 
                 await Task.CompletedTask;
@@ -524,24 +524,22 @@ services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 `AddMicrosoftGraph` registers the service for `GraphServiceClient`. The values for `BaseUrl` and `Scopes` defined in `GraphAPI` section of the **appsettings.json**.
 
-1. In [GraphHelper.cs](./API/TodoListAPI/Utils/GraphHelper.cs), **ProcessAnyGroupsOverage** method checks if incoming token contains the *Group Overage* claim. If so, it will call **ProcessUserGroupsForOverage** method to retrieve groups.
+1. In [GraphHelper.cs](./API/TodoListAPI/Utils/GraphHelper.cs), **ProcessAnyGroupsOverage** method checks if incoming token contains the *Group Overage* claim. If so, it will call **ProcessUserGroupsForOverage** method to retrieve groups, which in turn calls the Microsoft Graph `/checkMemberGroups` endpoint.
 
 ```csharp
 public static async Task ProcessAnyGroupsOverage(TokenValidatedContext context)
 {
-    // Checks if the incoming token contained a 'Group Overage' claim.
+    // Checks if the incoming token containes a groups overage claim.
     if (HasOverageOccurred(context.Principal))
     {
-        await ProcessUserGroupsForOverage(context);
+        await ProcessUserGroupsForOverage(context, requiredGroupsIds);
     }
 }
 ```
 
-> :warning: In the sample, the group list is cached for 1 hr by default, and thus Cached groups will miss any changes to a users group membership for this duration. For capturing real-time changes to a user's group membership, consider implementing [Microsoft Graph change notifications](https://learn.microsoft.com/graph/api/resources/webhooks)
-
 #### Caching user group memberships in overage scenario
 
-Lorem ipsum...
+Since overaged tokens will not contain group membership IDs, yet these IDs are required for controlling access to pages and/or resources, applications have to call Microsoft Graph whenever a user action (e.g. accessing a page on the UI, accessing a todolist item in the web API etc.) takes place. These network calls are costly and will impact the application performance and user experience. As such, both the SPA and web API projects here would benefit from caching the group membership IDs once they are fetched from Microsoft Graph for the first time. By default, these are cached for 1 hour in the sample. Cached groups will miss any changes to a users group membership for this duration. If you need more fine grained control, you can configure cache duration in [auth-config.ts](./SPA/src/app/auth-config.ts) for the SPA and in [appsettings.json](./API/TodoListAPI/appsettings.json) for the web API. If your scenario requires capturing real-time changes to a user's group membership, consider implementing [Microsoft Graph change notifications](https://learn.microsoft.com/graph/api/resources/webhooks) instead.
 
 ##### Group authorization policy
 

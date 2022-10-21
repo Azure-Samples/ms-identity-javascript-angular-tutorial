@@ -20,7 +20,6 @@ export const msalConfig: Configuration = {
         authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
         postLogoutRedirectUri: '/', // Points to window.location.origin by default.
-        clientCapabilities: ['CP1'] // This lets the resource server know that this client can handle claim challenges.
     },
     cache: {
         cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
@@ -51,7 +50,7 @@ export const protectedResources = {
         scopes: ["api://Enter_the_Web_Api_Application_Id_Here/access_via_group_assignments"]
     },
     apiGraph: {
-        endpoint: "https://graph.microsoft.com/v1.0/me/memberOf",
+        endpoint: "https://graph.microsoft.com/v1.0/me/checkMemberGroups",
         scopes: ["User.Read", "GroupMember.Read.All"]
     }
 }
