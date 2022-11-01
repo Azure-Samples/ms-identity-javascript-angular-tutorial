@@ -43,21 +43,44 @@ Function CreateGroupsAndAssignUser($user)
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
         $groupNameLower =  $groupName.ToLower();
         $nickName = $groupNameLower.replace(' ','');
+
         if ($group) 
         {
-            Write-Host "Group $($group.DisplayName) already exists"
+            Write-Host "Group '$($group.DisplayName)' already exists"
+            $newsg = $group
         }
         else
         {
-            $newsg = New-MgGroup -DisplayName $groupName -MailEnabled:$False -MailNickName $nickName  -SecurityEnabled
-            Write-Host "Successfully created group '$($newsg.DisplayName)'" 
+            try
+            {
+                $newsg = New-MgGroup -DisplayName $groupName -MailEnabled:$False -MailNickName $nickName  -SecurityEnabled                
+                Write-Host "Successfully created group '$($newsg.DisplayName)'"
+            }
+            catch 
+            {
+                $_.Exception.ToString() | out-host
+                $message = $_
+                Write-Warning $Error[0]
+                Write-Host "Unable to create group '$($newsg.DisplayName)'. Error is $message." -ForegroundColor White -BackgroundColor Red
+            }
+        }
+
             $userId = $user.Id
             $params = @{
-                "@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/{$userId}"
+            "@odata.id"="https://graph.microsoft.com/v1.0/users/$userId"
             }
 
+        try
+        {
             New-MgGroupMemberByRef -GroupId $newsg.Id -BodyParameter $params
             Write-Host "Successfully assigned user to group '$($newsg.DisplayName)'"
+        }
+        catch 
+        {
+            $_.Exception.ToString() | out-host
+            $message = $_
+            Write-Warning $Error[0]
+            Write-Host "Unable to assign user to group '$($newsg.DisplayName)'. Error is $message." -ForegroundColor White -BackgroundColor Red
         }
        
         $val += 1;
@@ -127,7 +150,7 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph")) {
     Install-Module "Microsoft.Graph" -Scope CurrentUser 
 }
 
-Import-Module Microsoft.Graph
+#Import-Module Microsoft.Graph
 
 if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")) {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
@@ -145,6 +168,14 @@ if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Authentication")
 {
     Install-Module "Microsoft.Graph.Authentication" -Scope CurrentUser 
     Write-Host "Installed Microsoft.Graph.Authentication module. If you are having issues, please create a new PowerShell session and try again."
+}
+
+Import-Module Microsoft.Graph.Authentication
+
+if ($null -eq (Get-Module -ListAvailable -Name "Microsoft.Graph.Groups")) 
+{
+    Install-Module "Microsoft.Graph.Groups" -Scope CurrentUser 
+    Write-Host "Installed Microsoft.Graph.Groups module. If you are having issues, please create a new PowerShell session and try again."
 }
 
 Import-Module Microsoft.Graph.Groups

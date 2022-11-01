@@ -45,12 +45,22 @@ Function RemoveGroups
         $group = Get-MgGroup -Filter "DisplayName eq '$groupName'"
         if ($group) 
         {
-            Remove-MgGroup -GroupId $group.Id
-            Write-Host "Successfully deleted '$($group.DisplayName)'"
+            try
+            {
+                Remove-MgGroup -GroupId $group.Id
+                Write-Host "Successfully deleted group named '$($group.DisplayName)'"
+            }
+            catch 
+            {
+                $_.Exception.ToString() | out-host
+                $message = $_
+                Write-Warning $Error[0]
+                Write-Host "Unable to remove group '$($newsg.DisplayName)'. Error is $message." -ForegroundColor White -BackgroundColor Red
+            }
         }
         else 
         {
-            Write-Host "Couldn't find group $($groupName) with ID: $($group.Id)"
+            Write-Host "Couldn't find group with name '$($groupName)' "
         }
        
        
@@ -73,7 +83,7 @@ Function ConfigureApplications
 
     if ($tenantId -eq "") 
     {
-        Connect-MgGraph -Scopes "Organization.Read.All Group.ReadWrite.All" -Environment $azureEnvironmentName
+        Connect-MgGraph -Scopes "User.Read.All Organization.Read.All Group.ReadWrite.All" -Environment $azureEnvironmentName
     }
     else 
     {
