@@ -31,24 +31,27 @@ export const b2cPolicies = {
 };
 
 /**
- * Configuration object to be passed to MSAL instance on creation. 
+ * Configuration object to be passed to MSAL instance on creation.
  * For a full list of MSAL.js configuration parameters, visit:
- * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md 
+ * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-browser/docs/configuration.md
  */
- export const msalConfig: Configuration = {
+export const msalConfig: Configuration = {
     auth: {
         clientId: '9067c884-9fa6-414f-9aa4-a565b1cb46be', // This is the ONLY mandatory field that you need to supply.
         authority: b2cPolicies.authorities.signUpSignIn.authority, // Defaults to "https://login.microsoftonline.com/common"
         knownAuthorities: [b2cPolicies.authorityDomain], // Mark your B2C tenant's domain as trusted.
-        redirectUri: '/', // Points to window.location.origin. You must register this URI on Azure portal/App Registration.
-        postLogoutRedirectUri: '/', // Indicates the page to navigate after logout.
-        navigateToLoginRequestUrl: true, // If "true", will navigate back to the original request location before processing the auth code response.
+        redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
+        postLogoutRedirectUri: '/', // Points to window.location.origin by default.
     },
     cache: {
         cacheLocation: BrowserCacheLocation.LocalStorage, // Configures cache location. "sessionStorage" is more secure, but "localStorage" gives you SSO between tabs.
-        storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge
+        storeAuthStateInCookie: isIE, // Set this to "true" if you are having issues on IE11 or Edge. Remove this line to use Angular Universal
     },
     system: {
+        /**
+         * Below you can configure MSAL.js logs. For more information, visit:
+         * https://docs.microsoft.com/azure/active-directory/develop/msal-logging-js
+         */
         loggerOptions: {
             loggerCallback(logLevel: LogLevel, message: string) {
                 console.log(message);
@@ -64,6 +67,6 @@ export const b2cPolicies = {
  * between applications by providing a "login_hint" property.
  */
 export const silentRequest = {
-    scopes: ["openid", "profile"],
+    scopes: [],
     loginHint: "example@domain.net"
 };
