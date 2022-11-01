@@ -56,3 +56,10 @@ jobs:
         dotnet build --no-restore
         cd TodoListAPI.Tests
         dotnet test --no-build --verbosity normal
+      
+    - run: |
+        cd 5-AccessControl/2-call-api-groups/API
+        dotnet restore
+        dotnet build --no-restore
+        cd TodoListAPI.Tests
+        dotnet test --no-build --verbosity normal

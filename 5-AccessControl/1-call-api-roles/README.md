@@ -297,7 +297,6 @@ To provide feedback on or suggest features for Azure Active Directory, visit [Us
 
 </details>
 
-
 ## About the code
 
 ### Angular RoleGuard and protected routes for role-based access control

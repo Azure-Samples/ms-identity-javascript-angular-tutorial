@@ -1,19 +1,22 @@
 .toolbar-spacer {
-  flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 a.title {
-  color: white;
+    color: white;
 }
 
 footer {
-  position:fixed;
-  bottom:0px;
-  width:100%;
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    color: white;
+    text-align: center;
 }
 
 .footer-text {
-  font-size: small;
-  text-align: center;
-  flex: 1 1 auto;
+    font-size: small;
+    text-align: center;
+    flex: 1 1 auto;
 }

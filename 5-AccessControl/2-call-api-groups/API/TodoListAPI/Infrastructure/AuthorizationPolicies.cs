@@ -1,7 +1,12 @@
-﻿namespace TodoListAPI.Utils
+﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+
+namespace TodoListAPI.Infrastructure
 {
     /// <summary>
-    /// Wrapper class the contain all the authorization policies available in this application.
+    /// Contain all the authorization policies available in this application.
     /// </summary>
     public static class AuthorizationPolicies
     {
