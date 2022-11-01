@@ -400,10 +400,10 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "groups" 
     $optionalClaims.IdToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.AccessToken += ($newClaim)
-    # $newClaim =  CreateOptionalClaim  -name "groups" 
-    # $optionalClaims.Saml2Token += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.AccessToken += ($newClaim)
+    $newClaim =  CreateOptionalClaim  -name "groups" 
+    $optionalClaims.Saml2Token += ($newClaim)
 
     # Add Optional Claims
 
