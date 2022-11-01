@@ -18,9 +18,6 @@ import { HomeComponent } from './home/home.component';
 import { ContactsComponent } from './contacts/contacts.component';
 import { AccountSwitchComponent } from './account-switch/account-switch.component';
 
-
-
-
 import {
     IPublicClientApplication,
     PublicClientApplication,
@@ -58,14 +55,14 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  */
 export function MsalGuardConfigurationFactory(): MsalGuardConfiguration {
     return {
-        interactionType: InteractionType.Redirect,
+        interactionType: InteractionType.Popup,
         authRequest: loginRequest
     };
 }
 
 /**
- * MSAL Angular will automatically retrieve tokens for resources 
- * added to protectedResourceMap. For more info, visit: 
+ * MSAL Angular will automatically retrieve tokens for resources
+ * added to protectedResourceMap. For more info, visit:
  * https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/initialization.md#get-tokens-for-web-api-calls
  */
 export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
@@ -97,18 +94,6 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
                 claims: claim,
             };
         },
-    };
-}
-
-
-/**
- * Set your default interaction type for MSALGuard here. If you have any
- * additional scopes you want the user to consent upon login, add them here as well.
- */
-export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-    return {
-        interactionType: InteractionType.Redirect,
-        authRequest: loginRequest
     };
 }
 
@@ -157,6 +142,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     MsalGuard,
     GraphService,
   ],
-  bootstrap: [AppComponent, MsalRedirectComponent],
+  bootstrap: [AppComponent],
 })
 export class AppModule {}
