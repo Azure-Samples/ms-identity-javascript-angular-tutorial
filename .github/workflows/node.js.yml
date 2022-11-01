@@ -34,46 +34,46 @@ jobs:
         cd 1-Authentication/2-sign-in-b2c/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 2-Authorization-I/1-call-graph/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 3-Authorization-II/1-call-api/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 3-Authorization-II/2-call-api-b2c/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 5-AccessControl/1-call-api-roles/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 5-AccessControl/2-call-api-groups/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 6-AdvancedScenarios/1-call-api-obo/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
 
     - run: |
         cd 6-AdvancedScenarios/2-call-api-mt/SPA
         npm ci
         npm audit --production
-        npm run test --watch=false --no-progress --browsers=ChromeHeadlessCI
+        npm run test
