@@ -2,8 +2,8 @@
     "Sample": {
         "Author": "derisen",
         "Title": "Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C",
-        "Level": 200,
-        "Client": "React SPA",
+        "Level": 100,
+        "Client": "Angular SPA",
         "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
         "Endpoint": "AAD v2.0",
         "Description": "Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C",
