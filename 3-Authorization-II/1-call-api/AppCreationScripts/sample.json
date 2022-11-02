@@ -65,7 +65,7 @@
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMyOrg",
             "HomePage": "https://localhost:4200",
-            "ReplyUrls": "http://localhost:4200",
+            "ReplyUrls": "http://localhost:4200, https://localhost:4200/auth",
             "Sample": {
                 "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
                 "ProjectDirectory": "\\1-call-api\\SPA"
