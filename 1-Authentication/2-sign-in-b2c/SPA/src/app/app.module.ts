@@ -2,11 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import {
-    MsalGuard, MsalInterceptor, MsalBroadcastService, MsalService,
+    MsalGuard, MsalBroadcastService, MsalService,
     MSAL_GUARD_CONFIG, MSAL_INSTANCE, MsalGuardConfiguration, MsalRedirectComponent
 } from '@azure/msal-angular';
 
@@ -21,7 +21,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 
-import { msalConfig } from './auth-config';
+import { loginRequest, msalConfig } from './auth-config';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -38,6 +38,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
     return {
         interactionType: InteractionType.Redirect,
+        authRequest: loginRequest
     };
 }
 
@@ -57,14 +58,9 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MatIconModule,
         MatTableModule,
         HttpClientModule,
-        FormsModule,
+        FormsModule
     ],
     providers: [
-        {
-            provide: HTTP_INTERCEPTORS,
-            useClass: MsalInterceptor,
-            multi: true
-        },
         {
             provide: MSAL_INSTANCE,
             useFactory: MSALInstanceFactory
@@ -77,6 +73,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MsalGuard,
         MsalBroadcastService
     ],
-    bootstrap: [AppComponent, MsalRedirectComponent]
+    bootstrap: [AppComponent, MsalRedirectComponent],
 })
 export class AppModule { }

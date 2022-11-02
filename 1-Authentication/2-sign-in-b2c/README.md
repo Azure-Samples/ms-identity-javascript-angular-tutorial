@@ -180,9 +180,9 @@ MSAL Angular is a wrapper around MSAL.js (i.e. *msal-browser*). As such, many of
 
 ### Configuration
 
-You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [Configuration options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md) for more information.
+You can initialize your application in several ways, for instance, by loading the configuration parameters from another server. See [configuration options](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md) for more information.
 
-In the sample, authentication parameters reside in [auth-config.ts](./SPA/src/app/auth-config.ts). These parameters then are used for initializing MSAL Angular configuration options in [app.module.ts](./SPA/src/app/app.module.ts).
+In the sample, authentication parameters reside in [auth-config.ts](./SPA/src/app/auth-config.ts). These parameters are used for initializing MSAL Angular configuration options in [app.module.ts](./SPA/src/app/app.module.ts).
 
 ### Sign-in
 
@@ -190,9 +190,9 @@ In the sample, authentication parameters reside in [auth-config.ts](./SPA/src/ap
 
 ```typescript
 export function MSALGuardConfigFactory(): MsalGuardConfiguration {
-  return { 
-    interactionType: InteractionType.Redirect,
-  };
+    return { 
+        interactionType: InteractionType.Redirect,
+    };
 }
 ```
 
@@ -201,35 +201,35 @@ Then, define a login method in [app.component.ts](./SPA/src/app/app.component.ts
 ```typescript
 export class AppComponent implements OnInit {
 
-  constructor(
+constructor(
     @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
     private authService: MsalService,
     private msalBroadcastService: MsalBroadcastService
-  ) {}
+) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
 
-  login() {
+    login() {
     if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
-      if (this.msalGuardConfig.authRequest) {
-        this.authService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
-          .subscribe((response: AuthenticationResult) => {
-            this.authService.instance.setActiveAccount(response.account);
-          });
+            if (this.msalGuardConfig.authRequest) {
+            this.authService.loginPopup({...this.msalGuardConfig.authRequest} as PopupRequest)
+                .subscribe((response: AuthenticationResult) => {
+                    this.authService.instance.setActiveAccount(response.account);
+                });
         } else {
-          this.authService.loginPopup()
-            .subscribe((response: AuthenticationResult) => {
-              this.authService.instance.setActiveAccount(response.account);
-            });
-      }
+            this.authService.loginPopup()
+                .subscribe((response: AuthenticationResult) => {
+                    this.authService.instance.setActiveAccount(response.account);
+                });
+        }
     } else {
-      if (this.msalGuardConfig.authRequest) {
-        this.authService.loginRedirect({...this.msalGuardConfig.authRequest} as RedirectRequest);
-      } else {
-        this.authService.loginRedirect();
-      }
+        if (this.msalGuardConfig.authRequest) {
+            this.authService.loginRedirect({...this.msalGuardConfig.authRequest} as RedirectRequest);
+        } else {
+            this.authService.loginRedirect();
+        }
     }
-  }
+    }
 }
 ```
 
@@ -238,26 +238,26 @@ If you already have a session that exists with the authentication server, you ca
 ```typescript
 export class AppComponent implements OnInit {
 
-  constructor(
-    private authService: MsalService,
-  ) {}
+constructor(
+private authService: MsalService,
+) {}
 
-  ngOnInit(): void {
+ngOnInit(): void {
     const silentRequest: SsoSilentRequest = {
-      scopes: ["User.Read"],
-      loginHint: "user@contoso.com"
+        scopes: ["User.Read"],
+        loginHint: "user@contoso.com"
     }
 
     this.authService.ssoSilent(silentRequest)
-      .subscribe({
-        next: (result: AuthenticationResult) => {
-          console.log("SsoSilent succeeded!");
-        }, 
-        error: (error) => {
-          this.authService.loginRedirect();
-        }
-      });
-  }
+        .subscribe({
+            next: (result: AuthenticationResult) => {
+                console.log("SsoSilent succeeded!");
+            }, 
+            error: (error) => {
+                this.authService.loginRedirect();
+            }
+        });
+   }
 }
 ```
 
@@ -269,22 +269,22 @@ The sign-out clears the user's single sign-on session with **Azure AD B2C**, but
 
 ### ID Token Validation
 
-When you receive an [ID token](https://docs.microsoft.com/azure/active-directory/develop/id-tokens) directly from the IdP on a secure channel (e.g. HTTPS), such is the case with SPAs, there’s no need to validate it. If you were to do it, you would validate it by asking the same server that gave you the ID token to give you the keys needed to validate it, which renders it pointless, as if one is compromised so is the other.
+When you receive an [ID token](https://learn.microsoft.com/azure/active-directory-b2c/tokens-overview) directly from the IdP on a secure channel (e.g. HTTPS), such is the case with SPAs, there’s no need to validate it. If you were to do it, you would validate it by asking the same server that gave you the ID token to give you the keys needed to validate it, which renders it pointless, as if one is compromised so is the other.
 
 ### Securing Routes
 
-You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes. This ensures that the user must be signed-in to access the secured route.
+You can add authentication to secure specific routes in your application by just adding `canActivate: [MsalGuard]` to your route definition. It can be added at the parent or child routes. This ensures that the user must be signed-in to access the secured route. See [app-routing.module.ts](./SPA/src/app/app-routing.module.ts) for more.
 
 ```typescript
-    const routes: Routes = [
-        {
-            path: 'guarded',
-            component: GuardedComponent,
-            canActivate: [ 
-                MsalGuard 
-            ]
-        }
-    ]
+const routes: Routes = [
+    {
+        path: 'guarded',
+        component: GuardedComponent,
+        canActivate: [ 
+            MsalGuard 
+        ]
+    }
+]
 ```
 
 ### Events API
@@ -297,25 +297,25 @@ Using the event API, you can register an event callback that will do something w
 ```typescript
 export class HomeComponent implements OnInit {
 
-  private readonly _destroying$ = new Subject<void>();
+    private readonly _destroying$ = new Subject<void>();
+    
+    constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
 
-  constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
+    ngOnInit(): void {
+        this.msalBroadcastService.msalSubject$
+            .pipe(
+            filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
+            takeUntil(this._destroying$)
+            )
+            .subscribe((result: EventMessage) => {
+            // do something with the result, such as accessing ID token
+            });
+    }
 
-  ngOnInit(): void {
-    this.msalBroadcastService.msalSubject$
-      .pipe(
-        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
-        takeUntil(this._destroying$)
-      )
-      .subscribe((result: EventMessage) => {
-        // do something with the result, such as accessing ID token
-      });
-  }
-
-  ngOnDestroy(): void {
-    this._destroying$.next(undefined);
-    this._destroying$.complete();
-  }
+    ngOnDestroy(): void {
+        this._destroying$.next(undefined);
+        this._destroying$.complete();
+    }
 }
 ```
 
@@ -329,20 +329,46 @@ This user-flow allows your users to sign-in to your application if the user has 
 
 * **Edit Profile**
 
-When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow:
+This user-flow allows your users to update their profile information. When a user selects the **Edit Profile** button on the navigation bar, we simply initiate a sign-in flow against the edit profile user-flow authority:
 
 ```typescript
-  editProfile() {
-    let editProfileFlowRequest = {
-      scopes: ["openid"],
-      authority: b2cPolicies.authorities.editProfile.authority,
-    };
+// in app.component.ts
 
+editProfile() {
+    let editProfileFlowRequest = {
+        scopes: ["openid"],
+        authority: b2cPolicies.authorities.editProfile.authority,
+    };
+    
     this.login(editProfileFlowRequest);
-  }
+}
 ```
 
-Like password reset, edit profile user-flow requires users to sign-out and sign-in again.
+* **Password Reset**
+
+Password reset user-flow allows your users to change their password in case they forgot it or etc. When a user selects the **forgot my password** link on Azure AD B2C sing-in page, the B2C service will throw an error to the application, of which the application must catch and handle it by initiating a login against the password-reset user-flow authority.
+
+```typescript
+// in app.component.ts
+
+this.msalBroadcastService.msalSubject$
+    .pipe(
+        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_FAILURE || msg.eventType === EventType.ACQUIRE_TOKEN_FAILURE),
+        takeUntil(this._destroying$)
+    )
+    .subscribe((result: EventMessage) => {
+        // Checking for the forgot password error. Learn more about B2C error codes at
+        // https://learn.microsoft.com/azure/active-directory-b2c/error-codes
+        if (result.error && result.error.message.indexOf('AADB2C90118') > -1) {
+            let resetPasswordFlowRequest: RedirectRequest | PopupRequest = {
+                authority: b2cPolicies.authorities.resetPassword.authority,
+                scopes: [],
+            };
+
+            this.login(resetPasswordFlowRequest);
+        };
+    });
+```
 
 ## Next Steps
 

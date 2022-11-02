@@ -67,8 +67,19 @@ export const msalConfig: Configuration = {
 }
 
 /**
+ * Scopes you add here will be prompted for user consent during sign-in.
+ * By default, MSAL.js will add OIDC scopes (openid, profile) to any login request.
+ * For more information about OIDC scopes, visit:
+ * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
+ */
+export const loginRequest = {
+    scopes: []
+}
+
+/**
  * An optional silentRequest object can be used to achieve silent SSO
- * between applications by providing a "login_hint" property.
+ * between applications by providing a "loginHint" property. For more, visit:
+ * https://learn.microsoft.com/en-us/azure/active-directory/develop/msal-js-sso#sso-between-different-apps
  */
 export const silentRequest = {
     scopes: [],
