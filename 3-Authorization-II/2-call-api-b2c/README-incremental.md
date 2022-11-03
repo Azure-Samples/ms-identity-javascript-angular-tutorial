@@ -1,28 +1,28 @@
 
 # Angular single-page application that authenticates users with Azure AD B2C and calls a protected .NET Core web API
 
- 1. [Overview](#overview)
- 1. [Scenario](#scenario)
- 1. [Contents](#contents)
- 1. [Setup](#setup)
- 1. [Registration](#registration)
- 1. [Running the sample](#running-the-sample)
- 1. [Explore the sample](#explore-the-sample)
- 1. [About the code](#about-the-code)
- 1. [More information](#more-information)
- 1. [Community Help and Support](#community-help-and-support)
- 1. [Contributing](#contributing)
+* [Overview](#overview)
+* [Scenario](#scenario)
+* [Prerequisites](#prerequisites)
+* [Explore the sample](#explore-the-sample)
+* [Troubleshooting](#troubleshooting)
+* [About the code](#about-the-code)
+* [Next Steps](#next-steps)
+* [Contributing](#contributing)
 
 ## Overview
 
 This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (M.I.W) for the web API.
 
+> :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
+
 ## Scenario
 
-1. The client Angular SPA uses **MSAL Angular** to sign-in and obtain a JWT access token from **Azure AD B2C**.
-2. The access token is used as a bearer token to authorize the user to call the .NET Core web API protected by **Azure AD B2C**.
+1. The client Angular SPA uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to sign-in a user and obtain a JWT [Access Token](https://aka.ms/access-tokens) from **Azure AD B2C**.
+1. The access token is used as a *bearer* token to authorize the user to call the .NET Core web API protected by **Azure AD B2C**.
+1. The service uses the [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web) to protect the Web api, check permissions and validate tokens.
 
-![Overview](./ReadmeFiles/topology.png)
+![Scenario Image](./ReadmeFiles/topology.png)
 
 ## Contents
 

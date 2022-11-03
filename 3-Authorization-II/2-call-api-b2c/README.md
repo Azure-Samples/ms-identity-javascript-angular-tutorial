@@ -46,11 +46,23 @@ This sample demonstrates an Angular single-page application (SPA) calling a ASP.
 
 ![Scenario Image](./ReadmeFiles/topology.png)
 
+## Contents
+
+| File/folder                         | Description                                                |
+|-------------------------------------|------------------------------------------------------------|
+| `SPA/src/app/auth-config.ts`        | Authentication parameters for SPA project reside here.     |
+| `SPA/src/app/app.module.ts`         | MSAL Angular is initialized here.                          |
+| `API/TodoListAPI/appsettings.json`  | Authentication parameters for API project reside here.     |
+| `API/TodoListAPI/Startup.cs`        | Microsoft.Identity.Web is initialized here.                |
+| `API/TodoListAPI/Controllers/TodoListController.cs` | Contains logic for controlling access to data. |
+
 ## Prerequisites
 
 * Either [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/download) and [.NET Core SDK](https://www.microsoft.com/net/learn/get-started)
 * An **Azure AD B2C** tenant. For more information, see: [How to get an Azure AD B2C tenant](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-tenant)
 * A user account in your **Azure AD B2C** tenant.## Setup the sample
+
+## Setup the sample
 
 ### Step 1: Clone or download this repository
 
