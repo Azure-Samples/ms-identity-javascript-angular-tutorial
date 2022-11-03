@@ -16,7 +16,7 @@ namespace TodoListAPI.Tests
         }
 
         [Fact]
-        public void ShouldNotContainClientId()
+        public void ShouldContainClientId()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
             var clientId = myConfiguration.GetSection("AzureAd")["ClientId"];
@@ -25,16 +25,7 @@ namespace TodoListAPI.Tests
         }
 
         [Fact]
-        public void ShouldNotContainTenantId()
-        {
-            var myConfiguration = ConfigurationTests.InitConfiguration();
-            var tenantId = myConfiguration.GetSection("AzureAd")["TenantId"];
-
-            Assert.True(Guid.TryParse(tenantId, out var theGuid));
-        }
-
-        [Fact]
-        public void ShouldNotContainDomain()
+        public void ShouldContainDomain()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
             var domain = $"https://{myConfiguration.GetSection("AzureAd")["Domain"]}";
