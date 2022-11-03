@@ -262,78 +262,27 @@ For validation and debugging purposes, developers can decode **JWT**s (*JSON Web
 
 ### Verifying permissions
 
-Access tokens that have neither the **scp** (for delegated permissions) nor **roles** (for application permissions) claim with the required scopes/permissions should not be accepted. In the sample, this is illustrated via the `RequiredScopeOrAppPermission` attribute in [TodoListController.cs](./API/TodoListAPI/Controllers/TodoListController.cs):
-
-```csharp
-[HttpGet]
-/// <summary>
-/// An access token issued by Azure AD will have at least one of the two claims. Access tokens
-/// issued to a user will have the 'scp' claim. Access tokens issued to an application will have
-/// the roles claim. Access tokens that contain both claims are issued only to users, where the scp
-/// claim designates the delegated permissions, while the roles claim designates the user's role.
-/// </summary>
-[RequiredScopeOrAppPermission(
-    AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
-    AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
-)]
-public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
-{
-    // route logic ...
-}
-```
-
-### Access to data
-
-Web API endpoints should be prepared to accept calls from both users and applications, and should have control structures in place to respond to each accordingly. For instance, a call from a user via delegated permissions should be responded with user's data, while a call from an application via application permissions might be responded with the entire todolist. This is illustrated in the [TodoListController](./API/TodoListAPI/Controllers/TodoListController.cs) controller:
+Access tokens that does not have the **scp** (for delegated permissions) claim with the required scopes/permissions should not be accepted. In the sample, this is illustrated via the `RequiredScope` attribute in [TodoListController.cs](./API/TodoListAPI/Controllers/TodoListController.cs):
 
 ```csharp
 // GET: api/TodoItems
 [HttpGet]
-[RequiredScopeOrAppPermission(
-    AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
-    AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
-)]
+[RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
 public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
 {
-    if (!IsAppOnlyToken())
-    {
-        /// <summary>
-        /// The 'oid' (object id) is the only claim that should be used to uniquely identify
-        /// a user in an Azure AD tenant. The token might have one or more of the following claim,
-        /// that might seem like a unique identifier, but is not and should not be used as such:
-        ///
-        /// - upn (user principal name): might be unique amongst the active set of users in a tenant
-        /// but tend to get reassigned to new employees as employees leave the organization and others
-        /// take their place or might change to reflect a personal change like marriage.
-        ///
-        /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
-        /// to new employees as employees leave the organization and others take their place.
-        /// </summary>
-        return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
-    }
-    else
-    {
-        return await _context.TodoItems.ToListAsync();
-    }
-}
-
-/// <summary>
-/// Indicates if the AT presented has application or delegated permissions.
-/// </summary>
-/// <returns></returns>
-private bool IsAppOnlyToken()
-{
-    // Add in the optional 'idtyp' claim to check if the access token is coming from an application or user.
-    // See: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims
-    if (HttpContext.User.Claims.Any(c => c.Type == "idtyp"))
-    {
-        return HttpContext.User.Claims.Any(c => c.Type == "idtyp" && c.Value == "app");
-    }
-    else
-    {
-        // alternatively, if an AT contains the roles claim but no scp claim, that indicates it's an app token
-        return HttpContext.User.Claims.Any(c => c.Type == "roles") && HttpContext.User.Claims.Any(c => c.Type != "scp");
-    }
+    /// <summary>
+    /// The 'oid' (object id) is the only claim that should be used to uniquely identify
+    /// a user in an Azure AD tenant. The token might have one or more of the following claim,
+    /// that might seem like a unique identifier, but is not and should not be used as such:
+    ///
+    /// - upn (user principal name): might be unique amongst the active set of users in a tenant
+    /// but tend to get reassigned to new employees as employees leave the organization and others
+    /// take their place or might change to reflect a personal change like marriage.
+    ///
+    /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
+    /// to new employees as employees leave the organization and others take their place.
+    /// </summary>
+    return await _TodoListContext.TodoItems.Where(x => x.Owner == _currentPrincipalId).ToListAsync();
 }
 ```
 
