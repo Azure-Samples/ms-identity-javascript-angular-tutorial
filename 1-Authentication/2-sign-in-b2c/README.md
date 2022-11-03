@@ -25,11 +25,13 @@ extensions:
 * [Scenario](#scenario)
 * [Contents](#contents)
 * [Prerequisites](#prerequisites)
+* [Setup the sample](#setup-the-sample)
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
 * [Next Steps](#next-steps)
 * [Contributing](#contributing)
+* [Learn More](#learn-more)
 
 ## Overview
 
@@ -170,8 +172,7 @@ Make sure that your questions or comments are tagged with [`azure-active-directo
 
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
-To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
-
+To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/d365community/forum/79b1327d-d925-ec11-b6e6-000d3a4f06a4).
 </details>
 
 ## About the code
@@ -382,6 +383,8 @@ Learn how to:
 If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.md).
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
+## Learn More
 
 * [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
 * [Application types that can be used in Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/application-types)
