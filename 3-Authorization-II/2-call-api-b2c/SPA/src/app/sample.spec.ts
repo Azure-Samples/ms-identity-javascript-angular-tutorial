@@ -57,7 +57,7 @@ describe('Ensure that the app starts', () => {
     it('should not navigate to guarded component', async () => {
         const { router, run } = setup();
 
-        const canNavigate = await run(() => router.navigateByUrl('/todo-view'));
+        const canNavigate = await run(() => router.navigateByUrl('/guarded'));
 
         expect(canNavigate).toBe(false);
     });
@@ -67,7 +67,7 @@ function setup() {
 
     function MSALGuardConfigFactory(): MsalGuardConfiguration {
         return {
-            interactionType: InteractionType.Redirect,
+            interactionType: InteractionType.Popup,
         };
     }
 
