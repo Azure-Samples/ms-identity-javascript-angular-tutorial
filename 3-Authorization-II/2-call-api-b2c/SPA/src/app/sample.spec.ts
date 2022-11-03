@@ -2,7 +2,7 @@ import { Router } from '@angular/router';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 
-import { MSAL_GUARD_CONFIG, MsalGuardConfiguration} from '@azure/msal-angular';
+import { MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
 import { InteractionType } from '@azure/msal-browser';
 
 import { msalConfig } from './auth-config';
@@ -57,7 +57,7 @@ describe('Ensure that the app starts', () => {
     it('should not navigate to guarded component', async () => {
         const { router, run } = setup();
 
-        const canNavigate = await run(() => router.navigateByUrl('/guarded'));
+        const canNavigate = await run(() => router.navigateByUrl('/todo-view'));
 
         expect(canNavigate).toBe(false);
     });
@@ -67,7 +67,7 @@ function setup() {
 
     function MSALGuardConfigFactory(): MsalGuardConfiguration {
         return {
-            interactionType: InteractionType.Popup,
+            interactionType: InteractionType.Redirect,
         };
     }
 
@@ -107,3 +107,5 @@ function setup() {
         fixture: TestBed.createComponent(AppComponent)
     };
 }
+
+
