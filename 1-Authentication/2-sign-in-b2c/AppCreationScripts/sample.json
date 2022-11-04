@@ -23,6 +23,7 @@
         {
             "Id": "client",
             "Name": "msal-angular-spa",
+            "SampleSubPath": "1-Authentication\\2-sign-in-b2c\\SPA",
             "Kind": "SinglePageApplication",
             "Audience": "AzureADandPersonalMicrosoftAccount",
             "HomePage": "http://localhost:4200",

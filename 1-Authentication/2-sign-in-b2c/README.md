@@ -133,9 +133,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 To setup your B2C user-flows, do the following:
 
-1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
-1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
-1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
+1. Find the key `b2cPolicies.names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `b2cPolicies.authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `b2cPolicies.authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 
 ### Step 4: Running the sample
 
