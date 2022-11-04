@@ -27,8 +27,9 @@ namespace TodoListAPI
             // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                     .AddMicrosoftIdentityWebApi(options =>
+
                     {
-                        Configuration.Bind("AzureAd", options);
+                        Configuration.Bind("AzureAdB2C", options);
                         options.Events = new JwtBearerEvents();
 
                         /// <summary>
@@ -40,7 +41,7 @@ namespace TodoListAPI
                         /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
                         /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
                         /// </summary>
-                        
+
                         //options.Events.OnTokenValidated = async context =>
                         //{
                         //    string[] allowedClientApps = { /* list of client ids to allow */ };
@@ -53,7 +54,7 @@ namespace TodoListAPI
                         //        throw new System.Exception("This client is not authorized");
                         //    }
                         //};
-                    }, options => { Configuration.Bind("AzureAd", options); });
+                    }, options => { Configuration.Bind("AzureAdB2C", options); });
 
             // The following flag can be used to get more descriptive errors in development environments
             IdentityModelEventSource.ShowPII = false;

@@ -124,7 +124,7 @@ export const createClaimsTable = (claims: Record<string, string>): any[] => {
                 populateClaim(
                     key,
                     claims[key],
-                    'The sub claim is a pairwise identifier - it is unique to a particular application ID. If a single user signs into two different apps using two different client IDs, those apps will receive two different values for the subject claim.',
+                    'The principal about which the token asserts information, such as the user of an application. This value is immutable and can nott be reassigned or reused. It can be used to perform authorization checks safely, such as when the token is used to access a resource. By default, the subject claim is populated with the object ID of the user in the directory.',
                     claimsTable
                 );
                 break;

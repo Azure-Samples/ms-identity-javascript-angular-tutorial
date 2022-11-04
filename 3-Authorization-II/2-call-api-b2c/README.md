@@ -160,7 +160,8 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Open the `API\TodoListAPI\appsettings.json` file.
 1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name e.g.`https://{tenantName}.b2clogin.com`.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
-1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name e.g.`{tenantName}.onmicrosoft.com`
+1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name e.g. `{tenantName}.onmicrosoft.com`
+1. Find the key `SignUpSignInPolicyId` and replace the existing value with the user-flow/custom policy Id that you will call this API with e.g. `b2c_1_susi` (:warning: this should match the policy ID in the default authority in SPA project configuration).
 
 #### Register the client app (msal-angular-spa)
 
@@ -182,8 +183,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. Select the **Add a permission** button and then:
     1. Ensure that the **My APIs** tab is selected.
     1. In the list of APIs, select the API `msal-dotnet-api`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
+    1. In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
 1. At this stage, the permissions are assigned correctly, but since it's a B2C tenant, the users themselves cannot consent to these permissions. To get around this problem, we'd let the [tenant administrator consent on behalf of all users in the tenant](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). Select the **Grant admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all accounts in the tenant. You need to be a tenant admin to be able to carry out this operation.
 

@@ -2,11 +2,11 @@
 
 * [Overview](#overview)
 * [Scenario](#scenario)
-* [Prerequisites](#prerequisites)
+* [Setup the sample](#setup-the-sample)
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
-* [Next Steps](#next-steps)
+* [Next tutorial](#next-tutorial)
 * [Contributing](#contributing)
 
 ## Overview
@@ -130,6 +130,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name e.g.`https://{tenantName}.b2clogin.com`.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
 1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name e.g.`{tenantName}.onmicrosoft.com`
+1. Find the key `SignUpSignInPolicyId` and replace the existing value with the user-flow/custom policy Id that you will call this API with e.g. `b2c_1_susi` (:warning: this should match the policy ID in the default authority in SPA project configuration).
 
 #### Register the client app (msal-angular-spa)
 

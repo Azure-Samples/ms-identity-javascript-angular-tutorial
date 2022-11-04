@@ -37,7 +37,7 @@ namespace TodoListAPI.Controllers
 
             if (!IsAppOnlyToken() && _currentPrincipal != null)
             {
-                _currentPrincipalId = _currentPrincipal.GetObjectId();
+                _currentPrincipalId = _currentPrincipal.GetHomeObjectId(); // use "sub" claim as a unique identifier in B2C
                 PopulateDefaultToDos(_currentPrincipalId);
             }
         }
@@ -45,7 +45,7 @@ namespace TodoListAPI.Controllers
         // GET: api/todolist/getAll
         [HttpGet]
         [Route("getAll")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Read")]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
         {
             return await _TodoListContext.TodoItems.ToListAsync();
@@ -53,12 +53,12 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems
         [HttpGet]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Read")]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
             /// <summary>
-            /// The 'oid' (object id) is the only claim that should be used to uniquely identify
-            /// a user in an Azure AD tenant. The token might have one or more of the following claim,
+            /// The 'oid' (object id) is the only claim (alternatively "sub" claim in B2C) that should be used to uniquely 
+            /// identify a user in an Azure AD tenant. The token might have one or more of the following claim,
             /// that might seem like a unique identifier, but is not and should not be used as such:
             ///
             /// - upn (user principal name): might be unique amongst the active set of users in a tenant
@@ -73,7 +73,7 @@ namespace TodoListAPI.Controllers
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Read")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Read")]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
             return await _TodoListContext.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == _currentPrincipalId);
@@ -83,7 +83,7 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Write")]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
             if (id != todoItem.Id || !_TodoListContext.TodoItems.Any(x => x.Id == id))
@@ -119,7 +119,7 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Write")]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
             todoItem.Owner = _currentPrincipalId;
@@ -133,7 +133,7 @@ namespace TodoListAPI.Controllers
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
-        [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:Scopes:Write")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Write")]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
             TodoItem todoItem = await _TodoListContext.TodoItems.FindAsync(id);
