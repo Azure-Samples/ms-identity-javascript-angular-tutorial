@@ -161,7 +161,6 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name e.g.`https://{tenantName}.b2clogin.com`.
 1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
 1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name e.g.`{tenantName}.onmicrosoft.com`
-1. Find the key `SignUpSignInPolicyId` and replace the existing value with your sign-up/sign-in user-flow string e.g. `b2c_1_susi`.
 
 #### Register the client app (msal-angular-spa)
 
@@ -186,7 +185,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
       * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
       * In the **Delegated permissions** section, select **ToDoList.Read**, **ToDoList.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
-1.  At this stage, the permissions are assigned correctly, but since it's a B2C tenant, the users themselves cannot consent to these permissions. To get around this problem, we'd let the [tenant administrator consent on behalf of all users in the tenant](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). Select the **Grant admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all accounts in the tenant. You need to be a tenant admin to be able to carry out this operation.
+1. At this stage, the permissions are assigned correctly, but since it's a B2C tenant, the users themselves cannot consent to these permissions. To get around this problem, we'd let the [tenant administrator consent on behalf of all users in the tenant](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). Select the **Grant admin consent for {tenant}** button, and then select **Yes** when you are asked if you want to grant consent for the requested permissions for all accounts in the tenant. You need to be a tenant admin to be able to carry out this operation.
 
 ##### Configure the client app (msal-angular-spa) to use your app registration
 
@@ -195,13 +194,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant domain, ex. `contoso.onmicrosoft.com`.
+1. Find the key `msalConfig.clientId` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `protectedResources.scopes.read` and replace the existing value with the `ToDoList.Read` scope you have exposed in the `msal-dotnet-api` registration steps earlier e.g. `https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.Read`
+1. Find the key `protectedResources.scopes.write` and replace the existing value with the `ToDoList.ReadWrite` scope you have exposed in the `msal-dotnet-api` registration steps earlier e.g. `https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.ReadWrite`
+
 To setup your B2C user-flows, do the following:
 
-1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
-1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
-1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
+1. Find the key `b2cPolicies.names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `b2cPolicies.authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `b2cPolicies.authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 
 ### Step 6: Running the sample
 

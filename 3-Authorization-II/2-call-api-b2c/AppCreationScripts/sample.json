@@ -27,6 +27,7 @@
             "Id": "service",
             "Name": "msal-dotnet-api",
             "Kind": "WebApi",
+            "SampleSubPath": "3-Authorization-II\\2-call-api-b2c\\API\\TodoListAPI",
             "Audience": "AzureADandPersonalMicrosoftAccount",
             "Scopes": [
                 "ToDoList.Read",
@@ -37,6 +38,7 @@
             "Id": "client",
             "Name": "msal-angular-spa",
             "Kind": "SinglePageApplication",
+            "SampleSubPath": "3-Authorization-II\\2-call-api-b2c\\SPA",
             "Audience": "AzureADandPersonalMicrosoftAccount",
             "HomePage": "http://localhost:4200",
             "ReplyUrls": "http://localhost:4200, http://localhost:4200/auth",
