@@ -19,7 +19,7 @@ namespace TodoListAPI.Tests
         public void ShouldContainClientId()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
-            var clientId = myConfiguration.GetSection("AzureAd")["ClientId"];
+            var clientId = myConfiguration.GetSection("AzureAdB2C")["ClientId"];
 
             Assert.True(Guid.TryParse(clientId, out var theGuid));
         }
@@ -28,9 +28,17 @@ namespace TodoListAPI.Tests
         public void ShouldContainDomain()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
-            var domain = $"https://{myConfiguration.GetSection("AzureAd")["Domain"]}";
+            var domain = $"https://{myConfiguration.GetSection("AzureAdB2C")["Domain"]}";
 
             Assert.True(Uri.TryCreate(domain, UriKind.Absolute, out var uri));
+        }
+
+        [Fact]
+        public void ShouldContainInstance()
+        {
+            var myConfiguration = ConfigurationTests.InitConfiguration();
+
+            Assert.True(Uri.TryCreate(myConfiguration.GetSection("AzureAdB2C")["Instance"], UriKind.Absolute, out var uri));
         }
     }
 }
