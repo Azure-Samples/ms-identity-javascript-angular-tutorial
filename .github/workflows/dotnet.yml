@@ -19,13 +19,6 @@ jobs:
         dotnet-version: 3.1.x
 
     - run: |
-        cd 3-Authorization-II/2-call-api-b2c/API
-        dotnet restore
-        dotnet build --no-restore
-        cd TodoListAPI.Tests
-        dotnet test --no-build --verbosity normal
-
-    - run: |
         cd 6-AdvancedScenarios/1-call-api-obo/API
         dotnet restore
         dotnet build --no-restore
@@ -45,6 +38,13 @@ jobs:
 
     - run: |
         cd 3-Authorization-II/1-call-api/API
+        dotnet restore
+        dotnet build --no-restore
+        cd TodoListAPI.Tests
+        dotnet test --no-build --verbosity normal
+
+    - run: |
+        cd 3-Authorization-II/2-call-api-b2c/API
         dotnet restore
         dotnet build --no-restore
         cd TodoListAPI.Tests
