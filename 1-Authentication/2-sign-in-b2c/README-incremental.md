@@ -80,17 +80,21 @@ Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](htt
 
 Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
 
-### Register the app (msal-angular-spa)
+#### Register the app (msal-angular-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
-   - Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**.
-   - In the **Redirect URI** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
+    1. Under **Supported account types**, select **Accounts in any identity provider or organizational directory (for authenticating users with user flows)**
+    1. Select **Register** to create the application.
+1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Authentication** blade to the left.
+1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+    1. In the **Redirect URI** section enter the following redirect URIs:
+        1. `http://localhost:4200`
+        1. `http://localhost:4200/auth`
+    1. Click **Save** to save your changes.
 
 #### Configure the app (msal-angular-spa) to use your app registration
 
@@ -103,9 +107,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 To setup your B2C user-flows, do the following:
 
-1. Find the key `names` and populate it with your policy names e.g. `signUpSignIn`.
-1. Find the key `authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
-1. Find the key `authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
+1. Find the key `b2cPolicies.names` and populate it with your policy names e.g. `signUpSignIn`.
+1. Find the key `b2cPolicies.authorities` and populate it with your policy authority strings e.g. `https://<your-tenant-name>.b2clogin.com/<your-tenant-name>.onmicrosoft.com/b2c_1_susi`.
+1. Find the key `b2cPolicies.authorityDomain` and populate it with the domain portion of your authority string e.g. `<your-tenant-name>.b2clogin.com`.
 
 ## Running the sample
 
