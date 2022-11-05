@@ -18,11 +18,6 @@ namespace TodoListAPI.Controllers
     {
         private readonly TodoContext _context;
 
-        private const string _todoListRead = "TodoList.Read";
-        private const string _todoListReadWrite = "TodoList.ReadWrite";
-        private const string _todoListReadAll = "TodoList.Read.All";
-        private const string _todoListReadWriteAll = "TodoList.ReadWrite.All";
-
         public TodoListController(TodoContext context)
         {
             _context = context;
@@ -63,8 +58,8 @@ namespace TodoListAPI.Controllers
         /// https://docs.microsoft.com/azure/active-directory/develop/access-tokens#user-and-application-tokens
         /// </summary>
         [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
-            AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
+            RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
+            RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
         )]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
@@ -93,8 +88,8 @@ namespace TodoListAPI.Controllers
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
         [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListRead, _todoListReadWrite },
-            AcceptedAppPermission = new string[] { _todoListReadAll, _todoListReadWriteAll }
+            RequiredScopesConfigurationKey = "AzureAD:Scopes:Read",
+            RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Read"
         )]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
@@ -115,8 +110,8 @@ namespace TodoListAPI.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
         [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListReadWrite },
-            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+            RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
+            RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
         )]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
@@ -160,8 +155,8 @@ namespace TodoListAPI.Controllers
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
         [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListReadWrite },
-            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+            RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
+            RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
         )]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
@@ -185,8 +180,8 @@ namespace TodoListAPI.Controllers
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
         [RequiredScopeOrAppPermission(
-            AcceptedScope = new string[] { _todoListReadWrite },
-            AcceptedAppPermission = new string[] { _todoListReadWriteAll }
+            RequiredScopesConfigurationKey = "AzureAD:Scopes:Write",
+            RequiredAppPermissionsConfigurationKey = "AzureAD:AppPermissions:Write"
         )]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
