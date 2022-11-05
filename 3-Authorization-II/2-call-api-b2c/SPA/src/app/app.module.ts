@@ -103,6 +103,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MatIconModule,
         HttpClientModule,
         FormsModule,
+        MsalModule
     ],
     providers: [
         {
