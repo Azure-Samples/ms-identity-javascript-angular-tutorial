@@ -67,7 +67,7 @@ function setup() {
 
     function MSALGuardConfigFactory(): MsalGuardConfiguration {
         return {
-            interactionType: InteractionType.Popup,
+            interactionType: InteractionType.Redirect,
         };
     }
 

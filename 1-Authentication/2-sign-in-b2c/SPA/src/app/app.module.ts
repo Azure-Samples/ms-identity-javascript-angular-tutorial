@@ -7,7 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { IPublicClientApplication, PublicClientApplication, InteractionType } from '@azure/msal-browser';
 import {
     MsalGuard, MsalBroadcastService, MsalService,
-    MSAL_GUARD_CONFIG, MSAL_INSTANCE, MsalGuardConfiguration, MsalRedirectComponent
+    MSAL_GUARD_CONFIG, MSAL_INSTANCE, MsalGuardConfiguration, MsalRedirectComponent, MsalModule
 } from '@azure/msal-angular';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -58,7 +58,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MatIconModule,
         MatTableModule,
         HttpClientModule,
-        FormsModule
+        FormsModule,
+        MsalModule
     ],
     providers: [
         {
