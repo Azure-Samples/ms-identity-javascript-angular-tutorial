@@ -1,6 +1,5 @@
 using System;
 using Xunit;
-using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 
 namespace TodoListAPI.Tests
@@ -17,26 +16,29 @@ namespace TodoListAPI.Tests
         }
 
         [Fact]
-        public void ShouldNotContainClientId()
+        public void ShouldContainClientId()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
-            string clientId = myConfiguration.GetSection("AzureAdB2C")["ClientId"];
+            var clientId = myConfiguration.GetSection("AzureAdB2C")["ClientId"];
 
-            string pattern = @"(\{){0,1}[0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12}(\}){0,1}";
-            var regex = new Regex(pattern);
-            Assert.Matches(regex, clientId);
+            Assert.True(Guid.TryParse(clientId, out var theGuid));
         }
 
         [Fact]
-        public void ShouldNotContainDomain()
+        public void ShouldContainDomain()
         {
             var myConfiguration = ConfigurationTests.InitConfiguration();
-            string domain = myConfiguration.GetSection("AzureAdB2C")["Domain"];
+            var domain = $"https://{myConfiguration.GetSection("AzureAdB2C")["Domain"]}";
 
-            string pattern = @"(^http[s]?:\/\/|[a-z]*\.[a-z]{3}\.[a-z]{2})|([a-z]*\.[a-z]{3}$)";
-            var regex = new Regex(pattern);
+            Assert.True(Uri.TryCreate(domain, UriKind.Absolute, out var uri));
+        }
 
-            Assert.Matches(regex, domain);
+        [Fact]
+        public void ShouldContainInstance()
+        {
+            var myConfiguration = ConfigurationTests.InitConfiguration();
+
+            Assert.True(Uri.TryCreate(myConfiguration.GetSection("AzureAdB2C")["Instance"], UriKind.Absolute, out var uri));
         }
     }
 }

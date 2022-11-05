@@ -1,14 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using TodoListAPI.Models;
-using System.Security.Claims;
+using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
+using TodoListAPI.Models;
 
 namespace TodoListAPI.Controllers
 {
@@ -17,70 +17,98 @@ namespace TodoListAPI.Controllers
     [ApiController]
     public class TodoListController : ControllerBase
     {
-        // The Web API will only accept tokens 1) for users, and 
-        // 2) having the demo.read scope for this API
-        static readonly string[] scopeRequiredByApi = new string[] { "demo.read" };
+        private readonly TodoContext _TodoListContext;
+        private readonly IHttpContextAccessor _contextAccessor;
+        private ClaimsPrincipal _currentPrincipal;
 
-        private readonly TodoContext _context;
+        /// <summary>
+        /// We store the object id of the user/app derived from the presented Access token
+        /// </summary>
+        private string _currentPrincipalId = string.Empty;
 
-        public TodoListController(TodoContext context)
+        public TodoListController(TodoContext context, IHttpContextAccessor contextAccessor)
         {
-            _context = context;
+            _TodoListContext = context;
+            _contextAccessor = contextAccessor;
+
+            // We seek the details of the user/app represented by the access token presented to this API, This can be empty unless authN succeeded
+            // If a user signed-in, the value will be the unique identifier of the user.
+            _currentPrincipal = GetCurrentClaimsPrincipal();
+
+            if (!IsAppOnlyToken() && _currentPrincipal != null)
+            {
+                _currentPrincipalId = _currentPrincipal.GetHomeObjectId(); // use "sub" claim as a unique identifier in B2C
+                PopulateDefaultToDos(_currentPrincipalId);
+            }
+        }
+
+        // GET: api/todolist/getAll
+        [HttpGet]
+        [Route("getAll")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Read")]
+        public async Task<ActionResult<IEnumerable<TodoItem>>> GetAll()
+        {
+            return await _TodoListContext.TodoItems.ToListAsync();
         }
 
         // GET: api/TodoItems
         [HttpGet]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Read")]
         public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            return await _context.TodoItems.Where(item => item.Owner == owner).ToListAsync();
+            /// <summary>
+            /// The 'oid' (object id) is the only claim (alternatively "sub" claim in B2C) that should be used to uniquely 
+            /// identify a user in an Azure AD tenant. The token might have one or more of the following claim,
+            /// that might seem like a unique identifier, but is not and should not be used as such:
+            ///
+            /// - upn (user principal name): might be unique amongst the active set of users in a tenant
+            /// but tend to get reassigned to new employees as employees leave the organization and others
+            /// take their place or might change to reflect a personal change like marriage.
+            ///
+            /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
+            /// to new employees as employees leave the organization and others take their place.
+            /// </summary>
+            return await _TodoListContext.TodoItems.Where(x => x.Owner == _currentPrincipalId).ToListAsync();
         }
 
         // GET: api/TodoItems/5
         [HttpGet("{id}")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Read")]
         public async Task<ActionResult<TodoItem>> GetTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
- 
-            var todoItem = await _context.TodoItems.FindAsync(id);
-
-            if (todoItem == null)
-            {
-                return NotFound();
-            }
-
-            return todoItem;
+            return await _TodoListContext.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == _currentPrincipalId);
         }
 
         // PUT: api/TodoItems/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Write")]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-
-            if (id != todoItem.Id)
+            if (id != todoItem.Id || !_TodoListContext.TodoItems.Any(x => x.Id == id))
             {
-                return BadRequest();
+                return NotFound();
             }
 
-            _context.Entry(todoItem).State = EntityState.Modified;
+            if (_TodoListContext.TodoItems.Any(x => x.Id == id && x.Owner == _currentPrincipalId))
+            {
+                _TodoListContext.Entry(todoItem).State = EntityState.Modified;
 
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!TodoItemExists(id))
+                try
                 {
-                    return NotFound();
+                    await _TodoListContext.SaveChangesAsync();
                 }
-                else
+                catch (DbUpdateConcurrencyException)
                 {
-                    throw;
+                    if (!_TodoListContext.TodoItems.Any(e => e.Id == id))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
                 }
             }
 
@@ -91,40 +119,83 @@ namespace TodoListAPI.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPost]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Write")]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
-            string owner = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            todoItem.Owner = owner;
+            todoItem.Owner = _currentPrincipalId;
             todoItem.Status = false;
 
-            _context.TodoItems.Add(todoItem);
-            await _context.SaveChangesAsync();
+            _TodoListContext.TodoItems.Add(todoItem);
+            await _TodoListContext.SaveChangesAsync();
 
             return CreatedAtAction("GetTodoItem", new { id = todoItem.Id }, todoItem);
         }
 
         // DELETE: api/TodoItems/5
         [HttpDelete("{id}")]
+        [RequiredScope(RequiredScopesConfigurationKey = "AzureAdB2C:Scopes:Write")]
         public async Task<ActionResult<TodoItem>> DeleteTodoItem(int id)
         {
-            HttpContext.VerifyUserHasAnyAcceptedScope(scopeRequiredByApi);
+            TodoItem todoItem = await _TodoListContext.TodoItems.FindAsync(id);
 
-            var todoItem = await _context.TodoItems.FindAsync(id);
             if (todoItem == null)
             {
                 return NotFound();
             }
 
-            _context.TodoItems.Remove(todoItem);
-            await _context.SaveChangesAsync();
+            if (_TodoListContext.TodoItems.Any(x => x.Id == id && x.Owner == _currentPrincipalId))
+            {
+                _TodoListContext.TodoItems.Remove(todoItem);
+                await _TodoListContext.SaveChangesAsync();
+            }
 
-            return todoItem;
+            return NoContent();
         }
 
-        private bool TodoItemExists(int id)
+        private async void PopulateDefaultToDos(string _currentPrincipalId)
         {
-            return _context.TodoItems.Any(e => e.Id == id);
+            //Pre - populate with sample data
+            if (_TodoListContext.TodoItems.Count() == 0 && !string.IsNullOrEmpty(_currentPrincipalId))
+            {
+                _TodoListContext.TodoItems.Add(new TodoItem() { Owner = $"{_currentPrincipalId}", Description = "Pick up groceries", Status = false });
+                _TodoListContext.TodoItems.Add(new TodoItem() { Owner = $"{_currentPrincipalId}", Description = "Finish invoice report", Status = false });
+
+                await _TodoListContext.SaveChangesAsync();
+            }
+        }
+
+        /// <summary>
+        /// returns the current claimsPrincipal (user/Client app) dehydrated from the Access token
+        /// </summary>
+        /// <returns></returns>
+        private ClaimsPrincipal GetCurrentClaimsPrincipal()
+        {
+            // Irrespective of whether a user signs in or not, the AspNet security middleware dehydrates 
+            // the claims in the HttpContext.User.Claims collection
+            if (_contextAccessor.HttpContext != null && _contextAccessor.HttpContext.User != null)
+            {
+                return _contextAccessor.HttpContext.User;
+            }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Indicates of the AT presented was for an app-only token or not.
+        /// </summary>
+        /// <returns></returns>
+        private bool IsAppOnlyToken()
+        {
+            // Add in the optional 'idtyp' claim to check if the access token is coming from an application or user.
+            //
+            // See: https://docs.microsoft.com/en-us/azure/active-directory/develop/active-directory-optional-claims
+
+            if (GetCurrentClaimsPrincipal() != null)
+            {
+                return GetCurrentClaimsPrincipal().Claims.Any(c => c.Type == "idtyp" && c.Value == "app");
+            }
+
+            return false;
         }
     }
 }
