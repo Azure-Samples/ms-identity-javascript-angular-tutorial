@@ -25,16 +25,17 @@ import {
 } from '@azure/msal-browser';
 
 import {
-    MSAL_INSTANCE,
-    MsalGuardConfiguration,
-    MSAL_GUARD_CONFIG,
-    MsalService,
-    MsalBroadcastService,
-    MsalGuard,
-    MsalRedirectComponent,
-    MsalInterceptor,
-    MSAL_INTERCEPTOR_CONFIG,
-    MsalInterceptorConfiguration
+  MSAL_INSTANCE,
+  MsalGuardConfiguration,
+  MSAL_GUARD_CONFIG,
+  MsalService,
+  MsalBroadcastService,
+  MsalGuard,
+  MsalRedirectComponent,
+  MsalInterceptor,
+  MSAL_INTERCEPTOR_CONFIG,
+  MsalInterceptorConfiguration,
+  MsalModule,
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
@@ -55,7 +56,7 @@ export function MSALInstanceFactory(): IPublicClientApplication {
  */
 export function MsalGuardConfigurationFactory(): MsalGuardConfiguration {
     return {
-        interactionType: InteractionType.Popup,
+        interactionType: InteractionType.Redirect,
         authRequest: loginRequest
     };
 }
@@ -118,6 +119,7 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
     BrowserAnimationsModule,
     MatDialogModule,
     MatIconModule,
+    MsalModule,
   ],
   providers: [
     {
@@ -142,6 +144,6 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
     MsalGuard,
     GraphService,
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [AppComponent, MsalRedirectComponent],
 })
 export class AppModule {}
