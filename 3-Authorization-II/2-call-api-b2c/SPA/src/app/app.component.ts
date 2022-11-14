@@ -183,7 +183,19 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     logout() {
-        this.authService.logout();
+        const activeAccount =
+          this.authService.instance.getActiveAccount() ||
+          this.authService.instance.getAllAccounts()[0];
+
+        if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
+          this.authService.logoutPopup({
+            account: activeAccount,
+          });
+        } else {
+          this.authService.logoutRedirect({
+            account: activeAccount,
+          });
+        }
     }
 
     editProfile() {

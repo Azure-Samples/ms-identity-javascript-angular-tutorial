@@ -96,8 +96,8 @@ Alternatively, choose below the sample you want to review.
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./7-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
-| <img src="./6-AdvancedScenarios/2-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-Multitenancy/2-call-api-mt/README.md) </br> Develop and provision a multi-tenant SaaS application. Handle provisioning your app to other tenants and control who can access your resources. |
+| <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
+| <img src="./6-AdvancedScenarios/2-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-AdvancedScenarios/2-call-api-mt/README.md) </br> Develop and provision a multi-tenant SaaS application. Handle provisioning your app to other tenants and control who can access your resources. |
 
 ## We'd love your feedback!
 
