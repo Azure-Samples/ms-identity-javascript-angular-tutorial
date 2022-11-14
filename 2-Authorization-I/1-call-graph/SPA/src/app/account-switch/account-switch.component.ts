@@ -55,7 +55,6 @@ export class AccountSwitchComponent implements OnInit {
           if (error instanceof InteractionRequiredAuthError) {
             this.authService.instance.loginRedirect({
               ...this.msalGuardConfig.authRequest,
-              ...this.msalGuardConfig.authRequest,
               prompt: PromptValue.LOGIN,
             } as RedirectRequest);
           }

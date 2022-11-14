@@ -156,7 +156,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   logout() {
     clearStorage(this.authService.instance.getActiveAccount());
-    this.authService.logout({
+    this.authService.logoutRedirect({
       account: this.authService.instance.getActiveAccount(),
     });
   }
