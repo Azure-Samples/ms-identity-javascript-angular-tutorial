@@ -16,8 +16,8 @@ const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigato
  */
 export const msalConfig: Configuration = {
     auth: {
-        clientId: 'a8fb11ef-193c-4c2c-8b88-8e33c0bd85e1', // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/cbaf2168-de14-4c72-9d88-f5f05366dbef', // Defaults to "https://login.microsoftonline.com/common"
+        clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
+        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
         postLogoutRedirectUri: '/', // Points to window.location.origin by default.
         clientCapabilities: ['CP1'] // This lets the resource server know that this client can handle claim challenges.
@@ -48,7 +48,7 @@ export const msalConfig: Configuration = {
 export const protectedResources = {
     profileApi: {
         endpoint: "https://localhost:44351/api/profile",
-        scopes: ["api://25f2f696-3a3e-47ac-8bb9-ae04ac04ba9b/.default"]
+        scopes: ["api://Enter_the_Web_Api_Application_Id_Here/.default"]
     }
 }
 

@@ -4,6 +4,7 @@
 using System;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -13,6 +14,7 @@ using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.Resource;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Graph;
 using ProfileAPI.Models;
 
@@ -23,58 +25,61 @@ namespace ProfileAPI.Controllers
     [ApiController]
     public class ProfileController : ControllerBase
     {
+        private readonly IConfiguration _configuration;
         private readonly ProfileContext _context;
         private readonly ITokenAcquisition _tokenAcquisition;
         private readonly GraphServiceClient _graphServiceClient;
         private readonly IOptions<MicrosoftGraphOptions> _graphOptions;
-        // private IDownstreamWebApi _downstreamWebApi;
+        //private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public ProfileController(ProfileContext context, /* IDownstreamWebApi downstreamWebApi ,*/ ITokenAcquisition tokenAcquisition, GraphServiceClient graphServiceClient, IOptions<MicrosoftGraphOptions> graphOptions)
+        public ProfileController(IConfiguration configuration, ProfileContext context, /*IDownstreamWebApi downstreamWebApi*/, ITokenAcquisition tokenAcquisition, GraphServiceClient graphServiceClient, IOptions<MicrosoftGraphOptions> graphOptions)
         {
+            _configuration = configuration;
             _context = context;
             _tokenAcquisition = tokenAcquisition;
             _graphServiceClient = graphServiceClient;
             _graphOptions = graphOptions;
-            // _downstreamWebApi = downstreamWebApi;
+            //_downstreamWebApi = downstreamWebApi;
         }
 
-        // GET: api/ProfileItems/
-        // [HttpGet]
-        // [RequiredScope(RequiredScopesConfigurationKey = "AzureAd:RequiredScopes")]
-        // public async Task<ActionResult<HttpResponseMessage>> GetDownstreamApi()
-        // {
-        //     HttpResponseMessage value = null;
+        ////GET: api/ProfileItems/
+        //[HttpGet]
+        //[RequiredScope(RequiredScopesConfigurationKey = "AzureAd:RequiredScopes")]
+        //public async Task<ActionResult<HttpResponseMessage>> GetDownstreamApi()
+        //{
+        //    HttpResponseMessage value = null;
 
-        //     try
-        //     {
-        //         value = await _downstreamWebApi.CallWebApiForUserAsync("MyApi", null,
-        //              options =>
-        //              {
-        //                  options.HttpMethod = HttpMethod.Get;
-        //                  options.RelativePath = $"api";
-        //              });
-        //     }
-        //     catch (MsalException ex)
-        //     {
-        //         return Unauthorized("An authentication error occurred while acquiring a token for downstream API\n" + ex.ErrorCode + "\n" + ex.Message);
-        //     }
-        //     catch (MicrosoftIdentityWebChallengeUserException ex)
-        //     {
-        //         _tokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(_graphOptions.Value.Scopes.Split(' '), ex.MsalUiRequiredException);
-                
-        //         return Unauthorized(new { 
-        //             errorCode = ex.MsalUiRequiredException.ErrorCode, 
-        //             message = ex.MsalUiRequiredException.ResponseBody,
-        //             correlationId = ex.MsalUiRequiredException.CorrelationId 
-        //         });
-        //     }
-        //     catch (Exception ex)
-        //     {
-        //         return BadRequest("An error occurred while calling the downstream API\n" + ex.Message);
-        //     }
+        //    try
+        //    {
+        //        value = await _downstreamWebApi.CallWebApiForUserAsync("MyApi", null,
+        //             options =>
+        //             {
+        //                 options.HttpMethod = HttpMethod.Get;
+        //                 options.RelativePath = $"api";
+        //             });
+        //    }
+        //    catch (MsalException ex)
+        //    {
+        //        return Unauthorized("An authentication error occurred while acquiring a token for downstream API\n" + ex.ErrorCode + "\n" + ex.Message);
+        //    }
+        //    catch (MicrosoftIdentityWebChallengeUserException ex)
+        //    {
+        //        _tokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(_graphOptions.Value.Scopes.Split(' '), ex.MsalUiRequiredException);
 
-        //     return value;
-        // }
+        //        return BadRequest(new
+        //        {
+        //            errorCode = ex.MsalUiRequiredException.ErrorCode,
+        //            message = ex.MsalUiRequiredException.ResponseBody,
+        //            correlationId = ex.MsalUiRequiredException.CorrelationId
+        //        });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest("An error occurred while calling the downstream API\n" + ex.Message);
+        //    }
+
+        //    return value;
+        //}
 
         // GET: api/ProfileItems/5
         [HttpGet("{id}")]
@@ -119,7 +124,7 @@ namespace ProfileAPI.Controllers
             {
                 _tokenAcquisition.ReplyForbiddenWithWwwAuthenticateHeader(_graphOptions.Value.Scopes.Split(' '), ex.MsalUiRequiredException);
                 
-                return Unauthorized(new {
+                return BadRequest(new {
                     errorCode = ex.MsalUiRequiredException.ErrorCode,
                     message = ex.MsalUiRequiredException.ResponseBody,
                     correlationId = ex.MsalUiRequiredException.CorrelationId
@@ -130,14 +135,14 @@ namespace ProfileAPI.Controllers
                 if (IsClientCapableofClaimsChallenge(HttpContext))
                 {
                     string claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(svcex.ResponseHeaders);
-                    HttpContext.Response.Headers.Add("WWW-Authenticate", claimChallenge);
+                    string base64str = Convert.ToBase64String(Encoding.UTF8.GetBytes(claimChallenge));
+                    string clientId = _configuration.GetSection("AzureAd").GetSection("ClientId").Value;
+                    string tenantId = _configuration.GetSection("AzureAd").GetSection("TenantId").Value;
+                    HttpContext.Response.Headers.Add("WWW-Authenticate", $"Bearer realm=\"\", authorization_uri=\"https://login.microsoftonline.com/" + tenantId + "/oauth2/v2.0/authorize\", client_id=\"" + clientId + "\", error=\"insufficient_claims\", claims=\"" + base64str);
 
-                    return Unauthorized(new
-                    {
-                        message = svcex.RawResponseBody,
-                        statusCode = svcex.StatusCode,
-                    });
-                } else
+                    return Unauthorized("The presented access tokens had insufficient claims. Please request for claims requested in the WWW-Authentication header and try again.");
+                } 
+                else
                 {
                     return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable");
                 }
