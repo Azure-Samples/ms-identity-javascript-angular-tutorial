@@ -76,5 +76,13 @@ export class ProfileService {
             `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${new URL(protectedResources.profileApi.endpoint).hostname}`,
             claimsChallengeMap['claims']
         );
+
+        this.authService.instance.acquireTokenRedirect({
+            scopes: protectedResources.profileApi.scopes,
+            account: account,
+            claims: claimsChallengeMap['claims']
+        }).catch((error) => {
+            console.log(error);
+        });
     }
 }
