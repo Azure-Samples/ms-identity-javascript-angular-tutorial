@@ -32,7 +32,7 @@ namespace ProfileAPI.Controllers
         private readonly IOptions<MicrosoftGraphOptions> _graphOptions;
         //private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public ProfileController(IConfiguration configuration, ProfileContext context, /*IDownstreamWebApi downstreamWebApi*/, ITokenAcquisition tokenAcquisition, GraphServiceClient graphServiceClient, IOptions<MicrosoftGraphOptions> graphOptions)
+        public ProfileController(IConfiguration configuration, ProfileContext context, /*IDownstreamWebApi downstreamWebApi ,*/ ITokenAcquisition tokenAcquisition, GraphServiceClient graphServiceClient, IOptions<MicrosoftGraphOptions> graphOptions)
         {
             _configuration = configuration;
             _context = context;
