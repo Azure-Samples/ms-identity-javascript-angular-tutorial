@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Logging;
 using Microsoft.Identity.Web;
 using ProfileAPI.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
 
 namespace ProfileAPI
 {
@@ -26,16 +29,51 @@ namespace ProfileAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApi(Configuration)
-                    .EnableTokenAcquisitionToCallDownstreamApi()
-                        .AddMicrosoftGraph(Configuration.GetSection("DownstreamAPI"))
-                        .AddInMemoryTokenCaches();
+                .AddMicrosoftIdentityWebApi(options =>
+                {
+                    Configuration.Bind("AzureAd", options);
+                    options.Events = new JwtBearerEvents();
+
+                    /// <summary>
+                    /// Below you can do extended token validation and check for additional claims, such as:
+                    ///
+                    /// - check if the caller's tenant is in the allowed tenants list via the 'tid' claim (for multi-tenant applications)
+                    /// - check if the caller's account is homed or guest via the 'acct' optional claim
+                    /// - check if the caller belongs to right roles or groups via the 'roles' or 'groups' claim, respectively
+                    ///
+                    /// Bear in mind that you can do any of the above checks within the individual routes and/or controllers as well.
+                    /// For more information, visit: https://docs.microsoft.com/azure/active-directory/develop/access-tokens#validate-the-user-has-permission-to-access-this-data
+                    /// </summary>
+
+                    //options.Events.OnTokenValidated = async context =>
+                    //{
+                    //    string[] allowedClientApps = { /* list of client ids to allow */ };
+
+                    //    string clientappId = context?.Principal?.Claims
+                    //        .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
+
+                    //    if (!allowedClientApps.Contains(clientappId))
+                    //    {
+                    //        throw new System.Exception("This client is not authorized");
+                    //    }
+                    //};
+                }, options => { Configuration.Bind("AzureAd", options); })
+                .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
+                // .AddDownstreamWebApi("MyApi", Configuration.GetSection("DownstreamAPI2"))
+                .AddMicrosoftGraph(Configuration.GetSection("DownstreamAPI"))
+                .AddInMemoryTokenCaches();
 
             services.AddDbContext<ProfileContext>(opt => opt.UseInMemoryDatabase("Profile"));
 
             services.AddControllers();
 
-            // Allowing CORS for all domains and methods for the purpose of sample
+            // The following flag can be used to get more descriptive errors in development environments
+            // Enable diagnostic logging to help with troubleshooting. For more details, see https://aka.ms/IdentityModel/PII.
+            // You might not want to keep this following flag on for production
+            IdentityModelEventSource.ShowPII = false;
+
+            // Allowing CORS for all domains and HTTP methods for the purpose of the sample
+            // In production, modify this with the actual domains and HTTP methods you want to allow
             services.AddCors(o => o.AddPolicy("default", builder =>
             {
                 builder.AllowAnyOrigin()
@@ -53,25 +91,33 @@ namespace ProfileAPI
                 // Since IdentityModel version 5.2.1 (or since Microsoft.AspNetCore.Authentication.JwtBearer version 2.2.0),
                 // PII hiding in log files is enabled by default for GDPR concerns.
                 // For debugging/development purposes, one can enable additional detail in exceptions by setting IdentityModelEventSource.ShowPII to true.
-                // Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+                IdentityModelEventSource.ShowPII = true;
+
                 app.UseDeveloperExceptionPage();
             }
             else
             {
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
             app.UseCors("default");
             app.UseHttpsRedirection();
             app.UseRouting();
-
             app.UseAuthentication();
             app.UseAuthorization();
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
             });
+
+            //app.UseExceptionHandler(a => a.Run(async context =>
+            //{
+            //    var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+            //    var exception = exceptionHandlerPathFeature.Error;
+
+            //    await context.Response.WriteAsJsonAsync(new { error = exception.Message });
+            //}));
         }
     }
 }
