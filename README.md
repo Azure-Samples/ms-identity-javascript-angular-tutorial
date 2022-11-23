@@ -70,7 +70,7 @@ Alternatively, choose below the sample you want to review.
 
 |                |               |
 |----------------|---------------|
-| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. Learn how to handle conditional access challenges (CAE). |
+| <img src="./2-Authorization-I/1-call-graph/ReadmeFiles/topology.png" width="200"> | [**Get an Access Token from Azure AD and call Microsoft Graph**](./2-Authorization-I/1-call-graph/README.md) </br> Authenticate your users and acquire an **Access Token** for Microsoft Graph and then call the **Microsoft Graph API**. Learn how to handle continuous access evaluation (CAE) events. |
 
 ### Chapter 3: Protect an API and call the API from your client app
 
@@ -96,7 +96,7 @@ Alternatively, choose below the sample you want to review.
 
 |                 |               |
 |-----------------|---------------|
-| <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. |
+| <img src="./6-AdvancedScenarios/1-call-api-obo/ReadmeFiles/topology.png" width="200"> | [**Call Microsoft Graph using on-behalf-of flow**](./6-AdvancedScenarios/1-call-api-obo/README.md) </br> Use OAuth 2.0 on-behalf-of flow to call Microsoft Graph from your client app via a .NET Core web API. Understand combined consent and **.default** scope. Learn how to handle continuous access evaluation (CAE) events in downstream APIs |
 | <img src="./6-AdvancedScenarios/2-call-api-mt/ReadmeFiles/topology.png" width="200"> | [**Call a multi-tenant web API from any tenant**](./6-AdvancedScenarios/2-call-api-mt/README.md) </br> Develop and provision a multi-tenant SaaS application. Handle provisioning your app to other tenants and control who can access your resources. |
 
 ## We'd love your feedback!
