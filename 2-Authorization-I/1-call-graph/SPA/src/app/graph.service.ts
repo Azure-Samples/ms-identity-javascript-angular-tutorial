@@ -60,13 +60,13 @@ export class GraphService {
     };
 
     /**
-     * This method inspects the HTTPS response from a http call for the "www-authenticate header"
+     * This method inspects the HTTPS response from a http call for the "WWW-Authenticate header"
      * If present, it grabs the claims challenge from the header and store it in the sessionStorage
      * For more information, visit: https://docs.microsoft.com/en-us/azure/active-directory/develop/claims-challenge#claims-challenge-header-format
      * @param response
      */
     handleClaimsChallenge(response: any, providerOptions: ProviderOptions): void {
-        const authenticateHeader: string = response.headers.get('www-authenticate');
+        const authenticateHeader: string = response.headers.get('WWW-Authenticate');
         const claimsChallengeMap: any = parseChallenges(authenticateHeader);
         let account: AccountInfo = this.authService.instance.getActiveAccount()!;
 

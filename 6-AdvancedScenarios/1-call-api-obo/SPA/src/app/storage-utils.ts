@@ -5,7 +5,8 @@ import { msalConfig } from './auth-config';
  * @param {String} claimsChallenge
  */
 export const addClaimsToStorage = (claimsChallengeId: string, claimsChallenge: string): void => {
-    sessionStorage.setItem(claimsChallengeId, claimsChallenge);
+    isBase64String(claimsChallenge) ? sessionStorage.setItem(claimsChallengeId, claimsChallenge)
+        : sessionStorage.setItem(claimsChallengeId, window.btoa(claimsChallenge));
 };
 
 /**
@@ -35,7 +36,6 @@ export const clearStorage = (account: any): void => {
  * @returns {boolean} true if the string is base64 encoded, false otherwise
  */
 export const isBase64String = (str: string): boolean => {
-    var base64regex = /^([0-9a-zA-Z+/]{4})*(([0-9a-zA-Z+/]{2}==)|([0-9a-zA-Z+/]{3}=))?$/;
-    console.log('is it?', base64regex.test(str));
+    const base64regex = /[A-Za-z0-9+/=]/;
     return base64regex.test(str);
 };

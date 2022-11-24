@@ -348,7 +348,13 @@ export const msalConfig: Configuration = {
 The middle-tier web API (ProfileAPI) also needs to declare that it's CAE-capable in [appsettings.json](./API/ProfileAPI/appsettings.json):
 
 ```json
-
+"AzureAd": {
+   "Instance": "https://login.microsoftonline.com/",
+   "TenantId": "Enter the tenant ID",
+   "ClientId": "Enter the client ID (aka 'Application ID')",
+   "ClientSecret": "Enter the client Secret",
+   "ClientCapabilities": [ "CP1" ]
+},
 ```
 
 #### Processing the CAE challenge from Microsoft Graph
@@ -362,20 +368,18 @@ try
 }
 catch (ServiceException svcex) when (svcex.Message.Contains("Continuous access evaluation resulted in claims challenge"))
 {
-      if (IsClientCapableofClaimsChallenge(HttpContext))
-      {
-         string claimChallenge = WwwAuthenticateParameters.GetClaimChallengeFromResponseHeaders(svcex.ResponseHeaders);
-         HttpContext.Response.Headers.Add("WWW-Authenticate", claimChallenge);
+   if (IsClientCapableofClaimsChallenge(HttpContext))
+   {
+      // append the WWW-Authenticate header from the Microsoft Graph response to the response to the client app
+      // to learn more, visit: https://learn.microsoft.com/azure/active-directory/develop/app-resilience-continuous-access-evaluation?tabs=dotnet
+      HttpContext.Response.Headers.Add("WWW-Authenticate", svcex.ResponseHeaders.WwwAuthenticate.ToString());
 
-         return Unauthorized(new
-         {
-            message = svcex.RawResponseBody,
-            statusCode = svcex.StatusCode,
-         });
-      } else
-      {
-         return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable");
-      }
+      return Unauthorized(svcex.RawResponseBody);
+   } 
+   else
+   {
+      return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable");
+   }
 }
 ```
 
@@ -397,19 +401,6 @@ handleClaimsChallenge(response: HttpErrorResponse): void {
       `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${new URL(protectedResources.profileApi.endpoint).hostname}`,
       claimsChallengeMap['claims']
    );
-}
-
-parseChallenges<T>(header: string): T {
-   const schemeSeparator = header.indexOf(' ');
-   const challenges = header.substring(schemeSeparator + 1).split(',');
-   const challengeMap = {} as any;
-    
-   challenges.forEach((challenge: string) => {
-      const [key, value] = challenge.split('=');
-      challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
-   });
-    
-   return challengeMap;
 }
 ```
 

@@ -41,15 +41,6 @@ export class ProfileViewComponent implements OnInit {
                 console.log(error);
             }
         });
-
-        // this.profileService.getDownstreamApi().subscribe({
-        //     next: (profile) => {
-        //         console.log(profile);
-        //     },
-        //     error: (error) => {
-        //         console.log(error);
-        //     }
-        // });
     }            
 
     submitProfile(profile: Profile): void {
