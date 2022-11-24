@@ -376,7 +376,7 @@ Function ConfigureApplications
    $clientAadApplication = New-MgApplication -DisplayName "ProfileSPA" `
                                                       -Spa `
                                                       @{ `
-                                                          RedirectUris = "http://localhost:4200", "https://localhost:4200/auth"; `
+                                                          RedirectUris = "http://localhost:4200", "http://localhost:4200/auth"; `
                                                         } `
                                                        -SignInAudience AzureADMyOrg `
                                                       #end of command
@@ -431,7 +431,7 @@ Function ConfigureApplications
     # $requiredResourcesAccess.Count
     # $requiredResourcesAccess
     
-    Update-MgApplication -ApplicationId $currentAppObjectId -RequiredResourceAccess $requiredResourcesAccess
+    Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
     
 
@@ -442,7 +442,7 @@ Function ConfigureApplications
     Write-Host "Configure known client applications for the 'service'"
     $knowApplications = New-Object System.Collections.Generic.List[System.String]
     $knowApplications.Add($clientAadApplication.AppId)
-    Update-MgApplication -ApplicationId $currentAppObjectId -Api @{KnownClientApplications = $knowApplications}
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{KnownClientApplications = $knowApplications}
     Write-Host "knownclientapplication setting configured."
 
     

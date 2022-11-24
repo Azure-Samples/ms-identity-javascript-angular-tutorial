@@ -59,8 +59,8 @@ namespace ProfileAPI
                     //};
                 }, options => { Configuration.Bind("AzureAd", options); })
                 .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
-                // .AddDownstreamWebApi("MyApi", Configuration.GetSection("DownstreamAPI2"))
                 .AddMicrosoftGraph(Configuration.GetSection("DownstreamAPI"))
+                //.AddDownstreamWebApi("MyApi", Configuration.GetSection("DownstreamAPI2"))
                 .AddInMemoryTokenCaches();
 
             services.AddDbContext<ProfileContext>(opt => opt.UseInMemoryDatabase("Profile"));

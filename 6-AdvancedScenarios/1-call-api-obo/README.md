@@ -55,7 +55,7 @@ or download and extract the repository .zip file.
 
 ```console
    cd ms-identity-javascript-angular-tutorial
-   cd 7-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
+   cd 6-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
    dotnet restore
 ```
 
