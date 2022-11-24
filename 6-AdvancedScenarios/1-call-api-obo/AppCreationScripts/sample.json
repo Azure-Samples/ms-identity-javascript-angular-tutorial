@@ -1,7 +1,7 @@
 {
     "Sample": {
         "Author": "derisen",
-        "Title": "Angular single-page application authorizing a .NET Core web API to call Microsoft Graph using on-behalf-of flow",
+        "Title": "An Angular single-page application calling an AspNetCore web API which calls the Microsoft Graph API using the on-behalf-of(OBO) flow",
         "Level": 300,
         "Client": "Angular SPA",
         "Service": ".NET Core web API",
@@ -18,7 +18,7 @@
             "msal-angular",
             "microsoft-identity-web"
         ],
-        "Description": "An Angular single-page application authorizing a .NET Core web API to call Microsoft Graph using on-behalf-of flow"
+        "Description": "An Angular single-page application signing-in a user and calling an AspNetCore Web API protected with Azure AD. The Web API in turn then calls the Microsoft Graph API using the on-behalf-of(OBO) flow"
     },
     "ReadmeSetup": {
         "CertificateOption": "1"
@@ -32,7 +32,7 @@
             "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\API",
             "PasswordCredentials": "Auto",
             "Scopes": [
-                "access_as_user"
+                "access_graph_on_behalf_of_user"
             ],
             "RequiredResourcesAccess": [
                 {
@@ -62,7 +62,7 @@
                 {
                     "Resource": "service",
                     "DelegatedPermissions": [
-                        "access_as_user"
+                        "access_graph_on_behalf_of_user"
                     ]
                 }
             ],
