@@ -317,6 +317,8 @@ To debug the .NET Core web API that comes with this sample, install the [C# exte
 
 Learn more about using [.NET Core with Visual Studio Code](https://docs.microsoft.com/dotnet/core/tutorials/with-visual-studio-code).
 
+To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/d365community/forum/79b1327d-d925-ec11-b6e6-000d3a4f06a4).
+
 </details>
 
 ## About the code
