@@ -19,20 +19,6 @@ export class ProfileService {
 
     constructor(private http: HttpClient, private authService: MsalService) { }
 
-    // getDownstreamApi() {
-    //     return this.http.get<Profile>(this.url)
-    //         .pipe(
-    //             catchError((error) => {
-    //                 console.log(error);
-
-    //                 if (error.status === 401 && error.headers.get('WWW-Authenticate')) {
-    //                     this.handleClaimsChallenge(error)
-    //                 }
-    //                 return error;
-    //             })
-    //         );
-    // }
-
     getProfile(id: string) {
         return this.http.get<Profile>(this.url + '/' + id)
             .pipe(
@@ -77,9 +63,9 @@ export class ProfileService {
             claimsChallengeMap['claims']
         );
 
-        this.authService.instance.acquireTokenRedirect({
-            scopes: protectedResources.profileApi.scopes,
+        this.authService.instance.acquireTokenPopup({
             account: account,
+            scopes: protectedResources.profileApi.scopes,
             claims: claimsChallengeMap['claims']
         }).catch((error) => {
             console.log(error);

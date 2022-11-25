@@ -1,8 +1,8 @@
 /**
-   * This method parses WWW-Authenticate authentication headers
-   * @param header
-   * @return {Object} challengeMap
-   */
+ * This method parses WWW-Authenticate authentication headers
+ * @param header
+ * @return {Object} challengeMap
+ */
 export const parseChallenges = (header: string): Record<string, any> => {
     const schemeSeparator = header.indexOf(' ');
     const challenges = header.substring(schemeSeparator + 1).split(', ');
@@ -10,7 +10,7 @@ export const parseChallenges = (header: string): Record<string, any> => {
 
     challenges.forEach((challenge: string) => {
         const [key, value] = challenge.split('=');
-        challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
+        challengeMap[key.trim()] = window.decodeURI(value.replace(/(^"|"$)/g, ''));
     });
 
     return challengeMap;

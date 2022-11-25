@@ -72,7 +72,6 @@ namespace ProfileAPI
                 })
                 .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
                 .AddMicrosoftGraph(Configuration.GetSection("DownstreamAPI"))
-                //.AddDownstreamWebApi("MyApi", Configuration.GetSection("DownstreamAPI2"))
                 .AddInMemoryTokenCaches();
 
             services.AddDbContext<ProfileContext>(opt => opt.UseInMemoryDatabase("Profile"));
@@ -91,7 +90,7 @@ namespace ProfileAPI
                 builder.AllowAnyOrigin()
                        .AllowAnyMethod()
                        .AllowAnyHeader()
-                       .WithExposedHeaders("WWW-Authenticate");
+                       .WithExposedHeaders("WWW-Authenticate"); // expose header to receive claim challenges
             }));
         }
 
@@ -122,14 +121,6 @@ namespace ProfileAPI
             {
                 endpoints.MapControllers();
             });
-
-            //app.UseExceptionHandler(a => a.Run(async context =>
-            //{
-            //    var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
-            //    var exception = exceptionHandlerPathFeature.Error;
-
-            //    await context.Response.WriteAsJsonAsync(new { error = exception.Message });
-            //}));
         }
     }
 }

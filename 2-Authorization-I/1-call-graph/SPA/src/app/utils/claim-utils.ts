@@ -194,19 +194,19 @@ const changeDateFormat = (date: number) => {
 };
 
 /**
-   * This method parses WWW-Authenticate authentication headers
-   * @param header
-   * @return {Object} challengeMap
-   */
-export const parseChallenges = (header: string) => {
+ * This method parses WWW-Authenticate authentication headers
+ * @param header
+ * @return {Object} challengeMap
+ */
+export const parseChallenges = (header: string): Record<string, any> => {
     const schemeSeparator = header.indexOf(' ');
-    const challenges = header.substring(schemeSeparator + 1).split(',');
+    const challenges = header.substring(schemeSeparator + 1).split(', ');
     const challengeMap = {} as any;
 
     challenges.forEach((challenge: string) => {
         const [key, value] = challenge.split('=');
-        challengeMap[key.trim()] = window.decodeURI(value.replace(/['"]+/g, ''));
+        challengeMap[key.trim()] = window.decodeURI(value.replace(/(^"|"$)/g, ''));
     });
-    
+
     return challengeMap;
 }
