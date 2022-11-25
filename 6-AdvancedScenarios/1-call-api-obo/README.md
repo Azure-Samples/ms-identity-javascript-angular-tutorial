@@ -1,4 +1,26 @@
-# Angular single-page application authorizing .NET Core web API to call Microsoft Graph using on-behalf-of flow
+---
+page_type: sample
+name: An Angular single-page application calling an AspNetCore web API which calls the Microsoft Graph API using the on-behalf-of (OBO) flow
+description: An Angular single-page application signing-in a user and calling an AspNetCore Web API protected with Azure AD. The Web API in turn then calls the Microsoft Graph API using the on-behalf-of (OBO) flow
+languages:
+ -  typescript
+ -  csharp
+products:
+ - azure-active-directory
+ - msal-js
+ - msal-angular
+ - microsoft-identity-web
+urlFragment: ms-identity-javascript-angular-tutorial
+extensions:
+- services: ms-identity
+- platform: javascript
+- endpoint: AAD v2.0
+- level: 300
+- client: Angular SPA
+- service: .NET Core web API
+---
+
+# An Angular single-page application calling an AspNetCore web API which calls the Microsoft Graph API using the on-behalf-of(OBO) flow
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -7,19 +29,23 @@
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
+* [How to deploy this sample to Azure](#how-to-deploy-this-sample-to-azure)
+* [Next Steps](#next-steps)
 * [Contributing](#contributing)
 * [Learn More](#learn-more)
 
 ## Overview
 
-This sample demonstrates an Angular single-page application which lets a user authenticate and obtain an access token to call an ASP.NET Core web API, protected by [Azure Active Directory (Azure AD)](https://azure.microsoft.com/services/active-directory/). The web API then calls the [Microsoft Graph API](https://developer.microsoft.com/graph) using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow). The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
+This sample demonstrates an Angular single-page application (SPA) which lets a user authenticate with their Azure AD tenant and  obtains an [access token](https://aka.ms/access-tokens) to call an ASP.NET Core web API, protected by [Azure Active Directory (Azure AD)](https://azure.microsoft.com/services/active-directory/).
+The web API then proceeds to obtain another access token for [Microsoft Graph API](https://developer.microsoft.com/graph) using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow).
+The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
 
 ## Scenario
 
 - The sample implements an **onboarding** scenario where a profile is created for a new user whose fields are pre-populated by the available information about the user on Microsoft Graph.
 - The **ProfileSPA** uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user.
-- Once the user authenticates, **ProfileSPA** obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure AD.
-- The access token is then used to authorize the **ProfileAPI** to call MS Graph API **on user's behalf**. In order to call MS Graph API, **ProfileAPI** uses the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
+- Once the user authenticates, **ProfileSPA** obtains an [access token](https://aka.ms/access-tokens) from Azure AD.
+- The access token is then used to authorize the **ProfileAPI**. This access token is also used to obtain another access token to call MS Graph API **on user's behalf**. In order to call MS Graph API, **ProfileAPI** uses the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
 - To protect its endpoint and accept only the authorized calls, the ProfileAPI uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web).
 
 ![Overview](./ReadmeFiles/topology.png)
@@ -36,18 +62,23 @@ This sample demonstrates an Angular single-page application which lets a user au
 
 ## Prerequisites
 
-- An **Azure AD** tenant. For more information see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/quickstart-create-new-tenant)
-- A user account in your **Azure AD** tenant. This sample will not work with a **personal Microsoft account**. Therefore, if you signed in to the [Azure portal](https://portal.azure.com) with a personal account and have never created a user account in your directory before, you need to do that now.
+* Either [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/download) and [.NET Core SDK](https://www.microsoft.com/net/learn/get-started)
+* An **Azure AD** tenant. For more information, see: [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant)
+* A user account in your **Azure AD** tenant.
+
+>This sample will not work with a **personal Microsoft account**. If you're signed in to the [Azure portal](https://portal.azure.com) with a personal Microsoft account and have not created a user account in your directory before, you will need to create one before proceeding.
 
 ## Setup the sample
 
-### Step 1. Clone or download this repository
+### Step 1: Clone or download this repository
+
+From your shell or command line:
 
 ```console
-    git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
+git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
 ```
 
-or download and extract the repository .zip file.
+or download and extract the repository *.zip* file.
 
 > :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
 
@@ -55,7 +86,7 @@ or download and extract the repository .zip file.
 
 ```console
    cd ms-identity-javascript-angular-tutorial
-   cd 6-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
+   cd 7-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
    dotnet restore
 ```
 
@@ -86,32 +117,30 @@ There are two projects in this sample. Each needs to be separately registered in
 <details>
   <summary>Expand this section if you want to use this automation:</summary>
 
-> :warning: If you have never used **Azure AD Powershell** before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-
-1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
-1. If you have never used Azure AD Powershell before, we recommend you go through the [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
-1. In PowerShell run:
+    > :warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
+  
+    1. On Windows, run PowerShell as **Administrator** and navigate to the root of the cloned directory
+    1. In PowerShell run:
 
    ```PowerShell
    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
    ```
 
-1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
-1. In PowerShell run:
+    1. Run the script to create your Azure AD application and configure the code of the sample application accordingly.
+    1. For interactive process -in PowerShell, run:
 
    ```PowerShell
    cd .\AppCreationScripts\
-   .\Configure.ps1
+       .\Configure.ps1 -TenantId "[Optional] - your tenant id" -AzureEnvironmentName "[Optional] - Azure environment, defaults to 'Global'"
    ```
 
-   > Other ways of running the scripts are described in [App Creation Scripts](./AppCreationScripts/AppCreationScripts.md)
-   > The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
+    > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
 </details>
 
 #### Choose the Azure AD tenant where you want to create your applications
 
-As a first step you'll need to:
+To manually register the apps, as a first step you'll need to:
 
 1. Sign in to the [Azure portal](https://portal.azure.com).
 1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
@@ -137,23 +166,23 @@ As a first step you'll need to:
    1. Select the **Add a permission** button and then:
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-   1. In the **Delegated permissions** section, select **User.Read**, **offline_access** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      * In the **Delegated permissions** section, select **User.Read**, **offline_access** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
    1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
-   1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**.
-      > :information_source: Read more about Application ID URI at [Validation differences by supported account types (signInAudience)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
+    1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
 
 ##### Publish Delegated Permissions
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-   1. For **Scope name**, use `access_as_user`.
-   1. Select **Admins and users** options for **Who can consent?**.
-   1. For **Admin consent display name** type in *access_as_user*.
-   1. For **Admin consent description** type in *e.g. Allows the app to read the signed-in user's files.*.
-   1. For **User consent display name** type in *scopeName*.
-   1. For **User consent description** type in *eg. Allows the app to read your files.*.
+    1. For **Scope name**, use `access_graph_on_behalf_of_user`.
+      1. Select **Admins and users** options for **Who can consent?**.
+    1. For **Admin consent display name** type in *Access Microsoft Graph as the signed-in user*.
+    1. For **Admin consent description** type in *Allow the app to access Microsoft Graph Api as the signed-in user*.
+    1. For **User consent display name** type in *Access Microsoft Graph on your behalf*.
+    1. For **User consent description** type in *Allow the Microsoft Graph APi on your behalf.*.
    1. Keep **State** as **Enabled**.
    1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
@@ -167,8 +196,8 @@ As a first step you'll need to:
    1. Select **optional claim type**, then choose **Access**.
       1. Select the optional claim **idtyp**.
       > Indicates token type. This claim is the most accurate way for an API to determine if a token is an app token or an app+user token. This is not issued in tokens issued to users.
-      1. Select the optional claim **acct**.
-      > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
+     1. Select the optional claim **xms_cc**.
+    > See [optional claims](https://docs.microsoft.com/azure/active-directory/develop/active-directory-optional-claims) for more details on this optional claim.
    1. Select **Add** to save your changes.
 
 ##### Configure the service app (ProfileAPI) to use your app registration
@@ -178,32 +207,42 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\ProfileAPI\appsettings.json` file.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
-1. Find the key `ClientSecret` and replace the existing value with the key you saved during the creation of `ProfileAPI` copied from the Azure portal.
-1. Find the key `TenantId` and replace the existing value with your Azure AD tenant ID.
+1. Find the key `Enter the client Secret` and replace the existing value with the generated secret that you saved during the creation of `ProfileAPI` copied from the Azure portal.
+1. Find the key `Enter the client ID (aka 'Application ID')` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
+1. Find the key `Enter the tenant ID` and replace the existing value with your Azure AD tenant/directory ID.
 
 #### Register the client app (ProfileSPA)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD** service.
+1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-   - In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ProfileSPA`.
-   - Under **Supported account types**, select **Accounts in this organizational directory only**.
-   - In the **Redirect URI (optional)** section, select **Single-page application** in the combo-box and enter the following redirect URI: `http://localhost:4200/auth`.
-1. Select **Register** to create the application.
-1. In the app's registration screen, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
-1. Select **Save** to save your changes.
-1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs.
-   - Select the **Add a permission** button and then:
-      - Ensure that the **Microsoft APIs** tab is selected.
-      - In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      - In the **Delegated permissions** section, select the **User.Read** in the list. Use the search box if necessary.
-      - Select the **Add permissions** button at the bottom.
-   - Select the **Add a permission** button and then:
-      - Ensure that the **My APIs** tab is selected.
-      - In the list of APIs, select the API `ProfileAPI`.
-      - In the **Delegated permissions** section, select the **Access 'ProfileAPI'** in the list. Use the search box if necessary.
-      - Select the **Add permissions** button at the bottom.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ProfileSPA`.
+    1. Under **Supported account types**, select **Accounts in this organizational directory only**
+    1. Select **Register** to create the application.
+1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
+1. In the app's registration screen, select the **Authentication** blade to the left.
+1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
+    1. In the **Redirect URI** section enter the following redirect URIs:
+        1. `http://localhost:4200`
+        1. `http://localhost:4200/auth`
+    1. Click **Save** to save your changes.
+1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
+    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+    1. Select the **Add a permission** button and then:
+    1. Ensure that the **My APIs** tab is selected.
+    1. In the list of APIs, select the API `ProfileAPI`.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      * In the **Delegated permissions** section, select **access_graph_on_behalf_of_user** in the list. Use the search box if necessary.
+    1. Select the **Add permissions** button at the bottom.
+
+##### Configure Optional Claims
+
+1. Still on the same app registration, select the **Token configuration** blade to the left.
+1. Select **Add optional claim**:
+    1. Select **optional claim type**, then choose **Access**.
+     1. Select the optional claim **acct**.
+    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
+    1. Select **Add** to save your changes.
 
 ##### Configure the client app (ProfileSPA) to use your app registration
 
@@ -213,17 +252,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ProfileSPA` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant ID.
-1. Find the key `Enter_the_Application_Id_of_Service_Here` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
+1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `ProfileAPI` app copied from the Azure portal.
 
 #### Configure Known Client Applications for service (ProfileAPI)
 
-For a middle-tier web API (`ProfileAPI`) to be able to call a downstream web API, the middle-tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle tier Web Api and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions.
+For a middle-tier web API (`ProfileAPI`) to be able to call a downstream web API, the middle tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle-tier web API and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions. To achieve this, you need to add the **Application Id** of the client app to the `knownClientApplications` property in the **manifest** of the web API. Here's how:
 
-To achieve this, you need to add the **Application Id** of the client app, in the Manifest of the web API in the `knownClientApplications` property. Here's how:
-
-1. In the [Azure portal](https://portal.azure.com), navigate to your `ProfileAPI` app registration, and select **Manifest** section.
-1. In the manifest editor, change the `"knownClientApplications": []` line so that the array contains the Client ID of the client application (`ProfileSPA`) as an element of the array.
+1. In the [Azure portal](https://portal.azure.com), navigate to your `ProfileAPI` app registration, and select the **Manifest** blade.
+1. In the manifest editor, change the `knownClientApplications: []` line so that the array contains the Client ID of the client application (`ProfileSPA`) as an element of the array.
 
 For instance:
 

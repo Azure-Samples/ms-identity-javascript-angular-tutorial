@@ -32,7 +32,8 @@ namespace ProfileAPI.Controllers
         private readonly IOptions<MicrosoftGraphOptions> _graphOptions;
         //private readonly IDownstreamWebApi _downstreamWebApi;
 
-        public ProfileController(IConfiguration configuration, ProfileContext context, /*IDownstreamWebApi downstreamWebApi ,*/ ITokenAcquisition tokenAcquisition, GraphServiceClient graphServiceClient, IOptions<MicrosoftGraphOptions> graphOptions)
+        public ProfileController(IConfiguration configuration, ProfileContext context, /*IDownstreamWebApi downstreamWebApi ,*/ ITokenAcquisition tokenAcquisition, 
+            GraphServiceClient graphServiceClient, IOptions<MicrosoftGraphOptions> graphOptions)
         {
             _configuration = configuration;
             _context = context;
@@ -118,7 +119,7 @@ namespace ProfileAPI.Controllers
             }
             catch (MsalException ex)
             {
-                return Unauthorized("An authentication error occurred while acquiring a token for downstream API\n" + ex.ErrorCode + "\n" + ex.Message);
+                return BadRequest("An authentication error occurred while acquiring a token for downstream API\n" + ex.ErrorCode + "\n" + ex.Message);
             }
             catch (MicrosoftIdentityWebChallengeUserException ex)
             {
@@ -144,7 +145,7 @@ namespace ProfileAPI.Controllers
                 } 
                 else
                 {
-                    return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable");
+                    return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable. Please re-authenticate and try again.");
                 }
 
             }
@@ -171,6 +172,7 @@ namespace ProfileAPI.Controllers
                 return BadRequest();
             }
 
+            // NOTE: We only update the entry in the local Db, and not in MS graph ..
             _context.Entry(profileItem).State = EntityState.Modified;
 
             try

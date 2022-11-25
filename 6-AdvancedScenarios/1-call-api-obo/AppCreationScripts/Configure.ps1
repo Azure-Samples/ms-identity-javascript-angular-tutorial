@@ -310,14 +310,13 @@ Function ConfigureApplications
 
     $newClaim =  CreateOptionalClaim  -name "idtyp" 
     $optionalClaims.AccessToken += ($newClaim)
-    $newClaim =  CreateOptionalClaim  -name "acct" 
+    $newClaim =  CreateOptionalClaim  -name "xms_cc" 
     $optionalClaims.AccessToken += ($newClaim)
     Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
     
     # rename the user_impersonation scope if it exists to match the readme steps or add a new scope
        
     # delete default scope i.e. User_impersonation
-    # Alex: the scope deletion doesn't work - see open issue - https://github.com/microsoftgraph/msgraph-sdk-powershell/issues/1054
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
     $scope = $serviceAadApplication.Api.Oauth2PermissionScopes | Where-Object { $_.Value -eq "User_impersonation" }
     
@@ -333,11 +332,11 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_as_user  `
-        -userConsentDisplayName "access_as_user"  `
-        -userConsentDescription "eg. Allows the app to read your files."  `
-        -adminConsentDisplayName "access_as_user"  `
-        -adminConsentDescription "e.g. Allows the app to read the signed-in user's files."
+    $scope = CreateScope -value access_graph_on_behalf_of_user  `
+        -userConsentDisplayName "Access Microsoft Graph as the signed-in user"  `
+        -userConsentDescription "Allow the Microsoft Graph APi on your behalf."  `
+        -adminConsentDisplayName "Access Microsoft Graph as the signed-in user"  `
+        -adminConsentDescription "Allow the app to access Microsoft Graph Api as the signed-in user"
             
     $scopes.Add($scope)
     
@@ -347,7 +346,7 @@ Function ConfigureApplications
 
     # URL of the AAD application in the Azure portal
     # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $servicePortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
 
     Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>ProfileAPI</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
@@ -414,7 +413,7 @@ Function ConfigureApplications
 
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
 
     Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>ProfileSPA</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
@@ -423,7 +422,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'service')
     Write-Host "Getting access from 'client' to 'service'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "ProfileAPI"`
-        -requiredDelegatedPermissions "access_as_user"
+        -requiredDelegatedPermissions "access_graph_on_behalf_of_user"
 
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'service' to the RRA list."
@@ -431,7 +430,7 @@ Function ConfigureApplications
     # $requiredResourcesAccess.Count
     # $requiredResourcesAccess
     
-    Update-MgApplication -ApplicationId $clientAadApplication.Id -RequiredResourceAccess $requiredResourcesAccess
+    Update-MgApplication -ApplicationId $currentAppObjectId -RequiredResourceAccess $requiredResourcesAccess
     Write-Host "Granted permissions."
     
 
@@ -440,9 +439,9 @@ Function ConfigureApplications
 
     # Configure known client applications for service 
     Write-Host "Configure known client applications for the 'service'"
-    $knowApplications = New-Object System.Collections.Generic.List[System.String]
-    $knowApplications.Add($clientAadApplication.AppId)
-    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{KnownClientApplications = $knowApplications}
+    $knownApplications = New-Object System.Collections.Generic.List[System.String]
+    $knownApplications.Add($clientAadApplication.AppId)
+    Update-MgApplication -ApplicationId $serviceAadApplication.Id -Api @{KnownClientApplications = $knownApplications}
     Write-Host "knownclientapplication setting configured."
 
     

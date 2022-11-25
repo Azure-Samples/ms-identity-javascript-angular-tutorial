@@ -13,6 +13,7 @@ using Microsoft.Identity.Web;
 using ProfileAPI.Models;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace ProfileAPI
 {
@@ -28,6 +29,12 @@ namespace ProfileAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // This is required to be instantiated before the OpenIdConnectOptions starts getting configured.
+            // By default, the claims mapping will map claim names in the old format to accommodate older SAML applications.
+            // 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role' instead of 'roles'
+            // This flag ensures that the ClaimsIdentity claims collection will be built from the claims in the token
+            JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddMicrosoftIdentityWebApi(options =>
                 {
@@ -52,12 +59,17 @@ namespace ProfileAPI
                     //    string clientappId = context?.Principal?.Claims
                     //        .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
 
-                    //    if (!allowedClientApps.Contains(clientappId))
-                    //    {
-                    //        throw new System.Exception("This client is not authorized");
-                    //    }
+                    //              if (!allowedClientApps.Contains(clientappId))
+                    //              {
+                    //                  throw new UnauthorizedAccessException("The client app is not permitted to access this API");
+                    //              }
+
+                    //              await Task.CompletedTask;
                     //};
-                }, options => { Configuration.Bind("AzureAd", options); })
+                }, options => 
+                { 
+                    Configuration.Bind("AzureAd", options); 
+                })
                 .EnableTokenAcquisitionToCallDownstreamApi(options => Configuration.Bind("AzureAd", options))
                 .AddMicrosoftGraph(Configuration.GetSection("DownstreamAPI"))
                 //.AddDownstreamWebApi("MyApi", Configuration.GetSection("DownstreamAPI2"))
@@ -70,7 +82,7 @@ namespace ProfileAPI
             // The following flag can be used to get more descriptive errors in development environments
             // Enable diagnostic logging to help with troubleshooting. For more details, see https://aka.ms/IdentityModel/PII.
             // You might not want to keep this following flag on for production
-            IdentityModelEventSource.ShowPII = false;
+            IdentityModelEventSource.ShowPII = true;
 
             // Allowing CORS for all domains and HTTP methods for the purpose of the sample
             // In production, modify this with the actual domains and HTTP methods you want to allow
