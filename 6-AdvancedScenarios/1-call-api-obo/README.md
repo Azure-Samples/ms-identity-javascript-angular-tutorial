@@ -174,7 +174,7 @@ To manually register the apps, as a first step you'll need to:
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
 1. Select **Add a scope** button open the **Add a scope** screen and enter the values as indicated below:
-   1. For **Scope name**, use `access_on_behalf_of_user`.
+   1. For **Scope name**, use `access_graph_on_behalf_of_user`.
    1. Select **Admins and users** options for **Who can consent?**.
    1. For **Admin consent display name** type in *Access Microsoft Graph as the signed-in user*.
    1. For **Admin consent description** type in *Allow the app to access Microsoft Graph Api as the signed-in user*.
@@ -244,7 +244,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
    1. Ensure that the **My APIs** tab is selected.
    1. In the list of APIs, select the API `ProfileAPI`.
       1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      1. In the **Delegated permissions** section, select **access_on_behalf_of_user** in the list. Use the search box if necessary.
+      1. In the **Delegated permissions** section, select **access_graph_on_behalf_of_user** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 
 ##### Configure Optional Claims
