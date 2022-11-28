@@ -94,7 +94,7 @@ namespace ProfileAPI.Controllers
                 } 
                 else
                 {
-                    return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable. Please re-authenticate and try again.");
+                    return Unauthorized("Continuous access evaluation resulted in claims challenge but the client is not capable. Please enable client capabilities and try again.");
                 }
             }
             catch (Exception ex)

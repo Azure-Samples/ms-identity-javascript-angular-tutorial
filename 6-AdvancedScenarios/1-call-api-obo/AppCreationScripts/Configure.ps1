@@ -332,7 +332,7 @@ Function ConfigureApplications
     }
 
     $scopes = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope]
-    $scope = CreateScope -value access_graph_on_behalf_of_user  `
+    $scope = CreateScope -value access_on_behalf_of_user  `
         -userConsentDisplayName "Access Microsoft Graph as the signed-in user"  `
         -userConsentDescription "Allow the Microsoft Graph APi on your behalf."  `
         -adminConsentDisplayName "Access Microsoft Graph as the signed-in user"  `
@@ -422,7 +422,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'service')
     Write-Host "Getting access from 'client' to 'service'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "ProfileAPI"`
-        -requiredDelegatedPermissions "access_graph_on_behalf_of_user"
+        -requiredDelegatedPermissions "access_on_behalf_of_user"
 
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'service' to the RRA list."

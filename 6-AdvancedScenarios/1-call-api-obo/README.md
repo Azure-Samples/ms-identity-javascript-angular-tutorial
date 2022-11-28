@@ -3,8 +3,8 @@ page_type: sample
 name: An Angular single-page application calling an AspNetCore web API which calls the Microsoft Graph API using the on-behalf-of (OBO) flow
 description: An Angular single-page application signing-in a user and calling an AspNetCore Web API protected with Azure AD. The Web API in turn then calls the Microsoft Graph API using the on-behalf-of (OBO) flow
 languages:
- -  typescript
- -  csharp
+ - typescript
+ - csharp
 products:
  - azure-active-directory
  - msal-js
@@ -29,8 +29,6 @@ extensions:
 * [Explore the sample](#explore-the-sample)
 * [Troubleshooting](#troubleshooting)
 * [About the code](#about-the-code)
-* [How to deploy this sample to Azure](#how-to-deploy-this-sample-to-azure)
-* [Next Steps](#next-steps)
 * [Contributing](#contributing)
 * [Learn More](#learn-more)
 
@@ -86,7 +84,7 @@ or download and extract the repository *.zip* file.
 
 ```console
    cd ms-identity-javascript-angular-tutorial
-   cd 7-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
+   cd 6-AdvancedScenarios/1-call-api-obo/API/ProfileAPI
    dotnet restore
 ```
 
@@ -161,28 +159,27 @@ To manually register the apps, as a first step you'll need to:
    1. The generated key value will be displayed when you select the **Add** button. Copy and save the generated value for use in later steps.
    1. You'll need this key later in your code's configuration files. This key value will not be displayed again, and is not retrievable by any other means, so make sure to note it from the Azure portal before navigating to any other screen or blade.
    > :bulb: For enhanced security, instead of using client secrets, consider [using certificates](./README-use-certificate.md) and [Azure KeyVault](https://azure.microsoft.com/services/key-vault/#product-overview).
-   1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
    1. Select the **Add a permission** button and then:
    1. Ensure that the **Microsoft APIs** tab is selected.
    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **User.Read**, **offline_access** in the list. Use the search box if necessary.
+      1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      1. In the **Delegated permissions** section, select **User.Read**, **offline_access** in the list. Use the search box if necessary.
    1. Select the **Add permissions** button at the bottom.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
    1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
-    1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
+   1. For this sample, accept the proposed Application ID URI (`api://{clientId}`) by selecting **Save**. Read more about Application ID URI at [Validation differences by supported account types \(signInAudience\)](https://docs.microsoft.com/azure/active-directory/develop/supported-accounts-validation).
 
 ##### Publish Delegated Permissions
 
 1. All APIs must publish a minimum of one [scope](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow#request-an-authorization-code), also called [Delegated Permission](https://docs.microsoft.com/azure/active-directory/develop/v2-permissions-and-consent#permission-types), for the client apps to obtain an access token for a *user* successfully. To publish a scope, follow these steps:
-1. Select **Add a scope** button open the **Add a scope** screen and Enter the values as indicated below:
-    1. For **Scope name**, use `access_graph_on_behalf_of_user`.
-      1. Select **Admins and users** options for **Who can consent?**.
-    1. For **Admin consent display name** type in *Access Microsoft Graph as the signed-in user*.
-    1. For **Admin consent description** type in *Allow the app to access Microsoft Graph Api as the signed-in user*.
-    1. For **User consent display name** type in *Access Microsoft Graph on your behalf*.
-    1. For **User consent description** type in *Allow the Microsoft Graph APi on your behalf.*.
+1. Select **Add a scope** button open the **Add a scope** screen and enter the values as indicated below:
+   1. For **Scope name**, use `access_on_behalf_of_user`.
+   1. Select **Admins and users** options for **Who can consent?**.
+   1. For **Admin consent display name** type in *Access Microsoft Graph as the signed-in user*.
+   1. For **Admin consent description** type in *Allow the app to access Microsoft Graph Api as the signed-in user*.
+   1. For **User consent display name** type in *Access Microsoft Graph on your behalf*.
+   1. For **User consent description** type in *Allow the Microsoft Graph APi on your behalf.*.
    1. Keep **State** as **Enabled**.
    1. Select the **Add scope** button on the bottom to save this scope.
 1. Select the **Manifest** blade on the left.
@@ -196,9 +193,25 @@ To manually register the apps, as a first step you'll need to:
    1. Select **optional claim type**, then choose **Access**.
       1. Select the optional claim **idtyp**.
       > Indicates token type. This claim is the most accurate way for an API to determine if a token is an app token or an app+user token. This is not issued in tokens issued to users.
-     1. Select the optional claim **xms_cc**.
-    > See [optional claims](https://docs.microsoft.com/azure/active-directory/develop/active-directory-optional-claims) for more details on this optional claim.
    1. Select **Add** to save your changes.
+1. Still on the same app registration, select the **Manifest** blade to the left.
+   1. Set the **optionalClaims** property as shown below to request client capabilities claim *xms_cc*:
+
+   ```json
+      "optionalClaims": 
+      {
+      "accessToken": [
+         {
+            "additionalProperties": [],
+            "essential": false,
+            "name": "xms_cc",
+            "source": null
+         }
+      ],
+      "idToken": [],
+      "saml2Token": []
+      }
+   ```
 
 ##### Configure the service app (ProfileAPI) to use your app registration
 
@@ -216,33 +229,32 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ProfileSPA`.
-    1. Under **Supported account types**, select **Accounts in this organizational directory only**
-    1. Select **Register** to create the application.
+   1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `ProfileSPA`.
+   1. Under **Supported account types**, select **Accounts in this organizational directory only**
+   1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
 1. In the app's registration screen, select the **Authentication** blade to the left.
 1. If you don't have a platform added, select **Add a platform** and select the **Single-page application** option.
-    1. In the **Redirect URI** section enter the following redirect URIs:
-        1. `http://localhost:4200`
-        1. `http://localhost:4200/auth`
-    1. Click **Save** to save your changes.
-1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
-    1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
-    1. Select the **Add a permission** button and then:
-    1. Ensure that the **My APIs** tab is selected.
-    1. In the list of APIs, select the API `ProfileAPI`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **access_graph_on_behalf_of_user** in the list. Use the search box if necessary.
-    1. Select the **Add permissions** button at the bottom.
+   1. In the **Redirect URI** section enter the following redirect URIs:
+      1. `http://localhost:4200`
+      1. `http://localhost:4200/auth`
+   1. Click **Save** to save your changes.
+1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
+   1. Select the **Add a permission** button and then:
+   1. Ensure that the **My APIs** tab is selected.
+   1. In the list of APIs, select the API `ProfileAPI`.
+      1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      1. In the **Delegated permissions** section, select **access_on_behalf_of_user** in the list. Use the search box if necessary.
+   1. Select the **Add permissions** button at the bottom.
 
 ##### Configure Optional Claims
 
 1. Still on the same app registration, select the **Token configuration** blade to the left.
 1. Select **Add optional claim**:
-    1. Select **optional claim type**, then choose **Access**.
-     1. Select the optional claim **acct**.
-    > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
-    1. Select **Add** to save your changes.
+   1. Select **optional claim type**, then choose **Access**.
+   1. Select the optional claim **acct**.
+   > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
+   1. Select **Add** to save your changes.
 
 ##### Configure the client app (ProfileSPA) to use your app registration
 
@@ -440,6 +452,15 @@ handleClaimsChallenge(response: HttpErrorResponse): void {
       `cc.${msalConfig.auth.clientId}.${account?.idTokenClaims?.oid}.${new URL(protectedResources.profileApi.endpoint).hostname}`,
       claimsChallengeMap['claims']
    );
+
+   // make a token request afterwards
+   this.authService.instance.acquireTokenPopup({
+      account: account,
+      scopes: protectedResources.profileApi.scopes,
+      claims: claimsChallengeMap['claims']
+   }).catch((error) => {
+      console.log(error);
+   });
 }
 ```
 
