@@ -5,42 +5,34 @@ import { ProfileService } from '../profile.service';
 import { Profile } from '../profile';
 
 @Component({
-  selector: 'app-profile-edit',
-  templateUrl: './profile-edit.component.html',
-  styleUrls: ['./profile-edit.component.css']
+    selector: 'app-profile-edit',
+    templateUrl: './profile-edit.component.html',
+    styleUrls: ['./profile-edit.component.css']
 })
 export class ProfileEditComponent implements OnInit {
 
-  profile: Profile = {
-    id: "",
-    userPrincipalName: "",
-    givenName: "",
-    surname: "",
-    jobTitle: "",
-    mobilePhone: "",
-    preferredLanguage: "",
-    firstLogin: true,
-  };
+    profile: Profile = {
+        firstLogin: true,
+    };
 
-  constructor(private route: ActivatedRoute, private router: Router, private profileService: ProfileService) { }
+    constructor(private route: ActivatedRoute, private router: Router, private profileService: ProfileService) { }
 
-  ngOnInit(): void {
-    this.route.paramMap.subscribe((params) => {
-      let id: string = params.get('id')!;
+    ngOnInit(): void {
+        this.route.paramMap.subscribe((params) => {
+            let id: string = params.get('id')!;
 
-      this.profileService.getProfile(id)
-        .subscribe((profile: Profile) => {
-          this.profile = profile;
+            this.profileService.getProfile(id)
+                .subscribe((profile) => {
+                    this.profile = profile as Profile;
+                })
         })
-    })
-  }
+    }
 
-  editProfile(profile: Profile): void {
-    this.profileService.editProfile(this.profile)
-      .subscribe((ex) => {
-        console.log(ex)
-        this.router.navigate(['/profile-view']);
-      })
-  }
+    editProfile(): void {
+        this.profileService.editProfile(this.profile)
+            .subscribe(() => {
+                this.router.navigate(['/profile-view']);
+            })
+    }
 
 }

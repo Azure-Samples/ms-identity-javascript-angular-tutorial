@@ -15,7 +15,7 @@ import { Contact } from '../contacts';
 export class ContactsComponent implements OnInit {
     contacts: Contact[] = [];
     hasContacts: boolean = false;
-    
+
     constructor(
         private graphService: GraphService,
         private authService: MsalService
@@ -41,7 +41,7 @@ export class ContactsComponent implements OnInit {
             .then((response: any) => {
                 if (response.status === 200) return response.json();
                 if (response.status === 401) {
-                    if (response.headers.get('www-authenticate')) {
+                    if (response.headers.get('WWW-Authenticate')) {
                         this.graphService.handleClaimsChallenge(response, providerOptions);
                     }
                 }

@@ -1,4 +1,22 @@
 /**
+ * This method parses WWW-Authenticate authentication headers
+ * @param header
+ * @return {Object} challengeMap
+ */
+export const parseChallenges = (header: string): Record<string, any> => {
+    const schemeSeparator = header.indexOf(' ');
+    const challenges = header.substring(schemeSeparator + 1).split(', ');
+    const challengeMap = {} as any;
+
+    challenges.forEach((challenge: string) => {
+        const [key, value] = challenge.split('=');
+        challengeMap[key.trim()] = window.decodeURI(value.replace(/(^"|"$)/g, ''));
+    });
+
+    return challengeMap;
+}
+
+/**
  * Populate claims table with appropriate description
  * @param {Record} claims ID token claims
  * @returns claimsTable
@@ -136,7 +154,7 @@ export const createClaimsTable = (claims: Record<string, string>): any[] => {
                     claimsTable
                 );
                 break;
-            case 'login_hint':
+            case "login_hint":
                 populateClaim(
                     key,
                     claims[key],
@@ -144,7 +162,7 @@ export const createClaimsTable = (claims: Record<string, string>): any[] => {
                     claimsTable
                 );
                 break;
-            case 'idtyp':
+            case "idtyp":
                 populateClaim(
                     key,
                     claims[key],
@@ -164,49 +182,26 @@ export const createClaimsTable = (claims: Record<string, string>): any[] => {
 };
 
 /**
- * Populates claim, description, and value into an claimsObject
- * @param {String} claim
- * @param {String} value
- * @param {String} description
- * @param {Array} claimsObject
- */
-const populateClaim = (
-    claim: string,
-    value: string,
-    description: string,
-    claimsTable: any[]
-): void => {
+* Populates claim, description, and value into an claimsObject
+* @param {String} claim
+* @param {String} value
+* @param {String} description
+* @param {Array} claimsObject
+*/
+const populateClaim = (claim: string, value: string, description: string, claimsTable: any[]): void => {
     claimsTable.push({
         claim: claim,
         value: value,
-        description: description,
+        description: description
     });
 };
 
 /**
- * Transforms Unix timestamp to date and returns a string value of that date
- * @param {number} date Unix timestamp
- * @returns
- */
+* Transforms Unix timestamp to date and returns a string value of that date
+* @param {number} date Unix timestamp
+* @returns
+*/
 const changeDateFormat = (date: number) => {
     let dateObj = new Date(date * 1000);
     return `${date} - [${dateObj.toString()}]`;
 };
-
-/**
- * This method parses WWW-Authenticate authentication headers
- * @param header
- * @return {Object} challengeMap
- */
-export const parseChallenges = (header: string): Record<string, any> => {
-    const schemeSeparator = header.indexOf(' ');
-    const challenges = header.substring(schemeSeparator + 1).split(', ');
-    const challengeMap = {} as any;
-
-    challenges.forEach((challenge: string) => {
-        const [key, value] = challenge.split('=');
-        challengeMap[key.trim()] = window.decodeURI(value.replace(/(^"|"$)/g, ''));
-    });
-
-    return challengeMap;
-}
