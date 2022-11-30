@@ -57,5 +57,5 @@ jobs:
         cd 6-AdvancedScenarios/2-call-api-mt/API
         dotnet restore
         dotnet build --no-restore
-        cd ProfileAPI.Tests
+        cd TodoListAPI.Tests
         dotnet test --no-build --verbosity normal
