@@ -6,18 +6,19 @@
     </div>
     <form #edit="ngForm" (ngSubmit)="editTodo(edit.value)">
         <mat-form-field appearance="fill" class="form-field">
-                <input matInput type="text" name="description" placeholder="task" class="input-field" [(ngModel)]="todo.description">
+            <input matInput type="text" name="description" placeholder="task" class="input-field"
+                [(ngModel)]="todo.description">
         </mat-form-field>
 
         <mat-form-field appearance="fill">
-          <mat-label>Assign</mat-label>
-          <mat-select name="user" [(ngModel)]="todo.user" >
-            <mat-option *ngFor="let user of users" [value]="user">
-                {{user}}
-              </mat-option>
-            </mat-select>
-        </mat-form-field>
-        
+            <mat-label>Assign</mat-label>
+            <mat-select name="user" [(ngModel)]="todo.user" >
+              <mat-option *ngFor="let user of users" [value]="user">
+                  {{user}}
+                </mat-option>
+              </mat-select>
+          </mat-form-field>
+          
         <button mat-raised-button color="primary" type="submit" value="submit" class="submit-button">Edit</button>
     </form>
 </mat-card>

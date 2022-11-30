@@ -1,39 +1,38 @@
-import { Todo } from './todo';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Todo } from './todo';
 
 import { protectedResources } from './auth-config';
 
 @Injectable({
-  providedIn: 'root'
+    providedIn: 'root'
 })
 export class TodoService {
-  apiUri = protectedResources.todoListApi.endpoint;
-  graphUri = protectedResources.graphApi.endpoint;
+    url = protectedResources.todoListApi.endpoint;
 
-  constructor(private http: HttpClient) { }
+    constructor(private http: HttpClient) { }
 
-  getUsers() {
-    return this.http.get<string[]>(this.graphUri);
-  }
+    getUsers() {
+        return this.http.get<string[]>(this.url);
+    }
 
-  getTodos() { 
-    return this.http.get<Todo[]>(this.apiUri);
-  }
+    getTodos() {
+        return this.http.get<Todo[]>(this.url);
+    }
 
-  getTodo(id: number) { 
-    return this.http.get<Todo>(this.apiUri + '/' + id);
-  }
-  
-  postTodo(todo: Todo) { 
-    return this.http.post<Todo>(this.apiUri, todo);
-  }
+    getTodo(id: number) {
+        return this.http.get<Todo>(this.url + '/' + id);
+    }
 
-  deleteTodo(id: number) {
-    return this.http.delete(this.apiUri + '/' + id);
-  }
+    postTodo(todo: Todo) {
+        return this.http.post<Todo>(this.url, todo);
+    }
 
-  editTodo(todo: Todo) { 
-    return this.http.put<Todo>(this.apiUri + '/' + todo.id, todo);
-  }
+    deleteTodo(id: number) {
+        return this.http.delete(this.url + '/' + id);
+    }
+
+    editTodo(todo: Todo) {
+        return this.http.put<Todo>(this.url + '/' + todo.id, todo);
+    }
 }

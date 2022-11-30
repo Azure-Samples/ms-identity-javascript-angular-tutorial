@@ -52,3 +52,10 @@ jobs:
         dotnet build --no-restore
         cd ProfileAPI.Tests
         dotnet test --no-build --verbosity normal
+
+    - run: |
+        cd 6-AdvancedScenarios/2-call-api-mt/API
+        dotnet restore
+        dotnet build --no-restore
+        cd ProfileAPI.Tests
+        dotnet test --no-build --verbosity normal

@@ -1,6 +1,5 @@
-export interface Todo {
+export interface User {
     id: number;
     description: string;
     status: boolean;
-    user: any
 }
