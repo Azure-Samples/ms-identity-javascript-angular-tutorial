@@ -5,7 +5,7 @@
  * in app.module.ts file.
  */
 
-import { LogLevel, Configuration, BrowserCacheLocation } from '@azure/msal-browser';
+import { LogLevel, Configuration, BrowserCacheLocation, PopupRequest, RedirectRequest } from '@azure/msal-browser';
 
 const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigator.userAgent.indexOf("Trident/") > -1;
 
@@ -17,7 +17,7 @@ const isIE = window.navigator.userAgent.indexOf("MSIE ") > -1 || window.navigato
 export const msalConfig: Configuration = {
     auth: {
         clientId: 'Enter_the_Application_Id_Here', // This is the ONLY mandatory field that you need to supply.
-        authority: 'https://login.microsoftonline.com/Enter_the_Tenant_Info_Here', // Defaults to "https://login.microsoftonline.com/common"
+        authority: 'https://login.microsoftonline.com/organizations', // Defaults to "https://login.microsoftonline.com/common"
         redirectUri: '/auth', // Points to window.location.origin by default. You must register this URI on Azure portal/App Registration.
         postLogoutRedirectUri: '/', // Points to window.location.origin by default.
         clientCapabilities: ['CP1'] // This lets the resource server know that this client can handle claim challenges.
@@ -60,11 +60,13 @@ export const protectedResources = {
 };
 
 /**
- * Scopes you add here will be prompted for user consent during sign-in.
+ * Scopes you add here will be prompted for consent during sign-in.
  * By default, MSAL.js will add OIDC scopes (openid, profile, email) to any login request.
  * For more information about OIDC scopes, visit:
  * https://docs.microsoft.com/en-us/azure/active-directory/develop/v2-permissions-and-consent#openid-connect-scopes
  */
-export const loginRequest = {
-    scopes: []
+export const loginRequest: PopupRequest | RedirectRequest = {
+    scopes: [],
+    // scopes: [...protectedResources.graphApi.scopes],
+    // extraScopesToConsent: [...protectedResources.todoListApi.scopes.read, ...protectedResources.todoListApi.scopes.write]
 };

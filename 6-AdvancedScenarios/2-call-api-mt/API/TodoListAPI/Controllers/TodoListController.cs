@@ -77,7 +77,7 @@ namespace TodoListAPI.Controllers
                 /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
                 /// to new employees as employees leave the organization and others take their place.
                 /// </summary>
-                return await _context.TodoItems.Where(x => x.Owner == HttpContext.User.GetObjectId()).ToListAsync();
+                return await _context.TodoItems.Where(t => t.OwnerTenantId == HttpContext.User.GetTenantId()).ToListAsync();
             }
             else
             {
@@ -97,7 +97,7 @@ namespace TodoListAPI.Controllers
             // if it has app permissions the it will return t.id==id
             if (!IsAppOnlyToken())
             {
-                return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.Owner == HttpContext.User.GetObjectId());
+                return await _context.TodoItems.FirstOrDefaultAsync(t => t.Id == id && t.OwnerTenantId == HttpContext.User.GetTenantId());
             }
             else
             {
@@ -115,17 +115,17 @@ namespace TodoListAPI.Controllers
         )]
         public async Task<IActionResult> PutTodoItem(int id, TodoItem todoItem)
         {
-            if (id != todoItem.Id  || !_context.TodoItems.Any(x => x.Id == id))
+            if (id != todoItem.Id  || !_context.TodoItems.Any(t => t.Id == id))
             {
                 return NotFound();
             }
 
 
-            if ((!IsAppOnlyToken() && _context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+            if ((!IsAppOnlyToken() && _context.TodoItems.Any(t => t.Id == id && t.OwnerId == HttpContext.User.GetObjectId() && t.OwnerTenantId == HttpContext.User.GetTenantId()))
                 ||
                 IsAppOnlyToken())
             {
-                if (_context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+                if (_context.TodoItems.Any(t => t.Id == id && t.OwnerId == HttpContext.User.GetObjectId() && t.OwnerTenantId == HttpContext.User.GetTenantId()))
                 {
                     _context.Entry(todoItem).State = EntityState.Modified;
 
@@ -135,7 +135,7 @@ namespace TodoListAPI.Controllers
                     }
                     catch (DbUpdateConcurrencyException)
                     {
-                        if (!_context.TodoItems.Any(e => e.Id == id))
+                        if (!_context.TodoItems.Any(t => t.Id == id))
                         {
                             return NotFound();
                         }
@@ -160,15 +160,18 @@ namespace TodoListAPI.Controllers
         )]
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
-            string owner = HttpContext.User.GetObjectId();
+            string ownerId = HttpContext.User.GetObjectId();
 
             if (IsAppOnlyToken())
             {
-                // with such a permission any owner name is accepted
-                owner = todoItem.Owner;
+                // with such a permission any owner id is accepted
+                ownerId = todoItem.OwnerId;
             }
 
-            todoItem.Owner = owner;
+            // populate the owner id and tenant id
+            todoItem.OwnerId = ownerId;
+            todoItem.OwnerDisplayName = HttpContext.User.GetDisplayName();
+            todoItem.OwnerTenantId = HttpContext.User.GetTenantId();
             todoItem.Status = false;
 
             _context.TodoItems.Add(todoItem);
@@ -192,7 +195,7 @@ namespace TodoListAPI.Controllers
                 return NotFound();
             }
 
-            if ((!IsAppOnlyToken() && _context.TodoItems.Any(x => x.Id == id && x.Owner == HttpContext.User.GetObjectId()))
+            if ((!IsAppOnlyToken() && _context.TodoItems.Any(t => t.Id == id && t.OwnerId == HttpContext.User.GetObjectId() && t.OwnerTenantId == HttpContext.User.GetTenantId()))
                 ||
                 IsAppOnlyToken())
             {

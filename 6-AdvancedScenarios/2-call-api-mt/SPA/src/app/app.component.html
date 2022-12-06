@@ -1,10 +1,9 @@
 <mat-toolbar color="primary">
-    <a class="title" href="/">{{ title }}</a>
+    <a class="title" [routerLink]="['/']">{{ title }}</a>
 
     <div class="toolbar-spacer"></div>
 
-    <a mat-button [routerLink]="['todo-view']">TodoList</a>
-
+    <a mat-button *ngIf="loginDisplay" [routerLink]="['todo-view']">Shared TodoList</a>
     <button mat-raised-button *ngIf="!loginDisplay" (click)="login()">Login</button>
     <button mat-raised-button color="accent" *ngIf="loginDisplay" (click)="logout()">Logout</button>
 </mat-toolbar>

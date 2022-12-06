@@ -11,7 +11,9 @@ namespace TodoListAPI.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
-        public string Owner { get; set; }
+        public string OwnerId { get; set; }
+        public string OwnerTenantId { get; set; }
+        public string OwnerDisplayName { get; set; }
         public string Description { get; set; }
         public bool Status { get; set; }
     }

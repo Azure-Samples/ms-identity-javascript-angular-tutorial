@@ -8,31 +8,29 @@ import { protectedResources } from './auth-config';
     providedIn: 'root'
 })
 export class TodoService {
-    url = protectedResources.todoListApi.endpoint;
-
     constructor(private http: HttpClient) { }
 
     getUsers() {
-        return this.http.get<string[]>(this.url);
+        return this.http.get<string[]>(protectedResources.graphApi.endpoint);
     }
 
     getTodos() {
-        return this.http.get<Todo[]>(this.url);
+        return this.http.get<Todo[]>(protectedResources.todoListApi.endpoint);
     }
 
     getTodo(id: number) {
-        return this.http.get<Todo>(this.url + '/' + id);
+        return this.http.get<Todo>(protectedResources.todoListApi.endpoint + '/' + id);
     }
 
     postTodo(todo: Todo) {
-        return this.http.post<Todo>(this.url, todo);
+        return this.http.post<Todo>(protectedResources.todoListApi.endpoint, todo);
     }
 
     deleteTodo(id: number) {
-        return this.http.delete(this.url + '/' + id);
+        return this.http.delete(protectedResources.todoListApi.endpoint + '/' + id);
     }
 
     editTodo(todo: Todo) {
-        return this.http.put<Todo>(this.url + '/' + todo.id, todo);
+        return this.http.put<Todo>(protectedResources.todoListApi.endpoint + '/' + todo.id, todo);
     }
 }

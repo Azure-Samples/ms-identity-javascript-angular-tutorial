@@ -44,14 +44,14 @@ namespace TodoListAPI
                         
                         //options.Events.OnTokenValidated = async context =>
                         //{
-                        //    string[] allowedClientApps = { /* list of client ids to allow */ };
+                        //    string[] allowedTenants = { /* list of tenant ids to allow */ };
 
-                        //    string clientAppId = context?.Principal?.Claims
-                        //        .FirstOrDefault(x => x.Type == "azp" || x.Type == "appid")?.Value;
+                        //    string userTenantId = context?.Principal?.Claims
+                        //        .FirstOrDefault(x => x.Type == "tid")?.Value;
 
-                        //    if (!allowedClientApps.Contains(clientAppId))
+                        //    if (!allowedTenants.Contains(userTenantId))
                         //    {
-                        //        throw new System.Exception("This client is not authorized");
+                        //        throw new System.Exception("This tenant is not authorized");
                         //    }
                         //};
                     }, options => { Configuration.Bind("AzureAd", options); });

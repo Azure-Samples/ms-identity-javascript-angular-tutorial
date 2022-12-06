@@ -30,6 +30,8 @@ import {
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
+import { GraphService } from './graph.service';
+import { getClaimsFromStorage } from './storage-utils';
 
 /**
  * Here we pass the configuration parameters to create an MSAL instance.
@@ -66,9 +68,32 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
         }
     ]);
 
+    // protectedResourceMap.set(protectedResources.graphApi.endpoint, protectedResources.graphApi.scopes);
+
     return {
         interactionType: InteractionType.Popup,
         protectedResourceMap,
+        authRequest: (msalService, httpReq, originalAuthRequest) => {
+            const resource = new URL(httpReq.url).hostname;
+            let claim = msalService.instance.getActiveAccount()! &&
+                    getClaimsFromStorage(
+                        `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+                        }.${resource}`
+                    )
+                    ? window.atob(
+                        getClaimsFromStorage(
+                            `cc.${msalConfig.auth.clientId}.${msalService.instance.getActiveAccount()?.idTokenClaims?.oid
+                            }.${resource}`
+                        )
+                    )
+                    : undefined; // claims challenge e.g {"access_token":{"xms_cc":{"values":["cp1"]}}}
+            return {
+                ...originalAuthRequest,
+                claims: claim,
+                // https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/multi-tenant.md#dynamic-auth-request
+                authority: `https://login.microsoftonline.com/${originalAuthRequest.account?.tenantId ?? 'organizations'}`,
+            };
+        },
     };
 }
 
@@ -130,7 +155,8 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MsalService,
         MsalGuard,
         MsalBroadcastService,
-        TodoService
+        TodoService,
+        GraphService
     ],
     bootstrap: [AppComponent, MsalRedirectComponent]
 })

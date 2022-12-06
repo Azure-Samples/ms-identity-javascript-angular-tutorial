@@ -1,8 +1,10 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core';
+import { Router } from '@angular/router';
 import { MsalService, MsalBroadcastService, MSAL_GUARD_CONFIG, MsalGuardConfiguration } from '@azure/msal-angular';
 import { AuthenticationResult, EventMessage, EventType, InteractionStatus, InteractionType, PopupRequest, RedirectRequest } from '@azure/msal-browser';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
+import { clearStorage } from './storage-utils';
 
 @Component({
     selector: 'app-root',
@@ -16,9 +18,11 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly _destroying$ = new Subject<void>();
 
     constructor(
-        @Inject(MSAL_GUARD_CONFIG) private msalGuardConfig: MsalGuardConfiguration,
+        @Inject(MSAL_GUARD_CONFIG) 
+        private msalGuardConfig: MsalGuardConfiguration,
         private authService: MsalService,
-        private msalBroadcastService: MsalBroadcastService
+        private msalBroadcastService: MsalBroadcastService,
+        private router: Router,
     ) { }
 
     ngOnInit(): void {
@@ -41,6 +45,16 @@ export class AppComponent implements OnInit, OnDestroy {
                     window.location.pathname = "/";
                 } else {
                     this.setLoginDisplay();
+                }
+            });
+
+        this.msalBroadcastService.msalSubject$
+            .pipe(
+                filter((msg: EventMessage) => (msg.eventType === EventType.LOGIN_FAILURE || msg.eventType === EventType.ACQUIRE_TOKEN_FAILURE)),
+            )
+            .subscribe((result: EventMessage) => {
+                if (result.error?.message.includes("AADSTS650052")) {
+                    this.router.navigate(['/consent']);
                 }
             });
 
@@ -98,6 +112,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     logout() {
         const activeAccount = this.authService.instance.getActiveAccount() || this.authService.instance.getAllAccounts()[0];
+
+        clearStorage(activeAccount); // clear the storage of any claim challenges
 
         if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
             this.authService.logoutPopup({

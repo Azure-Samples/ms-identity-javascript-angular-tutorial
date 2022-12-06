@@ -1,7 +1,7 @@
 {
     "Sample": {
         "Author": "derisen",
-        "Title": "Multi-tenant (SaaS) Angular single-page application to sign-in users with Azure AD and call a protected .NET Core web API",
+        "Title": "Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API",
         "Level": 400,
         "Client": "Angular SPA",
         "Service": ".NET Core web API",
@@ -19,7 +19,7 @@
             "msal-js",
             "msal-angular"
         ],
-        "Description": "Multi-tenant (SaaS) Angular single-page application to sign-in users with Azure AD and call a protected .NET Core web API"
+        "Description": "Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API"
     },
     "ReadmeScenario": {
         "UseNewSetup": "1",
@@ -31,10 +31,7 @@
             "Name": "msal-dotnet-api",
             "Kind": "WebApi",
             "Audience": "AzureADMultipleOrgs",
-            "Sample": {
-                "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\API",
-                "ProjectDirectory": "\\2-call-api-mt\\API"
-            },
+            "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\API",
             "Scopes": [
                 "TodoList.Read",
                 "TodoList.ReadWrite"
@@ -75,12 +72,9 @@
             "Name": "msal-angular-spa",
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMultipleOrgs",
-            "HomePage": "https://localhost:4200",
-            "ReplyUrls": "http://localhost:4200, https://localhost:4200/auth",
-            "Sample": {
-                "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\SPA",
-                "ProjectDirectory": "\\2-call-api-mt\\SPA"
-            },
+            "HomePage": "http://localhost:4200",
+            "ReplyUrls": "http://localhost:4200, http://localhost:4200/auth, http://localhost:4200/consent-redirect",
+            "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\SPA",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
@@ -92,7 +86,7 @@
                 {
                     "Resource": "Microsoft Graph",
                     "DelegatedPermissions": [
-                        "User.Read.All"
+                        "User.Read"
                     ]
                 }
             ],
@@ -110,16 +104,8 @@
             "SettingFile": "\\..\\API\\TodoListAPI\\appsettings.json",
             "Mappings": [
                 {
-                    "key": "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'",
-                    "value": "$tenantName"
-                },
-                {
                     "key": "Enter the Client ID (aka 'Application ID')",
                     "value": ".AppId"
-                },
-                {
-                    "key": "Enter the tenant ID",
-                    "value": "$tenantId"
                 }
             ]
         },
@@ -131,10 +117,6 @@
                 {
                     "key": "Enter_the_Application_Id_Here",
                     "value": ".AppId"
-                },
-                {
-                    "key": "Enter_the_Tenant_Info_Here",
-                    "value": "$tenantId"
                 },
                 {
                     "key": "Enter_the_Web_Api_Application_Id_Here",

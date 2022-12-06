@@ -187,3 +187,21 @@ const changeDateFormat = (date: number) => {
     let dateObj = new Date(date * 1000);
     return `${date} - [${dateObj.toString()}]`;
 };
+
+/**
+ * This method parses WWW-Authenticate authentication headers
+ * @param header
+ * @return {Object} challengeMap
+ */
+export const parseChallenges = (header: string): Record<string, any> => {
+    const schemeSeparator = header.indexOf(' ');
+    const challenges = header.substring(schemeSeparator + 1).split(', ');
+    const challengeMap = {} as any;
+
+    challenges.forEach((challenge: string) => {
+        const [key, value] = challenge.split('=');
+        challengeMap[key.trim()] = window.decodeURI(value.replace(/(^"|"$)/g, ''));
+    });
+
+    return challengeMap;
+}

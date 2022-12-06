@@ -35,6 +35,10 @@ const routes: Routes = [
         ]
     },
     {
+        path: 'adminconsent',
+        redirectTo: 'consent',
+    },
+    {
         // Needed for handling redirect after login
         path: 'auth',
         component: MsalRedirectComponent

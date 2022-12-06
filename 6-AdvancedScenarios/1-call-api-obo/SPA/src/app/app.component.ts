@@ -4,6 +4,8 @@ import { AuthenticationResult, EventMessage, EventType, InteractionStatus, Inter
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 
+import { clearStorage } from './storage-utils';
+
 @Component({
     selector: 'app-root',
     templateUrl: './app.component.html',
@@ -98,6 +100,8 @@ export class AppComponent implements OnInit, OnDestroy {
 
     logout() {
         const activeAccount = this.authService.instance.getActiveAccount() || this.authService.instance.getAllAccounts()[0];
+
+        clearStorage(activeAccount); // clear the storage of any claim challenges
 
         if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
             this.authService.logoutPopup({

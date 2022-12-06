@@ -368,7 +368,7 @@ Function ConfigureApplications
    $clientAadApplication = New-MgApplication -DisplayName "msal-angular-spa" `
                                                       -Spa `
                                                       @{ `
-                                                          RedirectUris = "http://localhost:4200", "https://localhost:4200/auth"; `
+                                                          RedirectUris = "http://localhost:4200", "http://localhost:4200/auth", "http://localhost:4200/consent-redirect"; `
                                                         } `
                                                        -SignInAudience AzureADMultipleOrgs `
                                                       #end of command
@@ -427,7 +427,7 @@ Function ConfigureApplications
     # Add Required Resources Access (from 'client' to 'Microsoft Graph')
     Write-Host "Getting access from 'client' to 'Microsoft Graph'"
     $requiredPermission = GetRequiredPermissions -applicationDisplayName "Microsoft Graph"`
-        -requiredDelegatedPermissions "User.Read.All"
+        -requiredDelegatedPermissions "User.Read"
 
     $requiredResourcesAccess.Add($requiredPermission)
     Write-Host "Added 'Microsoft Graph' to the RRA list."
@@ -454,7 +454,7 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\API\TodoListAPI\appsettings.json"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\API\TodoListAPI\appsettings.json"))
     
-    $dictionary = @{ "Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'" = $tenantName;"Enter the Client ID (aka 'Application ID')" = $serviceAadApplication.AppId;"Enter the tenant ID" = $tenantId };
+    $dictionary = @{ "Enter the Client ID (aka 'Application ID')" = $serviceAadApplication.AppId };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
     $dictionary
@@ -466,7 +466,7 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\app\auth-config.ts"))
     
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Tenant_Info_Here" = $tenantId;"Enter_the_Web_Api_Application_Id_Here" = $serviceAadApplication.AppId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId; "Enter_the_Web_Api_Application_Id_Here" = $serviceAadApplication.AppId };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
     $dictionary
