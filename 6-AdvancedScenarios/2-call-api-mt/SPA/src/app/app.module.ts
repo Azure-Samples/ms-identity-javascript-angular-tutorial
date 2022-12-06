@@ -30,7 +30,6 @@ import {
 } from '@azure/msal-angular';
 
 import { msalConfig, loginRequest, protectedResources } from './auth-config';
-import { GraphService } from './graph.service';
 import { getClaimsFromStorage } from './storage-utils';
 
 /**
@@ -67,8 +66,6 @@ export function MSALInterceptorConfigFactory(): MsalInterceptorConfiguration {
             scopes: [...protectedResources.todoListApi.scopes.write]
         }
     ]);
-
-    // protectedResourceMap.set(protectedResources.graphApi.endpoint, protectedResources.graphApi.scopes);
 
     return {
         interactionType: InteractionType.Popup,
@@ -156,7 +153,6 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         MsalGuard,
         MsalBroadcastService,
         TodoService,
-        GraphService
     ],
     bootstrap: [AppComponent, MsalRedirectComponent]
 })
