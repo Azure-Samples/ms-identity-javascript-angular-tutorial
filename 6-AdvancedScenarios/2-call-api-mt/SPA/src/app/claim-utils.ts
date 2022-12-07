@@ -3,10 +3,12 @@
  * @param {Record} claims ID token claims
  * @returns claimsTable
  */
-export const createClaimsTable = (claims: Record<string, string>): any[] => {
+ export const createClaimsTable = (claims: Record<string, string | number>): any[] => {
     const claimsTable: any[] = [];
 
     Object.keys(claims).map((key) => {
+        if (typeof claims[key] !== 'string' && typeof claims[key] !== 'number') return;
+
         switch (key) {
             case 'aud':
                 populateClaim(
@@ -170,7 +172,7 @@ export const createClaimsTable = (claims: Record<string, string>): any[] => {
 * @param {String} description
 * @param {Array} claimsObject
 */
-const populateClaim = (claim: string, value: string, description: string, claimsTable: any[]): void => {
+const populateClaim = (claim: string, value: string | number, description: string, claimsTable: any[]): void => {
     claimsTable.push({
         claim: claim,
         value: value,
