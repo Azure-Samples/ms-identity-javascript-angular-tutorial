@@ -1,7 +1,7 @@
 ---
 page_type: sample
-name: Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API
-description: Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API
+name: Integrate an Angular SPA that uses MSAL Angular to authenticate users with Azure AD calls a protected web API using the multi-tenant integration pattern (SaaS)
+description: Integrate an Angular single-page application (SPA) that uses MSAL Angular to authenticate users with Azure AD calls a protected .NET Core web API using the multi-tenant integration pattern (SaaS)
 languages:
  - javascript
  - typescript
@@ -21,7 +21,7 @@ extensions:
 - service: .NET Core web API
 ---
 
-# Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API
+# Integrate an Angular SPA that uses MSAL Angular to authenticate users with Azure AD calls a protected web API using the multi-tenant integration pattern (SaaS)
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -35,7 +35,7 @@ extensions:
 
 ## Overview
 
-This sample demonstrates how to develop a multi-tenant, cross-platform application suite comprising of an Angular single-page application (*TodoListSPA*) calling an ASP.NET Core web API (*TodoListAPI*) secured with Azure Active Directory (Azure AD). Due to the topology of this application suite (*multi-tier*, *multi-tenant*), additional steps are needed for making the apps available to users in other tenants.
+This sample demonstrates how to integrate an app with Azure AD as a multi-tenant app. This cross-platform application suite comprises of an Angular single-page application (*TodoListSPA*) authenticating users and calling an ASP.NET Core web API (*TodoListAPI*) which is also secured with Azure Active Directory (Azure AD). Due to the topology of this application suite (*multi-tier*, *multi-tenant*), additional steps are needed for making the apps available to users in other tenants.
 
 When it comes to integrate Azure AD authentication in their apps, developers can choose to configure their app to be either **single-tenant** or **multi-tenant** while registering their app in the [Azure portal](https://portal.azure.com).
 
@@ -44,11 +44,11 @@ When it comes to integrate Azure AD authentication in their apps, developers can
 
 > :information_source: To learn how to integrate an application with Azure AD as a [multi-tenant](https://aka.ms/multi-tenant) app, consider going through the recorded session:[Develop multi-tenant applications with the Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4).
 
-> :information_source: To learn how to integrate a JavaScript Angular application with Azure AD, consider going through the recorded session: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
+> :information_source: To learn how to integrate a JavaScript Angular application with Azure AD,consider going through the recorded session: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
 
 ## Scenario
 
-* **TodoListSPA** uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user and obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure AD in the name of the current user.
+* **TodoListSPA** uses [MSAL Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) to authenticate a user and obtains an [access token](https://docs.microsoft.com/azure/active-directory/develop/access-tokens) from Azure AD for the API on behalf of the authenticated user.
 * The access token is then used by the **TodoListAPI** to authorize the user.
 * **TodoListAPI** uses [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) to protect its endpoint and accept authorized calls.
 
@@ -65,7 +65,7 @@ When it comes to integrate Azure AD authentication in their apps, developers can
 ## Prerequisites
 
 * Either [Visual Studio](https://visualstudio.microsoft.com/downloads/) or [Visual Studio Code](https://code.visualstudio.com/download) and [.NET Core SDK](https://www.microsoft.com/net/learn/get-started)
-* You would need *at least* **two** Azure Active Directory (Azure AD) tenants to successfully run this sample. For more information on how to get an Azure AD tenant, see [How to get an Azure AD tenant](https://azure.microsoft.com/documentation/articles/active-directory-howto-tenant/).
+* You would need *at least* **two** Azure Active Directory (Azure AD) tenants to successfully run this sample. For more information on how to get an Azure AD tenant, see [How to get an Azure AD tenant](https://docs.microsoft.com/azure/active-directory/develop/test-setup-environment#get-a-test-tenant).
 * On each tenant, *at least* **one** admin account (:warning: i.e. global admin) and **one** non-admin/user account should be present for testing purposes.
 
 ## Setup the sample
@@ -78,13 +78,15 @@ From your shell or command line:
 git clone https://github.com/Azure-Samples/ms-identity-javascript-angular-tutorial.git
 ```
 
+or download and extract the repository *.zip* file.
+
 > :warning: To avoid path length limitations on Windows, we recommend cloning into a directory near the root of your drive.
 
 ### Step 2. Install .NET Core API dependencies
 
 ```console
     cd ms-identity-javascript-angular-tutorial
-    cd 6-AdvancedScenarios/2-call-api-mt/API
+    cd 6-AdvancedScenarios\2-call-api-mt/API
     dotnet restore
 ```
 
@@ -112,7 +114,7 @@ There are two projects in this sample. Each needs to be separately registered in
   - **automatically** creates the Azure AD applications and related objects (passwords, permissions, dependencies) for you.
   - modify the projects' configuration files.
 
-  <details>
+<details>
    <summary>Expand this section if you want to use this automation:</summary>
 
     > :warning: If you have never used **Microsoft Graph PowerShell** before, we recommend you go through the [App Creation Scripts Guide](./AppCreationScripts/AppCreationScripts.md) once to ensure that your environment is prepared correctly for this step.
@@ -134,18 +136,21 @@ There are two projects in this sample. Each needs to be separately registered in
 
     > Other ways of running the scripts are described in [App Creation Scripts guide](./AppCreationScripts/AppCreationScripts.md). The scripts also provide a guide to automated application registration, configuration and removal which can help in your CI/CD scenarios.
 
-  </details>
+</details>
 
 #### Choose the Azure AD tenant where you want to create your applications
 
 To manually register the apps, as a first step you'll need to:
 
-#### Register the service app (msal-dotnet-api)
+1. Sign in to the [Azure portal](https://portal.azure.com).
+1. If your account is present in more than one Azure AD tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD tenant.
+
+#### Register the service app (msal-dotnet-mt-api)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-mt-api`.
     1. Under **Supported account types**, select **Accounts in any organizational directory**
     1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -154,7 +159,8 @@ To manually register the apps, as a first step you'll need to:
     1. Select the **Add a permission** button and then:
     1. Ensure that the **Microsoft APIs** tab is selected.
     1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-    1. In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      * In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
@@ -204,23 +210,21 @@ To manually register the apps, as a first step you'll need to:
     > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
     1. Select **Add** to save your changes.
 
-##### Configure the service app (msal-dotnet-api) to use your app registration
+##### Configure the service app (msal-dotnet-mt-api) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
-1. Find the key `Enter the domain of your Azure AD tenant, e.g. 'contoso.onmicrosoft.com'` and replace the existing value with your Azure AD tenant domain, ex. `contoso.onmicrosoft.com`.
-1. Find the key `Enter the Client ID (aka 'Application ID')` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
-1. Find the key `Enter the tenant ID` and replace the existing value with your Azure AD tenant/directory ID.
+1. Find the key `Enter the Client ID (aka 'Application ID')` and replace the existing value with the application ID (clientId) of `msal-dotnet-mt-api` app copied from the Azure portal.
 
-#### Register the client app (msal-angular-spa)
+#### Register the client app (msal-angular-mt-spa)
 
 1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
-    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-spa`.
+    1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-angular-mt-spa`.
     1. Under **Supported account types**, select **Accounts in any organizational directory**
     1. Select **Register** to create the application.
 1. In the **Overview** blade, find and note the **Application (client) ID**. You use this value in your app's configuration file(s) later in your code.
@@ -235,13 +239,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then:
     1. Ensure that the **My APIs** tab is selected.
-    1. In the list of APIs, select the API `msal-dotnet-api`.
-    1. In the **Delegated permissions** section, select **TodoList.Read**, **TodoList.ReadWrite** in the list. Use the search box if necessary.
+    1. In the list of APIs, select the API `msal-dotnet-mt-api`.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      * In the **Delegated permissions** section, select **TodoList.Read**, **TodoList.ReadWrite** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
     1. Select the **Add a permission** button and then:
     1. Ensure that the **Microsoft APIs** tab is selected.
     1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-    1. In the **Delegated permissions** section, select **User.Read.All** in the list. Use the search box if necessary.
+      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
+      * In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
 
 ##### Configure Optional Claims
@@ -253,7 +259,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
     > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
     1. Select **Add** to save your changes.
 
-##### Configure the client app (msal-angular-spa) to use your app registration
+##### Configure the client app (msal-angular-mt-spa) to use your app registration
 
 Open the project in your IDE (like Visual Studio or Visual Studio Code) to configure the code.
 
@@ -261,17 +267,20 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Tenant_Info_Here` and replace the existing value with your Azure AD tenant/directory ID.
 1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
 
-#### Configure Known Client Applications for service (msal-dotnet-api)
+#### Configure Known Client Applications for service (msal-dotnet-mt-api)
 
-1. In the [Azure portal](https://portal.azure.com), navigate to your `msal-dotnet-api` app registration, and select the **Manifest** blade.
-1. In the manifest editor, change the `knownClientApplications: []` line so that the array contains the Client ID of the client application (`msal-angular-spa`) as an element of the array. For instance:
+For a middle-tier web API (`msal-dotnet-mt-api`) to be able to call a downstream web API, the middle tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle-tier web API and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions. To achieve this, you need to add the **Application Id** of the client app to the `knownClientApplications` property in the **manifest** of the web API. Here's how:
 
-    ```json
+1. In the [Azure portal](https://portal.azure.com), navigate to your `msal-dotnet-mt-api` app registration, and select the **Manifest** blade.
+1. In the manifest editor, change the `knownClientApplications: []` line so that the array contains the Client ID of the client application (`msal-angular-mt-spa`) as an element of the array.
+
+For instance:
+
+```json
         "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
-    ```
+```
 
 1. **Save** the changes to the manifest.
 

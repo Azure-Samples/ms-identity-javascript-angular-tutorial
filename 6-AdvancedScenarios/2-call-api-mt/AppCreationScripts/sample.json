@@ -1,7 +1,7 @@
 {
     "Sample": {
         "Author": "derisen",
-        "Title": "Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API",
+        "Title": "Integrate an Angular SPA that uses MSAL Angular to authenticate users with Azure AD calls a protected web API using the multi-tenant integration pattern (SaaS)",
         "Level": 400,
         "Client": "Angular SPA",
         "Service": ".NET Core web API",
@@ -19,7 +19,7 @@
             "msal-js",
             "msal-angular"
         ],
-        "Description": "Multi-tenant (SaaS) Angular single-page application using MSAL Angular to sign-in users with Azure AD and call a protected .NET Core web API"
+        "Description": "Integrate an Angular single-page application (SPA) that uses MSAL Angular to authenticate users with Azure AD calls a protected .NET Core web API using the multi-tenant integration pattern (SaaS)"
     },
     "ReadmeScenario": {
         "UseNewSetup": "1",
@@ -28,7 +28,7 @@
     "AADApps": [
         {
             "Id": "service",
-            "Name": "msal-dotnet-api",
+            "Name": "msal-dotnet-mt-api",
             "Kind": "WebApi",
             "Audience": "AzureADMultipleOrgs",
             "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\API",
@@ -69,7 +69,7 @@
         },
         {
             "Id": "client",
-            "Name": "msal-angular-spa",
+            "Name": "msal-angular-mt-spa",
             "Kind": "SinglePageApplication",
             "Audience": "AzureADMultipleOrgs",
             "HomePage": "http://localhost:4200",

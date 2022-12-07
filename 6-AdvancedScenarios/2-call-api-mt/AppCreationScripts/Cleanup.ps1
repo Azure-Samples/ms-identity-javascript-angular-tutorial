@@ -56,20 +56,20 @@ Function Cleanup
     # Removes the applications
     Write-Host "Cleaning-up applications from tenant '$tenantId'"
 
-    Write-Host "Removing 'service' (msal-dotnet-api) if needed"
+    Write-Host "Removing 'service' (msal-dotnet-mt-api) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-dotnet-api'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-dotnet-mt-api'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
         $message = $_
         Write-Warning $Error[0]
-        Write-Host "Unable to remove the application 'msal-dotnet-api'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove the application 'msal-dotnet-mt-api'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
-    Write-Host "Making sure there are no more (msal-dotnet-api) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-dotnet-api'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
+    Write-Host "Making sure there are no more (msal-dotnet-mt-api) applications found, will remove if needed..."
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-dotnet-mt-api'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -79,34 +79,34 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-MgApplication -ApplicationId $app.Id
-        Write-Host "Removed msal-dotnet-api.."
+        Write-Host "Removed msal-dotnet-mt-api.."
     }
 
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-dotnet-api'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-dotnet-mt-api'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
         $message = $_
         Write-Warning $Error[0]
-        Write-Host "Unable to remove ServicePrincipal 'msal-dotnet-api'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove ServicePrincipal 'msal-dotnet-mt-api'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
-    Write-Host "Removing 'client' (msal-angular-spa) if needed"
+    Write-Host "Removing 'client' (msal-angular-mt-spa) if needed"
     try
     {
-        Get-MgApplication -Filter "DisplayName eq 'msal-angular-spa'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
+        Get-MgApplication -Filter "DisplayName eq 'msal-angular-mt-spa'" | ForEach-Object {Remove-MgApplication -ApplicationId $_.Id }
     }
     catch
     {
         $message = $_
         Write-Warning $Error[0]
-        Write-Host "Unable to remove the application 'msal-angular-spa'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove the application 'msal-angular-mt-spa'. Error is $message. Try deleting manually." -ForegroundColor White -BackgroundColor Red
     }
 
-    Write-Host "Making sure there are no more (msal-angular-spa) applications found, will remove if needed..."
-    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-angular-spa'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
+    Write-Host "Making sure there are no more (msal-angular-mt-spa) applications found, will remove if needed..."
+    $apps = Get-MgApplication -Filter "DisplayName eq 'msal-angular-mt-spa'" | Format-List Id, DisplayName, AppId, SignInAudience, PublisherDomain
     
     if ($apps)
     {
@@ -116,19 +116,19 @@ Function Cleanup
     foreach ($app in $apps) 
     {
         Remove-MgApplication -ApplicationId $app.Id
-        Write-Host "Removed msal-angular-spa.."
+        Write-Host "Removed msal-angular-mt-spa.."
     }
 
     # also remove service principals of this app
     try
     {
-        Get-MgServicePrincipal -filter "DisplayName eq 'msal-angular-spa'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
+        Get-MgServicePrincipal -filter "DisplayName eq 'msal-angular-mt-spa'" | ForEach-Object {Remove-MgServicePrincipal -ServicePrincipalId $_.Id -Confirm:$false}
     }
     catch
     {
         $message = $_
         Write-Warning $Error[0]
-        Write-Host "Unable to remove ServicePrincipal 'msal-angular-spa'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
+        Write-Host "Unable to remove ServicePrincipal 'msal-angular-mt-spa'. Error is $message. Try deleting manually from Enterprise applications." -ForegroundColor White -BackgroundColor Red
     }
 }
 

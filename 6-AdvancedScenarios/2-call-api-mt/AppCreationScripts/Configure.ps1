@@ -247,9 +247,9 @@ Function ConfigureApplications
     Write-Host ("Connected to Tenant {0} ({1}) as account '{2}'. Domain is '{3}'" -f  $Tenant.DisplayName, $Tenant.Id, $currentUserPrincipalName, $verifiedDomainName)
 
    # Create the service AAD application
-   Write-Host "Creating the AAD application (msal-dotnet-api)"
+   Write-Host "Creating the AAD application (msal-dotnet-mt-api)"
    # create the application 
-   $serviceAadApplication = New-MgApplication -DisplayName "msal-dotnet-api" `
+   $serviceAadApplication = New-MgApplication -DisplayName "msal-dotnet-mt-api" `
                                                        -Web `
                                                        @{ `
                                                          } `
@@ -335,13 +335,13 @@ Function ConfigureApplications
     
     # add/update scopes
     Update-MgApplication -ApplicationId $currentAppObjectId -Api @{Oauth2PermissionScopes = @($scopes)}
-    Write-Host "Done creating the service application (msal-dotnet-api)"
+    Write-Host "Done creating the service application (msal-dotnet-mt-api)"
 
     # URL of the AAD application in the Azure portal
     # Future? $servicePortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $servicePortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $servicePortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
 
-    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-dotnet-api</a></td></tr>" -Path createdApps.html
+    Add-Content -Value "<tr><td>service</td><td>$currentAppId</td><td><a href='$servicePortalUrl'>msal-dotnet-mt-api</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
@@ -361,11 +361,11 @@ Function ConfigureApplications
     
 
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-dotnet-api' at `n $servicePortalUrl" -ForegroundColor Green 
+    Write-Host "Successfully registered and configured that app registration for 'msal-dotnet-mt-api' at `n $servicePortalUrl" -ForegroundColor Green 
    # Create the client AAD application
-   Write-Host "Creating the AAD application (msal-angular-spa)"
+   Write-Host "Creating the AAD application (msal-angular-mt-spa)"
    # create the application 
-   $clientAadApplication = New-MgApplication -DisplayName "msal-angular-spa" `
+   $clientAadApplication = New-MgApplication -DisplayName "msal-angular-mt-spa" `
                                                       -Spa `
                                                       @{ `
                                                           RedirectUris = "http://localhost:4200", "http://localhost:4200/auth", "http://localhost:4200/consent-redirect"; `
@@ -377,7 +377,7 @@ Function ConfigureApplications
     $currentAppObjectId = $clientAadApplication.Id
 
     $tenantName = (Get-MgApplication -ApplicationId $currentAppObjectId).PublisherDomain
-    #Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @("https://$tenantName/msal-angular-spa")
+    #Update-MgApplication -ApplicationId $currentAppObjectId -IdentifierUris @("https://$tenantName/msal-angular-mt-spa")
     
     # create the service principal of the newly created application     
     $clientServicePrincipal = New-MgServicePrincipal -AppId $currentAppId -Tags {WindowsAzureActiveDirectoryIntegratedApp}
@@ -402,19 +402,19 @@ Function ConfigureApplications
     $newClaim =  CreateOptionalClaim  -name "acct" 
     $optionalClaims.AccessToken += ($newClaim)
     Update-MgApplication -ApplicationId $currentAppObjectId -OptionalClaims $optionalClaims
-    Write-Host "Done creating the client application (msal-angular-spa)"
+    Write-Host "Done creating the client application (msal-angular-mt-spa)"
 
     # URL of the AAD application in the Azure portal
     # Future? $clientPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
-    $clientPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$currentAppId+"/objectId/"+$currentAppObjectId+"/isMSAApp/"
+    $clientPortalUrl = "https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/~/Overview/appId/"+$currentAppId+"/isMSAApp~/false"
 
-    Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-spa</a></td></tr>" -Path createdApps.html
+    Add-Content -Value "<tr><td>client</td><td>$currentAppId</td><td><a href='$clientPortalUrl'>msal-angular-mt-spa</a></td></tr>" -Path createdApps.html
     # Declare a list to hold RRA items    
     $requiredResourcesAccess = New-Object System.Collections.Generic.List[Microsoft.Graph.PowerShell.Models.MicrosoftGraphRequiredResourceAccess]
 
     # Add Required Resources Access (from 'client' to 'service')
     Write-Host "Getting access from 'client' to 'service'"
-    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-dotnet-api"`
+    $requiredPermission = GetRequiredPermissions -applicationDisplayName "msal-dotnet-mt-api"`
         -requiredDelegatedPermissions "TodoList.Read|TodoList.ReadWrite"
 
     $requiredResourcesAccess.Add($requiredPermission)
@@ -440,7 +440,7 @@ Function ConfigureApplications
     
 
     # print the registered app portal URL for any further navigation
-    Write-Host "Successfully registered and configured that app registration for 'msal-angular-spa' at `n $clientPortalUrl" -ForegroundColor Green 
+    Write-Host "Successfully registered and configured that app registration for 'msal-angular-mt-spa' at `n $clientPortalUrl" -ForegroundColor Green 
 
     # Configure known client applications for service 
     Write-Host "Configure known client applications for the 'service'"
@@ -466,7 +466,7 @@ Function ConfigureApplications
     # $configFile = $pwd.Path + "\..\SPA\src\app\auth-config.ts"
     $configFile = $(Resolve-Path ($pwd.Path + "\..\SPA\src\app\auth-config.ts"))
     
-    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId; "Enter_the_Web_Api_Application_Id_Here" = $serviceAadApplication.AppId };
+    $dictionary = @{ "Enter_the_Application_Id_Here" = $clientAadApplication.AppId;"Enter_the_Web_Api_Application_Id_Here" = $serviceAadApplication.AppId };
 
     Write-Host "Updating the sample config '$configFile' with the following config values:" -ForegroundColor Yellow 
     $dictionary
