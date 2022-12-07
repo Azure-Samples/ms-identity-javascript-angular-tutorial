@@ -3,4 +3,4 @@ export interface Todo {
     ownerDisplayName: string;
     description: string;
     status: boolean;
-}
+};

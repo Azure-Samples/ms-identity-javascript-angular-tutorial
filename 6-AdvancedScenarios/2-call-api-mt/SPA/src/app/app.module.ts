@@ -17,7 +17,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
-import { ConsentComponent } from './consent/consent.component';
+import { OnboardComponent } from './onboard/onboard.component';
 import { TodoEditComponent } from './todo-edit/todo-edit.component';
 import { TodoViewComponent } from './todo-view/todo-view.component';
 import { TodoService } from './todo.service';
@@ -111,7 +111,7 @@ export function MSALGuardConfigFactory(): MsalGuardConfiguration {
         HomeComponent,
         TodoViewComponent,
         TodoEditComponent,
-        ConsentComponent
+        OnboardComponent
     ],
     imports: [
         BrowserModule,

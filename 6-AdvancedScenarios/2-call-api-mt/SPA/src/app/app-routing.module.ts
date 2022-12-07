@@ -6,7 +6,7 @@ import { BrowserUtils } from '@azure/msal-browser';
 import { HomeComponent } from './home/home.component';
 import { TodoViewComponent } from './todo-view/todo-view.component';
 import { TodoEditComponent } from './todo-edit/todo-edit.component';
-import { ConsentComponent } from './consent/consent.component';
+import { OnboardComponent } from './onboard/onboard.component';
 
 /**
  * MSAL Angular can protect routes in your application using MsalGuard. For more info, visit:
@@ -28,15 +28,15 @@ const routes: Routes = [
         ]
     },
     {
-        path: 'consent',
-        component: ConsentComponent,
+        path: 'onboard',
+        component: OnboardComponent,
         canActivate: [
             MsalGuard
         ]
     },
     {
         path: 'adminconsent',
-        redirectTo: 'consent',
+        redirectTo: 'onboard',
     },
     {
         // Needed for handling redirect after login

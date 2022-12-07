@@ -44,7 +44,6 @@ export class TodoViewComponent implements OnInit {
     getTodos(): void {
         this.service.getTodos()
             .subscribe((todos: Todo[]) => {
-                console.log(todos)
                 this.todos = todos;
             });
     }

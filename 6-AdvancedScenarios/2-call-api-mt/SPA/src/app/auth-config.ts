@@ -52,11 +52,7 @@ export const protectedResources = {
             read: ["api://Enter_the_Web_Api_Application_Id_Here/TodoList.Read"],
             write: ["api://Enter_the_Web_Api_Application_Id_Here/TodoList.ReadWrite"]
         }
-    },
-    graphApi: {
-        endpoint: "https://graph.microsoft.com/v1.0/users",
-        scopes: ["User.Read.All"]
-    },
+    }
 };
 
 /**
@@ -67,6 +63,4 @@ export const protectedResources = {
  */
 export const loginRequest: PopupRequest | RedirectRequest = {
     scopes: [],
-    // scopes: [...protectedResources.graphApi.scopes],
-    // extraScopesToConsent: [...protectedResources.todoListApi.scopes.read, ...protectedResources.todoListApi.scopes.write]
 };

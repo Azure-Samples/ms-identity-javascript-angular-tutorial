@@ -1,7 +1,7 @@
 ---
 page_type: sample
-name: Integrate an Angular SPA that uses MSAL Angular to authenticate users with Azure AD calls a protected web API using the multi-tenant integration pattern (SaaS)
-description: Integrate an Angular single-page application (SPA) that uses MSAL Angular to authenticate users with Azure AD calls a protected .NET Core web API using the multi-tenant integration pattern (SaaS)
+name: Integrate an Angular SPA using MSAL Angular to authenticate users with Azure AD and call a protected web API using the multi-tenant integration pattern (SaaS)
+description: Integrate an Angular single-page application (SPA) that uses MSAL Angular to authenticate users with Azure AD and call a protected .NET Core web API using the multi-tenant integration pattern (SaaS)
 languages:
  - javascript
  - typescript
@@ -21,7 +21,7 @@ extensions:
 - service: .NET Core web API
 ---
 
-# Integrate an Angular SPA that uses MSAL Angular to authenticate users with Azure AD calls a protected web API using the multi-tenant integration pattern (SaaS)
+# Integrate an Angular SPA using MSAL Angular to authenticate users with Azure AD and call a protected web API using the multi-tenant integration pattern (SaaS)
 
 * [Overview](#overview)
 * [Scenario](#scenario)
@@ -159,8 +159,7 @@ To manually register the apps, as a first step you'll need to:
     1. Select the **Add a permission** button and then:
     1. Ensure that the **Microsoft APIs** tab is selected.
     1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
+    1. In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
     1. Select the **Add permissions** button at the bottom.
 1. In the app's registration screen, select the **Expose an API** blade to the left to open the page where you can publish the permission as an API for which client applications can obtain [access tokens](https://aka.ms/access-tokens) for. The first thing that we need to do is to declare the unique [resource](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-auth-code-flow) URI that the clients will be using to obtain access tokens for this API. To declare an resource URI(Application ID URI), follow the following steps:
     1. Select **Set** next to the **Application ID URI** to generate a URI that is unique for this app.
@@ -196,7 +195,6 @@ To manually register the apps, as a first step you'll need to:
     1. For **Value**, enter **TodoList.Read.All**.
     1. For **Description**, enter *e.g. Allows the app to read the signed-in user's files.*.
     1. Select **Apply** to save your changes.
-
     > Repeat the steps above for another app permission named **TodoList.ReadWrite.All**
 
 ##### Configure Optional Claims
@@ -206,7 +204,7 @@ To manually register the apps, as a first step you'll need to:
     1. Select **optional claim type**, then choose **Access**.
     1. Select the optional claim **idtyp**.
     > Indicates token type. This claim is the most accurate way for an API to determine if a token is an app token or an app+user token. This is not issued in tokens issued to users.
-     1. Select the optional claim **acct**.
+    1. Select the optional claim **acct**.
     > Provides user's account status in tenant. If the user is a **member** of the tenant, the value is *0*. If they're a **guest**, the value is *1*.
     1. Select **Add** to save your changes.
 
@@ -238,17 +236,15 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
     1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
     1. Select the **Add a permission** button and then:
-    1. Ensure that the **My APIs** tab is selected.
-    1. In the list of APIs, select the API `msal-dotnet-mt-api`.
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **TodoList.Read**, **TodoList.ReadWrite** in the list. Use the search box if necessary.
-    1. Select the **Add permissions** button at the bottom.
+        1. Ensure that the **My APIs** tab is selected.
+        1. In the list of APIs, select the API `msal-dotnet-mt-api`.
+        1. In the **Delegated permissions** section, select **TodoList.Read**, **TodoList.ReadWrite** in the list. Use the search box if necessary.
+        1. Select the **Add permissions** button at the bottom.
     1. Select the **Add a permission** button and then:
-    1. Ensure that the **Microsoft APIs** tab is selected.
-    1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
-      * Since this app signs-in users, we will now proceed to select **delegated permissions**, which is requested by apps that signs-in users.
-      * In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
-    1. Select the **Add permissions** button at the bottom.
+        1. Ensure that the **Microsoft APIs** tab is selected.
+        1. In the *Commonly used Microsoft APIs* section, select **Microsoft Graph**
+        1. In the **Delegated permissions** section, select **User.Read** in the list. Use the search box if necessary.
+        1. Select the **Add permissions** button at the bottom.
 
 ##### Configure Optional Claims
 
@@ -267,11 +263,9 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `SPA\src\app\auth-config.ts` file.
 1. Find the key `Enter_the_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
-1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
+1. Find the key `Enter_the_Web_Api_Application_Id_Here` and replace the existing value with the application ID (clientId) of `msal-dotnet-mt-api` app copied from the Azure portal.
 
 #### Configure Known Client Applications for service (msal-dotnet-mt-api)
-
-For a middle-tier web API (`msal-dotnet-mt-api`) to be able to call a downstream web API, the middle tier app needs to be granted the required permissions as well. However, since the middle-tier cannot interact with the signed-in user, it needs to be explicitly bound to the client app in its **Azure AD** registration. This binding merges the permissions required by both the client and the middle-tier web API and presents it to the end user in a single consent dialog. The user then consent to this combined set of permissions. To achieve this, you need to add the **Application Id** of the client app to the `knownClientApplications` property in the **manifest** of the web API. Here's how:
 
 1. In the [Azure portal](https://portal.azure.com), navigate to your `msal-dotnet-mt-api` app registration, and select the **Manifest** blade.
 1. In the manifest editor, change the `knownClientApplications: []` line so that the array contains the Client ID of the client application (`msal-angular-mt-spa`) as an element of the array.
@@ -423,40 +417,27 @@ This method requires the most minimal setup. The only thing needed is that the t
 This method provides a programmatic control over the consent process. To be able to **consent as an admin** with this method, there are two steps your application needs to carry out:
 
 1. Determine the `tenantId` of the signed-in (admin) user.
-2. Redirect the (admin) user to the correct [/adminconsent endpoint](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). This is demonstrated in [consent.component.ts](./SPA/src/app/consent/consent.component.ts):
+2. Redirect the (admin) user to the correct [/adminconsent endpoint](https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent). This is demonstrated in [onboard.component.ts](./SPA/src/app/onboard/onboard.component.ts):
 
 ```typescript
-export class ConsentComponent implements OnInit {
+adminConsent() {
+    const account = this.authService.instance.getActiveAccount()
 
-    constructor(private authService: MsalService) { }
+    if (account) {
+        // available only in HTTPS context
+        const state = window.crypto.randomUUID(); // state parameter against csrf
 
-    ngOnInit(): void {
-        const params = new URLSearchParams(decodeURIComponent(window.location.search));
+        /**
+         * Construct URL for admin consent endpoint. For more information, visit:
+         * https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent
+         */
+        const adminConsentUri = "https://login.microsoftonline.com/" +
+            `${account.tenantId}` + "/v2.0/adminconsent?client_id=" +
+            `${msalConfig.auth.clientId}` + "&state=" + `${state}` + "&redirect_uri=" + `http://localhost:4200/adminconsent` +
+            "&scope=" + `${protectedResources.todoListApi.scopes.read[0].split("/TodoList")[0]}/.default`;
 
-        if (!params.has('error') && params.get('admin_consent') === 'True') {
-            window.history.replaceState(null, document.title, window.location.pathname);
-        }
-    }
-
-    adminConsent() {
-        const account = this.authService.instance.getActiveAccount()
-
-        if (account) {
-            // available only in HTTPS context
-            const state = window.crypto.randomUUID(); // state parameter against csrf
-
-            /**
-             * Construct URL for admin consent endpoint. For more information, visit:
-             * https://docs.microsoft.com/azure/active-directory/develop/v2-admin-consent
-             */
-            const adminConsentUri = "https://login.microsoftonline.com/" +
-                `${account.tenantId}` + "/v2.0/adminconsent?client_id=" +
-                `${msalConfig.auth.clientId}` + "&state=" + `${state}` + "&redirect_uri=" + `http://localhost:4200/adminconsent` +
-                "&scope=" + `${protectedResources.todoListApi.scopes.read[0].split("/TodoList")[0]}/.default`;
-
-            // redirect to admin consent endpoint
-            window.location.replace(adminConsentUri);
-        }
+        // redirect to admin consent endpoint
+        window.location.replace(adminConsentUri);
     }
 }
 ```
@@ -479,9 +460,9 @@ Once it finishes, your application's service principal will be provisioned in th
 
 ### Provisioning and sign-in differences
 
-When provisioning, you have to take care of the dependency in the topology if the client app (*msal-angular-spa*) is dependent on the service app (*msal-dotnet-api*). For instance, if your client app needs to acquire tokens to call your service app and asks for consent to the necessary scopes during the sign-in stage, you would need to provision the **msal-dotnet-api** before the **msal-angular-spa**. In other words, the app would need admin consent to scope `api://{clientId-of-msal-dotnet-api}/.default` in order to provision the **msal-dotnet-api** web API to a tenant. As such, only a user with admin privileges will be able to sign-in for the first time in a new tenant. After that, any user from that admin's tenant can sign-in and use the application.
+When provisioning, you have to take care of the dependency in the topology if the client app (*msal-angular-spa*) is dependent on the service app (*msal-dotnet-mt-api*). For instance, if your client app needs to acquire tokens to call your service app and asks for consent to the necessary scopes during the sign-in stage, you would need to provision the **msal-dotnet-mt-api** before the **msal-angular-spa**. As such, only a user with admin privileges would be able to sign-in for the first time in a new tenant. After that, any user from that admin's tenant can sign-in and use the application.
 
-This sample is configured to allow non-admin users to sign-in to the client SPA from any tenant, as it acquire tokens for the service web API at a later stage (i.e. when the user attempts to use the shared todoList after sign-in). You can configure this behavior by modifying the scopes of `loginRequest` object in [auth-config.ts](./SPA/src/app/auth-config.ts).
+This sample is configured to allow non-admin users to sign-in to the client SPA from any tenant, as it acquire tokens for the service web API at a later stage (i.e. when the user attempts to use the shared todoList after sign-in), which means the service web API can be provisioned later than the client SPA. You can configure this behavior by modifying the scopes of `loginRequest` object in [auth-config.ts](./SPA/src/app/auth-config.ts).
 
 ### Custom token validation allowing only registered tenants
 

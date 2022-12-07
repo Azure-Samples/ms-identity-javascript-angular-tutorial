@@ -67,15 +67,8 @@ namespace TodoListAPI.Controllers
             {
                 /// <summary>
                 /// The 'oid' (object id) is the only claim that should be used to uniquely identify
-                /// a user in an Azure AD tenant. The token might have one or more of the following claim,
-                /// that might seem like a unique identifier, but is not and should not be used as such:
-                ///
-                /// - upn (user principal name): might be unique amongst the active set of users in a tenant
-                /// but tend to get reassigned to new employees as employees leave the organization and others
-                /// take their place or might change to reflect a personal change like marriage.
-                ///
-                /// - email: might be unique amongst the active set of users in a tenant but tend to get reassigned
-                /// to new employees as employees leave the organization and others take their place.
+                /// a user in an Azure AD tenant. In multi-tenant scenarios, "oid" should be used together 
+                /// with "tid" (tenant id) claim to uniquely and reliably identify a user across tenants.
                 /// </summary>
                 return await _context.TodoItems.Where(t => t.OwnerTenantId == HttpContext.User.GetTenantId()).ToListAsync();
             }
@@ -161,17 +154,21 @@ namespace TodoListAPI.Controllers
         public async Task<ActionResult<TodoItem>> PostTodoItem(TodoItem todoItem)
         {
             string ownerId = HttpContext.User.GetObjectId();
+            string tenantId = HttpContext.User.GetTenantId();
+            string ownerDisplayName = HttpContext.User.GetDisplayName();
 
             if (IsAppOnlyToken())
             {
                 // with such a permission any owner id is accepted
                 ownerId = todoItem.OwnerId;
+                tenantId = todoItem.OwnerTenantId;
+                ownerDisplayName = todoItem.OwnerDisplayName;
             }
 
             // populate the owner id and tenant id
             todoItem.OwnerId = ownerId;
-            todoItem.OwnerDisplayName = HttpContext.User.GetDisplayName();
-            todoItem.OwnerTenantId = HttpContext.User.GetTenantId();
+            todoItem.OwnerDisplayName = ownerDisplayName;
+            todoItem.OwnerTenantId = tenantId;
             todoItem.Status = false;
 
             _context.TodoItems.Add(todoItem);

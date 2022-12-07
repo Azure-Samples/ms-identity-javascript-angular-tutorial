@@ -54,7 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
             )
             .subscribe((result: EventMessage) => {
                 if (result.error?.message.includes("AADSTS650052")) {
-                    this.router.navigate(['/consent']);
+                    this.router.navigate(['/onboard']);
                 }
             });
 

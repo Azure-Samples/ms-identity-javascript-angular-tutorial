@@ -10,10 +10,6 @@ import { protectedResources } from './auth-config';
 export class TodoService {
     constructor(private http: HttpClient) { }
 
-    getUsers() {
-        return this.http.get<string[]>(protectedResources.graphApi.endpoint);
-    }
-
     getTodos() {
         return this.http.get<Todo[]>(protectedResources.todoListApi.endpoint);
     }
