@@ -37,7 +37,7 @@ namespace TodoListAPI.Controllers
 
             if (!IsAppOnlyToken() && _currentPrincipal != null)
             {
-                _currentPrincipalId = _currentPrincipal.GetHomeObjectId(); // use "sub" claim as a unique identifier in B2C
+                _currentPrincipalId = _currentPrincipal.GetNameIdentifierId(); // use "sub" claim as a unique identifier in B2C
                 PopulateDefaultToDos(_currentPrincipalId);
             }
         }
