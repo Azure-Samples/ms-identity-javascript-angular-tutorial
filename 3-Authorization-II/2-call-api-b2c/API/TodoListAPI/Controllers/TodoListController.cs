@@ -37,6 +37,11 @@ namespace TodoListAPI.Controllers
 
             if (!IsAppOnlyToken() && _currentPrincipal != null)
             {
+                // The default behavior of the JwtSecurityTokenHandler is to map inbound claim names to new values in the generated ClaimsPrincipal. 
+                // The result is that "sub" claim that identifies the subject of the incoming JWT token is mapped to a claim
+                // named "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier". An alternative approach is to 
+                // disable this mapping by setting JwtSecurityTokenHandler.DefaultMapInboundClaims to false in Startup.cs and
+                // then calling _currentPrincipal.FindFirstValue(ClaimConstants.Sub) to obtain the value of the unmapped "sub" claim.
                 _currentPrincipalId = _currentPrincipal.GetNameIdentifierId(); // use "sub" claim as a unique identifier in B2C
                 PopulateDefaultToDos(_currentPrincipalId);
             }
