@@ -1,78 +1,52 @@
 import { Component, OnInit } from '@angular/core';
 import { Subject } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
+import { filter } from 'rxjs/operators';
 
 import { MsalBroadcastService, MsalService } from '@azure/msal-angular';
 import { EventMessage, EventType, AuthenticationResult, InteractionStatus } from '@azure/msal-browser';
+import { createClaimsTable } from '../claim-utils';
 
 @Component({
-  selector: 'app-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.css']
+    selector: 'app-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
 
-  loginDisplay = false;
-  displayedColumns: string[] = ['claim', 'value'];
-  dataSource: any =[];
+    loginDisplay = false;
+    displayedColumns: string[] = ['claim', 'value', 'description'];
+    dataSource: any = [];
 
-  private readonly _destroying$ = new Subject<void>();
+    constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
 
-  constructor(private authService: MsalService, private msalBroadcastService: MsalBroadcastService) { }
+    ngOnInit(): void {
+        this.msalBroadcastService.msalSubject$
+            .pipe(
+                filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
+            )
+            .subscribe((result: EventMessage) => {
+                const payload = result.payload as AuthenticationResult;
+                this.authService.instance.setActiveAccount(payload.account);
+            });
 
-  ngOnInit(): void {
-    this.msalBroadcastService.msalSubject$
-      .pipe(
-        filter((msg: EventMessage) => msg.eventType === EventType.LOGIN_SUCCESS),
-        takeUntil(this._destroying$)
-      )
-      .subscribe((result: EventMessage) => {
-        if (result?.payload) {
-          const payload: AuthenticationResult = result.payload as AuthenticationResult
-          this.authService.instance.setActiveAccount(payload.account);
-        }
-      });
-
-      this.msalBroadcastService.inProgress$
-      .pipe(
-        filter((status: InteractionStatus) => status === InteractionStatus.None)
-      )
-      .subscribe(() => {
-        this.setLoginDisplay();
-        this.checkAndSetActiveAccount();
-        this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims)
-      });
-  }
-
-  checkAndSetActiveAccount() {
-    /**
-     * If no active account set but there are accounts signed in, sets first account to active account
-     * To use active account set here, subscribe to inProgress$ first in your component
-     * Note: Basic usage demonstrated. Your app may require more complicated account selection logic
-     */
-    let activeAccount = this.authService.instance.getActiveAccount();
-
-    if (!activeAccount && this.authService.instance.getAllAccounts().length > 0) {
-      let accounts = this.authService.instance.getAllAccounts();
-      this.authService.instance.setActiveAccount(accounts[0]);
+        this.msalBroadcastService.inProgress$
+            .pipe(
+                filter((status: InteractionStatus) => status === InteractionStatus.None)
+            )
+            .subscribe(() => {
+                this.setLoginDisplay();
+                this.getClaims(this.authService.instance.getActiveAccount()?.idTokenClaims);
+            })
     }
-  }
 
-  setLoginDisplay() {
-    this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
-  }
+    setLoginDisplay() {
+        this.loginDisplay = this.authService.instance.getAllAccounts().length > 0;
+    }
 
-  getClaims(claims: any) {
-    this.dataSource = [
-      {id: 1, claim: "Display Name", value: claims ? claims['name'] : null},
-      {id: 2, claim: "User Principal Name (UPN)", value: claims ? claims['preferred_username'] : null},
-      {id: 3, claim: "OID", value: claims ? claims['oid']: null},
-      {id: 4, claim: "SUB", value: claims ? claims['sub']: null}
-    ];
-  }
-
-  ngOnDestroy(): void {
-    this._destroying$.next(undefined);
-    this._destroying$.complete();
-  }
+    getClaims(claims: any) {
+        if (claims) {
+            const claimsTable = createClaimsTable(claims);
+            this.dataSource = [...claimsTable];
+        }
+    }
 }

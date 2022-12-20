@@ -1,0 +1,8 @@
+<mat-card class='card-section'>
+    <mat-card-title>Tenant Onboarding</mat-card-title>
+    <mat-card-content>In order to enable users from your tenant to be able to access and use this application, you need to provision this app to your tenant by granting admin consent.</mat-card-content>
+    <mat-card-content>If you are not an admin, please ask your admin to grant admin consent on your tenant's behalf by sharing this URL with them: <b>{{onboardUrl}}</b> </mat-card-content>
+    <mat-card-actions>
+        <button mat-raised-button color="primary"(click)="adminConsent()">Grant admin consent</button>
+    </mat-card-actions>
+</mat-card>
