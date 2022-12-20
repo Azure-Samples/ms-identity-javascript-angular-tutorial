@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MsalService } from '@azure/msal-angular';
 
 import { msalConfig, protectedResources } from '../auth-config';
-import { addClaimsToStorage, getClaimsFromStorage, removeFromStorage } from '../storage-utils';
+import { addClaimsToStorage, getClaimsFromStorage, removeClaimsFromStorage, clearStorage } from '../storage-utils';
 
 @Component({
     selector: 'app-onboard',
@@ -17,20 +17,25 @@ export class OnboardComponent implements OnInit {
     constructor(private authService: MsalService, private router: Router, private route: ActivatedRoute) { }
 
     ngOnInit(): void {
-        this.processRedirectResponse();
         this.onboardUrl = window.location.origin + "/onboard";
+
+        // if redirected, process redirect response
+        if (this.route.snapshot.queryParamMap.has('admin_consent')) {
+            this.processRedirectResponse();
+        }
     }
 
     processRedirectResponse() {
         const account = this.authService.instance.getActiveAccount()!;
-        const previousState = getClaimsFromStorage(`acs.${account.homeAccountId}`);
+        const previousState = getClaimsFromStorage(account.homeAccountId);
 
         if (!this.route.snapshot.queryParamMap.has('error') && this.route.snapshot.queryParamMap.get('admin_consent') === 'True') {
-            if (previousState === this.route.snapshot.queryParamMap.get('state')) { // state parameter matches
-                removeFromStorage(`acs.${account.homeAccountId}`);
+            if (previousState === this.route.snapshot.queryParamMap.get('state')) { 
+                // state parameter matches
+                removeClaimsFromStorage(account.homeAccountId);
                 this.router.navigate(['/todo-view']);
             } else {
-                removeFromStorage(`acs.${account.homeAccountId}`);
+                clearStorage(account.homeAccountId); // clear sessionStorage of any claims entry 
                 this.authService.logoutRedirect(); // state parameter does not match, so logout
             }
         }
@@ -42,7 +47,7 @@ export class OnboardComponent implements OnInit {
         if (account) {
             const state = window.crypto.randomUUID(); // state parameter against csrf
 
-            addClaimsToStorage(`acs.${account.homeAccountId}`, state);
+            addClaimsToStorage(account.homeAccountId, state);
 
             /**
              * Construct URL for admin consent endpoint. For more information, visit:

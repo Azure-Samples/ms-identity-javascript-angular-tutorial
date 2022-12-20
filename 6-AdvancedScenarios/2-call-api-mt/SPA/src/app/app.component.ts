@@ -113,7 +113,7 @@ export class AppComponent implements OnInit, OnDestroy {
     logout() {
         const activeAccount = this.authService.instance.getActiveAccount() || this.authService.instance.getAllAccounts()[0];
 
-        clearStorage(activeAccount); // clear the storage of any claim challenges
+        clearStorage(activeAccount.homeAccountId); // clear the storage of any claim challenges
 
         if (this.msalGuardConfig.interactionType === InteractionType.Popup) {
             this.authService.logoutPopup({

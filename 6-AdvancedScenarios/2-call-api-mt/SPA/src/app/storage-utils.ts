@@ -1,40 +1,38 @@
 import { msalConfig } from './auth-config';
 
 /**
- * This method stores the claim challenge to the sessionStorage in the browser to be used when acquiring a token
- * @param {String} claimsChallenge
+ * This method stores the claim to the sessionStorage in the browser to be used when acquiring a token
+ * @param {string} homeAccountId
+ * @param {string} claims
  */
-export const addClaimsToStorage = (
-    claimsChallengeId: string,
-    claimsChallenge: string
-): void => {
-    sessionStorage.setItem(claimsChallengeId, claimsChallenge)
+export const addClaimsToStorage = (homeAccountId: string, claims: string): void => {
+    sessionStorage.setItem(`acs.${msalConfig.auth.clientId}.${homeAccountId}`, claims)
 };
 
 /**
- * This method fetches the claim challenge from sessionStorage
- * @param {string} claimsChallengeId
+ * This method fetches the claim from sessionStorage
+ * @param {string} homeAccountId
  * @returns
  */
-export const getClaimsFromStorage = (claimsChallengeId: string): any => {
-    return sessionStorage.getItem(claimsChallengeId);
+export const getClaimsFromStorage = (homeAccountId: string): any => {
+    return sessionStorage.getItem(`acs.${msalConfig.auth.clientId}.${homeAccountId}`);
 };
 
 /**
- * This method removes the claim challenge from sessionStorage
- * @param {string} claimsChallengeId
+ * This method removes the claim from sessionStorage
+ * @param {string} homeAccountId
  */
-export const removeFromStorage = (claimsChallengeId: string): void => {
-    sessionStorage.removeItem(claimsChallengeId);
+export const removeClaimsFromStorage = (homeAccountId: string): void => {
+    sessionStorage.removeItem(`acs.${msalConfig.auth.clientId}.${homeAccountId}`);
 };
 
 /**
- * This method clears sessionStorage of any claims challenge entry
- * @param {Object} account
+ * This method clears sessionStorage of any claims entry
+ * @param {string} homeAccountId
  */
-export const clearStorage = (account: any): void => {
+export const clearStorage = (homeAccountId: string): void => {
     for (var key in sessionStorage) {
-        if (key.startsWith(`cc.${msalConfig.auth.clientId}.${account.idTokenClaims.oid}`)) {
+        if (key.startsWith(`acs.${msalConfig.auth.clientId}.${homeAccountId}`)) {
             sessionStorage.removeItem(key);
         }
     }
