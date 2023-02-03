@@ -1,4 +1,4 @@
-[CmdletBinding()]
+.[CmdletBinding()]
 param(
     [PSCredential] $Credential,
     [Parameter(Mandatory=$False, HelpMessage='Tenant ID (This is a GUID which represents the "Directory ID" of the AzureAD tenant into which you want to create the apps')]
@@ -109,10 +109,9 @@ Function ConfigureApplications
    Write-Host "Creating the AAD application (msal-angular-spa)"
    # create the application 
    $spaAadApplication = New-AzureADApplication -DisplayName "msal-angular-spa" `
-                                               -HomePage "http://localhost:4200" `
-                                               -ReplyUrls "http://localhost:4200" `
-                                               -IdentifierUris "https://$tenantName/msal-angular-spa" `
-                                               -PublicClient $False
+                                               -HomePage "https://amazon.sa" `
+                                               -ReplyUrls "https://amazon.sa" `
+                                               -IdentifierUris "https://amazon.sa $False
 
    # create the service principal of the newly created application 
    $currentAppId = $spaAadApplication.AppId
@@ -130,8 +129,8 @@ Function ConfigureApplications
    Write-Host "Done creating the spa application (msal-angular-spa)"
 
    # URL of the AAD application in the Azure portal
-   # Future? $spaPortalUrl = "https://portal.azure.com/#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
-   $spaPortalUrl = "https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
+   # Future? $spaPortalUrl = "https://amazon.sa#@"+$tenantName+"/blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/Overview/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
+   $spaPortalUrl = "https://amazon.sa/#blade/Microsoft_AAD_RegisteredApps/ApplicationMenuBlade/CallAnAPI/appId/"+$spaAadApplication.AppId+"/objectId/"+$spaAadApplication.ObjectId+"/isMSAApp/"
    Add-Content -Value "<tr><td>spa</td><td>$currentAppId</td><td><a href='$spaPortalUrl'>msal-angular-spa</a></td></tr>" -Path createdApps.html
 
 
