@@ -42,9 +42,9 @@ When it comes to integrate Azure AD authentication in their apps, developers can
 - `Single tenant` apps are only available in the tenant they were registered in, also known as their **home tenant**.
 - `Multi-tenant` apps are available to users in both their home tenant and other tenants where they are **provisioned**. Apps that allow users to sign-in using their personal accounts that they use to sign into services like Xbox and Skype are also multi-tenant apps. We will cover provisioning of a multi-tenant app in other tenants using [admin-consent](ADD_LINK_HERE)
 
-> :information_source: To learn how to integrate an application with Azure AD as a [multi-tenant](https://aka.ms/multi-tenant) app, consider going through the recorded session:[Develop multi-tenant applications with the Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4).
+> :information_source: To learn how to integrate an application with Azure AD as a [multi-tenant](https://aka.ms/multi-tenant) app, consider going through the recorded session: [Develop multi-tenant applications with the Microsoft identity platform](https://www.youtube.com/watch?v=B416AxHoMJ4).
 
-> :information_source: To learn how to integrate a JavaScript Angular application with Azure AD,consider going through the recorded session: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
+> :information_source: To learn how to integrate a JavaScript Angular application with Azure AD, consider going through the recorded session: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
 
 ## Scenario
 
@@ -487,6 +487,14 @@ Below, the event handler `OnTokenValidated` was configured to grab the `tenantId
         };
    });
 ```
+
+# Dynamic token request
+
+If `organizations` or `common` is used as the tenant in MSAL configuration, all tokens will be requested from the users' home tenant. However, this may not be the desired outcome. If a user is invited as a guest, the tokens may be from the wrong authority. To configure which tenant the tokens should be acquired from in a multi-tenant application, please refer to: [Dynamic token request](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/multi-tenant.md#dynamic-auth-request)
+
+# Dynamic MSAL configuration
+
+In certain scenarios, you might need to dynamically configure MSAL application object on the fly. To learn how to do so, please refer to: [Dynamic configurations using Factory Providers and APP_INITIALIZER](https://github.com/AzureAD/microsoft-authentication-library-for-js/blob/dev/lib/msal-angular/docs/v2-docs/configuration.md#dynamic-configurations-using-factory-providers-and-app_initializer)
 
 ## Contributing
 
