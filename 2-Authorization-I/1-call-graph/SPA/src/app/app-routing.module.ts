@@ -4,7 +4,6 @@ import { BrowserUtils } from '@azure/msal-browser';
 import { MsalGuard, MsalRedirectComponent } from '@azure/msal-angular';
 
 import { ProfileComponent } from './profile/profile.component';
-import { ContactsComponent } from './contacts/contacts.component';
 import { HomeComponent } from './home/home.component';
 
 /**
@@ -16,11 +15,6 @@ const routes: Routes = [
     {
         path: 'profile',
         component: ProfileComponent,
-        canActivate: [MsalGuard],
-    },
-    {
-        path: 'contacts',
-        component: ContactsComponent,
         canActivate: [MsalGuard],
     },
     {
