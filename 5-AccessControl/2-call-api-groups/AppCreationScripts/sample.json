@@ -23,56 +23,49 @@
   },
   "AADApps": [
     {
-      "Id": "client",
-      "Name": "msal-angular-app",
-      "Kind": "SinglePageApplication",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "http://localhost:4200/",
-      "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
-      "GroupMembershipClaims": "SecurityGroup",
-      "PasswordCredentials": "Auto",
-      "Scopes": [
-        "access_via_group_assignments"
-      ],
-      "SecurityGroups": [
-        {
-          "Name": "GroupAdmin",
-          "Description": "Admin Security Group"
-        },
-        {
-          "Name": "GroupMember",
-          "Description": "User Security Group"
-        }
-      ],
-      "RequiredResourcesAccess": [
-        {
-          "Resource": "client",
-          "DelegatedPermissions": [
-            "access_via_group_assignments"
-          ]
-        },
-        {
-          "Resource": "Microsoft Graph",
-          "DelegatedPermissions": [
-            "User.Read",
-            "GroupMember.Read.All"
-          ]
-        }
-      ],
-      "OptionalClaims": {
-        "IdTokenClaims": [
-          "acct"          
+        "Id": "client",
+        "Name": "msal-angular-app",
+        "Kind": "SinglePageApplication",
+        "Audience": "AzureADMyOrg",
+        "SDK": "MicrosoftIdentityWeb",
+        "HomePage": "http://localhost:4200/",
+        "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
+        "GroupMembershipClaims": "SecurityGroup",
+        "PasswordCredentials": "Auto",
+        "SampleSubPath": "5-AccessControl\\2-call-api-groups\\SPA",
+        "Scopes": ["access_via_group_assignments"],
+        "SecurityGroups": [
+            {
+                "Name": "GroupAdmin",
+                "Description": "Admin Security Group"
+            },
+            {
+                "Name": "GroupMember",
+                "Description": "User Security Group"
+            }
         ],
-        "AccessTokenClaims": [ "idtyp" ]
-      },
-      "ManualSteps": [
-        {
-          "Comment": "This script has created a group named 'GroupAdmin' and 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
+        "RequiredResourcesAccess": [
+            {
+                "Resource": "client",
+                "DelegatedPermissions": ["access_via_group_assignments"]
+            },
+            {
+                "Resource": "Microsoft Graph",
+                "DelegatedPermissions": ["User.Read", "GroupMember.Read.All"]
+            }
+        ],
+        "OptionalClaims": {
+            "IdTokenClaims": ["acct"],
+            "AccessTokenClaims": ["idtyp"]
         },
-        {
-          "Comment": "To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal."
-        }
-      ]
+        "ManualSteps": [
+            {
+                "Comment": "This script has created a group named 'GroupAdmin' and 'GroupMember' for you. On Azure portal, navigate to Azure AD > Groups blade and assign some users to it."
+            },
+            {
+                "Comment": "To support overage scenario, remember to provide admin consent for GroupMember.Read.All permission in the portal."
+            }
+        ]
     }
   ],
   "CodeConfiguration": [

@@ -1,3 +1,4 @@
+#Requires -Version 7
  
 [CmdletBinding()]
 param(
@@ -151,7 +152,7 @@ Function ReplaceInTextFile([string] $configFilePath, [System.Collections.HashTab
 <#.Description
    This function creates a new Azure AD scope (OAuth2Permission) with default and provided values
 #>  
-Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription)
+Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string] $userConsentDescription, [string] $adminConsentDisplayName, [string] $adminConsentDescription, [string] $consentType)
 {
     $scope = New-Object Microsoft.Graph.PowerShell.Models.MicrosoftGraphPermissionScope
     $scope.Id = New-Guid
@@ -161,7 +162,7 @@ Function CreateScope( [string] $value, [string] $userConsentDisplayName, [string
     $scope.AdminConsentDisplayName = $adminConsentDisplayName
     $scope.AdminConsentDescription = $adminConsentDescription
     $scope.IsEnabled = $true
-    $scope.Type = "User"
+    $scope.Type = $consentType
     return $scope
 }
 
@@ -207,8 +208,6 @@ Function CreateOptionalClaim([string] $name)
 #> 
 Function ConfigureApplications
 {
-    $isOpenSSl = 'N' #temporary disable open certificate creation 
-
     <#.Description
        This function creates the Azure AD applications for the sample in the provided Azure AD tenant and updates the
        configuration files in the client and service project  of the visual studio solution (App.Config and Web.Config)
@@ -273,7 +272,7 @@ Function ConfigureApplications
     $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
     if ($owner -eq $null)
     { 
-        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($serviceServicePrincipal.DisplayName)'"
     }
 
@@ -322,14 +321,18 @@ Function ConfigureApplications
         -userConsentDisplayName "TodoList.Read"  `
         -userConsentDescription "eg. Allows the app to read your files."  `
         -adminConsentDisplayName "TodoList.Read"  `
-        -adminConsentDescription "e.g. Allows the app to read the signed-in user's files."
+        -adminConsentDescription "e.g. Allows the app to read the signed-in user's files." `
+        -consentType "User" `
+        
             
     $scopes.Add($scope)
     $scope = CreateScope -value TodoList.ReadWrite  `
         -userConsentDisplayName "TodoList.ReadWrite"  `
         -userConsentDescription "eg. Allows the app to read your files."  `
         -adminConsentDisplayName "TodoList.ReadWrite"  `
-        -adminConsentDescription "e.g. Allows the app to read the signed-in user's files."
+        -adminConsentDescription "e.g. Allows the app to read the signed-in user's files." `
+        -consentType "User" `
+        
             
     $scopes.Add($scope)
     
@@ -386,7 +389,7 @@ Function ConfigureApplications
     $owner = Get-MgApplicationOwner -ApplicationId $currentAppObjectId
     if ($owner -eq $null)
     { 
-        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter = @{"@odata.id" = "htps://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
+        New-MgApplicationOwnerByRef -ApplicationId $currentAppObjectId  -BodyParameter @{"@odata.id" = "https://graph.microsoft.com/v1.0/directoryObjects/$user.ObjectId"}
         Write-Host "'$($user.UserPrincipalName)' added as an application owner to app '$($clientServicePrincipal.DisplayName)'"
     }
 
@@ -478,15 +481,9 @@ Function ConfigureApplications
     Write-Host "- For service"
     Write-Host "  - Navigate to $servicePortalUrl"
     Write-Host "  - Application 'service' publishes application permissions. Do remember to navigate to any client app(s) registration in the app portal and consent for those, (if required)" -ForegroundColor Red 
+    Write-Host "  - Application 'service' publishes delegated permissions. Do remember to navigate to any client app(s) registration in the app portal and consent for those, (if required)" -ForegroundColor Red 
     Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
    
-if($isOpenSSL -eq 'Y')
-{
-    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-    Write-Host "You have generated certificate using OpenSSL so follow below steps: "
-    Write-Host "Install the certificate on your system from current folder."
-    Write-Host -ForegroundColor Green "------------------------------------------------------------------------------------------------" 
-}
 Add-Content -Value "</tbody></table></body></html>" -Path createdApps.html  
 } # end of ConfigureApplications function
 

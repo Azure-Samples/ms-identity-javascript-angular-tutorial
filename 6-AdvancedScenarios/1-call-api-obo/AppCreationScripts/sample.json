@@ -28,26 +28,19 @@
             "Id": "service",
             "Name": "ProfileAPI",
             "Kind": "WebApi",
+            "SDK": "MicrosoftIdentityWeb",
             "Audience": "AzureADMyOrg",
             "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\API",
             "PasswordCredentials": "Auto",
-            "Scopes": [
-                "access_graph_on_behalf_of_user"
-            ],
+            "Scopes": ["access_graph_on_behalf_of_user"],
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "User.Read",
-                        "offline_access"
-                    ]
+                    "DelegatedPermissions": ["User.Read", "offline_access"]
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": [
-                    "idtyp",
-                    "xms_cc"
-                ]
+                "AccessTokenClaims": ["idtyp", "xms_cc"]
             }
         },
         {
@@ -58,18 +51,15 @@
             "HomePage": "http://localhost:4200",
             "ReplyUrls": "http://localhost:4200, http://localhost:4200/auth",
             "SampleSubPath": "6-AdvancedScenarios\\1-call-api-obo\\SPA",
+            "SDK": "MsalAngular",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
-                    "DelegatedPermissions": [
-                        "access_graph_on_behalf_of_user"
-                    ]
+                    "DelegatedPermissions": ["access_graph_on_behalf_of_user"]
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": [
-                    "acct"
-                ]
+                "AccessTokenClaims": ["acct"]
             }
         }
     ],

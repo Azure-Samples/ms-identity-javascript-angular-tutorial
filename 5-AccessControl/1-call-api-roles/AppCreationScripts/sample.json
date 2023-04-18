@@ -28,41 +28,29 @@
             "Audience": "AzureADMyOrg",
             "HomePage": "http://localhost:4200/",
             "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
-            "Scopes": [
-                "access_via_approle_assignments"
-            ],
-            "Sample": {
-                "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
-                "ProjectDirectory": "\\1-call-api-roles\\SPA"
-            },
+            "SDK": "MicrosoftIdentityWeb",
+            "Scopes": ["access_via_approle_assignments"],
+            "SampleSubPath": "5-AccessControl\\1-call-api-roles\\SPA",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "client",
-                    "DelegatedPermissions": [
-                        "access_via_approle_assignments"
-                    ]
+                    "DelegatedPermissions": ["access_via_approle_assignments"]
                 }
             ],
             "AppRoles": [
                 {
-                    "AllowedMemberTypes": [
-                        "User"
-                    ],
+                    "AllowedMemberTypes": ["User"],
                     "Name": "TaskAdmin",
                     "Description": "Admins can read any user's todo list"
                 },
                 {
-                    "AllowedMemberTypes": [
-                        "User"
-                    ],
+                    "AllowedMemberTypes": ["User"],
                     "Name": "TaskUser",
                     "Description": "Users can read and modify their todo lists"
                 }
             ],
             "OptionalClaims": {
-                "IdTokenClaims": [
-                    "acct"
-                ]
+                "IdTokenClaims": ["acct"]
             },
             "ManualSteps": [
                 {

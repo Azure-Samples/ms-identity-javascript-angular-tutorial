@@ -16,22 +16,20 @@
             "Id": "spa",
             "Name": "msal-angular-spa",
             "Kind": "SinglePageApplication",
+            "SDK": "MsalAngular",
             "HomePage": "http://localhost:4200/",
-            "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",  
+            "ReplyUrls": "http://localhost:4200/, http://localhost:4200/auth",
             "Audience": "AzureADMyOrg",
-            "Sample": {
-                "SampleSubPath": "2-Authorization-I\\1-call-graph",
-                "ProjectDirectory": "\\SPA"
-            },
+            "SampleSubPath": "2-Authorization-I\\1-call-graph",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
                     "DelegatedPermissions": ["User.Read", "Contacts.Read"]
                 }
-            ],        
-        "OptionalClaims": {
-          "IdTokenClaims": [ "acct" ]
-        },
+            ],
+            "OptionalClaims": {
+                "IdTokenClaims": ["acct"]
+            }
         }
     ],
     "CodeConfiguration": [

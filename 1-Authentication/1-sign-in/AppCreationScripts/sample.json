@@ -1,41 +1,42 @@
 {
-  "Sample": {
-    "Title": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory",
-    "Level": 100,
-    "Client": "Angular SPA",
-    "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
-    "Endpoint": "AAD v2.0"
-  },
-  "AADApps": [
-    {
-      "Id": "spa",
-      "Name": "msal-angular-spa",
-      "Kind": "SinglePageApplication",
-      "Audience": "AzureADMyOrg",
-      "HomePage": "http://localhost:4200",
-      "ReplyUrls": "http://localhost:4200",
-      "ManualSteps": [
+    "Sample": {
+        "Title": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory",
+        "Level": 100,
+        "Client": "Angular SPA",
+        "RepositoryUrl": "ms-identity-javascript-angular-tutorial",
+        "Endpoint": "AAD v2.0",
+        "Languages": ["typescript"],
+        "Products": ["azure-active-directory", "msal-angular"],
+        "Description": "Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory",
+        "Platform": "Javascript"
+    },
+    "AADApps": [
         {
-          "Comment": "Navigate to the Manifest page, find the 'replyUrlsWithType' section and change the type of redirect URI to 'Spa'"
+            "Id": "spa",
+            "Name": "msal-angular-spa",
+            "Kind": "SinglePageApplication",
+            "Audience": "AzureADMyOrg",
+            "SDK": "MsalAngular",
+            "HomePage": "http://localhost:4200",
+            "ReplyUrls": "http://localhost:4200",
+            "SampleSubPath": "1-Authentication\\1-sign-in\\SPA"
         }
-      ]
-    }
-  ],
-  "CodeConfiguration": [
-    {
-      "App": "spa",
-      "SettingKind": "Replace",
-      "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
-      "Mappings": [
+    ],
+    "CodeConfiguration": [
         {
-          "key": "Enter_the_Application_Id_Here",
-          "value": ".AppId"
-        },
-        {
-          "key": "Enter_the_Tenant_Info_Here",
-          "value": "$tenantId"
+            "App": "spa",
+            "SettingKind": "Replace",
+            "SettingFile": "\\..\\SPA\\src\\app\\auth-config.ts",
+            "Mappings": [
+                {
+                    "key": "Enter_the_Application_Id_Here",
+                    "value": ".AppId"
+                },
+                {
+                    "key": "Enter_the_Tenant_Info_Here",
+                    "value": "$tenantId"
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
