@@ -19,64 +19,44 @@
         ],
         "Description": "An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API"
     },
-    "ReadmeScenario": {
-        "UseNewSetup": "1",
-        "CertificateOption": "0"
-    },
     "AADApps": [
         {
             "Id": "service",
             "Name": "msal-dotnet-api",
             "Kind": "WebApi",
+            "SDK": "MicrosoftIdentityWeb",
             "Audience": "AzureADMyOrg",
-            "Sample": {
-                "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
-                "ProjectDirectory": "\\1-call-api\\API"
-            },
-            "Scopes": [
-                "TodoList.Read",
-                "TodoList.ReadWrite"
-            ],
+            "SampleSubPath": "3-Authorization-II\\1-call-api\\API",
+            "Scopes": ["TodoList.Read", "TodoList.ReadWrite"],
             "AppRoles": [
                 {
-                    "AllowedMemberTypes": [
-                        "Application"
-                    ],
+                    "AllowedMemberTypes": ["Application"],
                     "Name": "TodoList.Read.All",
                     "Description": "Allow this application to read every users TodoList items"
                 },
                 {
-                    "AllowedMemberTypes": [
-                        "Application"
-                    ],
+                    "AllowedMemberTypes": ["Application"],
                     "Name": "TodoList.ReadWrite.All",
                     "Description": "Allow this application to read and write every users TodoList items"
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": [
-                    "idtyp"
-                ]
+                "AccessTokenClaims": ["idtyp"]
             }
         },
         {
             "Id": "client",
             "Name": "msal-angular-spa",
             "Kind": "SinglePageApplication",
+            "SDK": "MsalAngular",
             "Audience": "AzureADMyOrg",
             "HomePage": "https://localhost:4200",
             "ReplyUrls": "http://localhost:4200, https://localhost:4200/auth",
-            "Sample": {
-                "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
-                "ProjectDirectory": "\\1-call-api\\SPA"
-            },
+            "SampleSubPath": "3-Authorization-II\\1-call-api\\SPA",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
-                    "DelegatedPermissions": [
-                        "TodoList.Read",
-                        "TodoList.ReadWrite"
-                    ]
+                    "DelegatedPermissions": ["TodoList.Read", "TodoList.ReadWrite"]
                 }
             ]
         }

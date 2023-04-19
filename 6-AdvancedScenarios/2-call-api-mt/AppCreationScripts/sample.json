@@ -31,23 +31,17 @@
             "Name": "msal-dotnet-mt-api",
             "Kind": "WebApi",
             "Audience": "AzureADMultipleOrgs",
+            "SDK": "MicrosoftIdentityWeb",
             "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\API",
-            "Scopes": [
-                "TodoList.Read",
-                "TodoList.ReadWrite"
-            ],
+            "Scopes": ["TodoList.Read", "TodoList.ReadWrite"],
             "AppRoles": [
                 {
-                    "AllowedMemberTypes": [
-                        "Application"
-                    ],
+                    "AllowedMemberTypes": ["Application"],
                     "Name": "TodoList.Read.All",
                     "Description": "Allow this application to read every users TodoList items"
                 },
                 {
-                    "AllowedMemberTypes": [
-                        "Application"
-                    ],
+                    "AllowedMemberTypes": ["Application"],
                     "Name": "TodoList.ReadWrite.All",
                     "Description": "Allow this application to read and write every users TodoList items"
                 }
@@ -55,16 +49,11 @@
             "RequiredResourcesAccess": [
                 {
                     "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "User.Read"
-                    ]
+                    "DelegatedPermissions": ["User.Read"]
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": [
-                    "idtyp",
-                    "acct"
-                ]
+                "AccessTokenClaims": ["idtyp", "acct"]
             }
         },
         {
@@ -75,25 +64,19 @@
             "HomePage": "http://localhost:4200",
             "ReplyUrls": "http://localhost:4200, http://localhost:4200/auth, http://localhost:4200/consent-redirect",
             "SampleSubPath": "6-AdvancedScenarios\\2-call-api-mt\\SPA",
+            "SDK": "MsalAngular",
             "RequiredResourcesAccess": [
                 {
                     "Resource": "service",
-                    "DelegatedPermissions": [
-                        "TodoList.Read",
-                        "TodoList.ReadWrite"
-                    ]
+                    "DelegatedPermissions": ["TodoList.Read", "TodoList.ReadWrite"]
                 },
                 {
                     "Resource": "Microsoft Graph",
-                    "DelegatedPermissions": [
-                        "User.Read"
-                    ]
+                    "DelegatedPermissions": ["User.Read"]
                 }
             ],
             "OptionalClaims": {
-                "AccessTokenClaims": [
-                    "acct"
-                ]
+                "AccessTokenClaims": ["acct"]
             }
         }
     ],
