@@ -5,7 +5,6 @@ languages:
 - typescript
 - csharp
 products:
-- angular
 - dotnet
 - msal-js
 - ms-graph
