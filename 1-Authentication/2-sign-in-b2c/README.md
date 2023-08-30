@@ -1,7 +1,6 @@
 ---
 page_type: sample
-name: Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C
-description: Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C
+description: This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure AD B2C using the Microsoft Authentication Library for Angular (MSAL Angular).
 languages:
  -  javascript
  -  typescript
@@ -9,7 +8,8 @@ products:
  - azure-active-directory-b2c
  - msal-js
  - msal-angular
-urlFragment: ms-identity-javascript-angular-tutorial
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular
 extensions:
 - services: ms-identity
 - platform: JavaScript
