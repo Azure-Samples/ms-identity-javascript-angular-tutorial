@@ -1,3 +1,24 @@
+---
+page_type: sample
+description: This sample demonstrates an Angular single-page application (SPA) that lets users sign-in with Azure Active Directory (Azure AD) using the Microsoft Authentication Library for Angular (MSAL Angular).
+languages:
+ -  javascript
+ -  typescript
+products:
+ - azure-active-directory-b2c
+ - msal-js
+ - msal-angular
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-aad
+extensions:
+- services: ms-identity
+- platform: JavaScript
+- endpoint: AAD v2.0
+- level: 100
+- client: Angular SPA
+- service: 
+---
+
 # Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory
 
  1. [Overview](#overview)

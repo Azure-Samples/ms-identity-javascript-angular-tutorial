@@ -1,7 +1,6 @@
 ---
 page_type: sample
-name: Angular single-page application that authenticates users with Azure AD B2C and calls a protected .NET Core web API
-description: An Angular single-page application that authenticates users with Azure AD B2C and calls a protected .NET Core web API
+description: This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with Azure AD B2C. It uses the Microsoft Authentication Library for Angular (MSAL Angular) to sign-in a users in the SPA and get a token for the web API. The Web API is protected using the Microsoft.Identity.Web.
 languages:
  - javascript
  - typescript
@@ -11,7 +10,8 @@ products:
  - msal-js
  - msal-angular
  - microsoft-identity-web
-urlFragment: ms-identity-javascript-angular-tutorial
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-b2c-netcore
 extensions:
 - services: ms-identity
 - platform: JavaScript
@@ -36,7 +36,7 @@ extensions:
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview). It uses the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) to sign-in a users in the SPA and get a token for the web Api. The Web Api is protected using the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web).
+This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview). It uses the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) to sign-in a users in the SPA and get a token for the web API. The Web API is protected using the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web).
 
 > :information_source: To learn how to integrate a JavaScript Angular application with Azure AD,consider going through the recorded session: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
 

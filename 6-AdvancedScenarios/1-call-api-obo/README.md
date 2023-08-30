@@ -1,7 +1,6 @@
 ---
 page_type: sample
-name: An Angular single-page application calling an AspNetCore web API which calls the Microsoft Graph API using the on-behalf-of (OBO) flow
-description: An Angular single-page application signing-in a user and calling an AspNetCore Web API protected with Azure AD. The Web API in turn then calls the Microsoft Graph API using the on-behalf-of (OBO) flow
+description: This sample demonstrates an Angular single-page application (SPA) which lets a user authenticate with their Azure AD tenant and obtains an access token to call an ASP.NET Core web API, protected by Azure Active Directory (Azure AD).
 languages:
  - typescript
  - csharp
@@ -10,7 +9,8 @@ products:
  - msal-js
  - msal-angular
  - microsoft-identity-web
-urlFragment: ms-identity-javascript-angular-tutorial
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-graph-obo
 extensions:
 - services: ms-identity
 - platform: javascript
@@ -34,7 +34,7 @@ extensions:
 
 ## Overview
 
-This sample demonstrates an Angular single-page application (SPA) which lets a user authenticate with their Azure AD tenant and  obtains an [access token](https://aka.ms/access-tokens) to call an ASP.NET Core web API, protected by [Azure Active Directory (Azure AD)](https://azure.microsoft.com/services/active-directory/).
+This sample demonstrates an Angular single-page application (SPA) which lets a user authenticate with their Azure AD tenant and obtains an [access token](https://aka.ms/access-tokens) to call an ASP.NET Core web API, protected by [Azure Active Directory (Azure AD)](https://azure.microsoft.com/services/active-directory/).
 The web API then proceeds to obtain another access token for [Microsoft Graph API](https://developer.microsoft.com/graph) using the [OAuth 2.0 on-behalf-of flow](https://docs.microsoft.com/azure/active-directory/develop/v2-oauth2-on-behalf-of-flow).
 The web API's call to Microsoft Graph is made using the [Microsoft Graph SDK](https://docs.microsoft.com/graph/sdks/sdks-overview).
 

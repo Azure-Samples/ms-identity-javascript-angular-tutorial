@@ -1,9 +1,5 @@
 ---
 page_type: sample
-services: ms-identity
-client: Angular SPA
-service: ASP.NET Core Web Api
-level: 300
 languages:
  - typescript
  - csharp
@@ -13,11 +9,16 @@ products:
  - msal-js
  - msal-angular
  - microsoft-identity-web
-platform: JavaScript
-endpoint: AAD v2.0
-urlFragment: ms-identity-javascript-angular-tutorial
-name: Angular single-page application calling a protected web API and using App Roles to implement Role-Based Access Control
-description: An Angular single-page application calling a protected web API using App Roles to implement Role-Based Access Control
+ - microsoft-authentication-library
+extensions:
+- endpoint: AAD v2.0
+- services: ms-identity
+- client: Angular SPA
+- service: ASP.NET Core Web Api
+- level: 300
+- platform: JavaScript
+urlFragment: spa-msal-angular-app-roles
+description: This sample demonstrates a cross-platform application suite involving an Angular single-page application (TodoListSPA) calling an ASP.NET Core web API (TodoListAPI) secured with the Microsoft identity platform. In doing so, it implements Role-based Access Control (RBAC) by using Azure AD App Roles.
 ---
 
 # Angular single-page application calling a protected web API and using App Roles to implement Role-Based Access Control

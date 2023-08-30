@@ -1,7 +1,6 @@
 ---
 page_type: sample
-name: Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control
-description: An Angular single-page application calling a protected AspNet web API and using Security Groups to implement Role-Based Access Control (RBAC)
+description: This sample demonstrates a cross-platform application suite involving an Angular single-page application (TodoListSPA) calling an ASP.NET Core web API (TodoListAPI) secured with the Microsoft identity platform. In doing so, it implements Role-based Access Control (RBAC) by using Azure AD Security Groups.
 languages:
  - typescript
  - csharp
@@ -12,7 +11,8 @@ products:
  - msal-js
  - msal-angular
  - microsoft-identity-web
-urlFragment: ms-identity-javascript-angular-tutorial
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-security-groups
 extensions:
 - services: ms-identity
 - platform: javascript

@@ -9,7 +9,7 @@ products:
  - msal-js
  - msal-angular
  - microsoft-authentication-library
-urlFragment: spa-msal-angular
+urlFragment: spa-msal-angular-b2c
 extensions:
 - services: ms-identity
 - platform: JavaScript

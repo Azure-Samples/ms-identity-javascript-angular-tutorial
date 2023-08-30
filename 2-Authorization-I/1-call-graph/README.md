@@ -1,15 +1,16 @@
 ---
 page_type: sample
-name: Angular single-page application using MSAL Angular to sign-in users with Azure AD and call the Microsoft Graph API
-services: ms-identity
-platform: Javascript
+extensions:
+- services: ms-identity
+- platform: javascript
 languages:
  - javascript
 products:
  - azure-active-directory
  - ms-graph
  - msal-angular
-urlFragment: ms-identity-javascript-angular-tutorial
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-graph
 description: This sample demonstrates an Angular single-page application (SPA) that uses Microsoft Authentication Library for Angular (MSAL Angular) to sign-in users with Azure Active Directory (Azure AD) and calls Microsoft Graph API
 ---
 

@@ -1,7 +1,6 @@
 ---
 page_type: sample
-name: Integrate an Angular SPA using MSAL Angular to authenticate users with Azure AD and call a protected web API using the multi-tenant integration pattern (SaaS)
-description: Integrate an Angular single-page application (SPA) that uses MSAL Angular to authenticate users with Azure AD and call a protected .NET Core web API using the multi-tenant integration pattern (SaaS)
+description: This sample demonstrates how to integrate an app with Azure AD as a multi-tenant app. This cross-platform application suite comprises of an Angular single-page application (TodoListSPA) authenticating users and calling an ASP.NET Core web API (TodoListAPI) which is also secured with Azure Active Directory (Azure AD). Due to the topology of this application suite (multi-tier, multi-tenant), additional steps are needed for making the apps available to users in other tenants.
 languages:
  - javascript
  - typescript
@@ -11,7 +10,8 @@ products:
  - aspnet-core
  - msal-js
  - msal-angular
-urlFragment: ms-identity-javascript-angular-tutorial
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-multi-tenant
 extensions:
 - services: ms-identity
 - platform: javascript
