@@ -1,8 +1,8 @@
 ---
 page_type: sample
-name: Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API
-services: ms-identity
-platform: javascript
+extensions:
+- services: ms-identity
+- platform: javascript
 languages:
  - typescript
  - csharp
@@ -10,8 +10,9 @@ products:
  - azure-active-directory
  - aspnet-core
  - msal-angular
-urlFragment: ms-identity-javascript-angular-tutorial
-description: An Angular SPA using MSAL Angular to sign-in users with Azure Active Directory and call a protected .NET Core web API
+ - microsoft-authentication-library
+urlFragment: spa-msal-angular-netcore
+description: This sample demonstrates an Angular single-page application (SPA) to sign-in users and call a ASP.NET Core web API secured with Azure Active Directory (Azure AD) using the Microsoft Authentication Library for Angular (MSAL Angular) for the SPA and the Microsoft.Identity.Web (MIW) for the web API.
 ---
 
 # Angular single-page application using MSAL Angular to sign-in users with Azure Active Directory and call a .NET Core web API

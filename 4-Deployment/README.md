@@ -1,3 +1,17 @@
+---
+page_type: sample
+description: This sample demonstrates how to deploy an Angular single-page application (SPA) coupled with a .NET Core web API to Azure Cloud using Azure Storage and Azure App Service, respectively. To do so, we will use the same code sample from Chapter 3.
+languages:
+ - javascript
+ - typescript
+ - csharp
+products:
+ - msal-js
+ - msal-angular
+ - microsoft-authentication-library
+urlFragment: msal-angular-deploy-azure-cloud
+---
+
 # Deploy your Angular application to Azure Cloud and use Azure services to manage your operations
 
  1. [Overview](#overview)
