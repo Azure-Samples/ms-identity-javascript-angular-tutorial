@@ -11,14 +11,15 @@ products:
  - msal-angular
  - microsoft-identity-web
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-b2c-netcore
 extensions:
-- services: ms-identity
-- platform: JavaScript
-- endpoint: AAD v2.0
-- level: 200
-- client: Angular SPA
-- service: .NET Core web API
+    services: ms-identity
+    platform: JavaScript
+    endpoint: AAD v2.0
+    level: 200
+    client: Angular SPA
+    service: .NET Core web API
 ---
 
 # Angular single-page application that authenticates users with Azure AD B2C and calls a protected .NET Core web API

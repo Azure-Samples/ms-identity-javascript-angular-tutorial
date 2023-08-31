@@ -9,14 +9,15 @@ products:
  - msal-js
  - msal-angular
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-b2c
 extensions:
-- services: ms-identity
-- platform: JavaScript
-- endpoint: AAD v2.0
-- level: 100
-- client: Angular SPA
-- service: 
+    services: ms-identity
+    platform: JavaScript
+    endpoint: AAD v2.0
+    level: 100
+    client: Angular SPA
+    service: 
 ---
 
 # Angular single-page application using MSAL Angular to sign-in users against Azure AD B2C

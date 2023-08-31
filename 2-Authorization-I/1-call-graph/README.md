@@ -10,6 +10,7 @@ products:
  - ms-graph
  - msal-angular
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-graph
 description: This sample demonstrates an Angular single-page application (SPA) that uses Microsoft Authentication Library for Angular (MSAL Angular) to sign-in users with Azure Active Directory (Azure AD) and calls Microsoft Graph API
 ---

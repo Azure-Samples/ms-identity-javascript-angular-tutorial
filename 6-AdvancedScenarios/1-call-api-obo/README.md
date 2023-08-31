@@ -10,14 +10,15 @@ products:
  - msal-angular
  - microsoft-identity-web
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-graph-obo
 extensions:
-- services: ms-identity
-- platform: javascript
-- endpoint: AAD v2.0
-- level: 300
-- client: Angular SPA
-- service: .NET Core web API
+    services: ms-identity
+    platform: javascript
+    endpoint: AAD v2.0
+    level: 300
+    client: Angular SPA
+    service: .NET Core web API
 ---
 
 # An Angular single-page application calling an AspNetCore web API which calls the Microsoft Graph API using the on-behalf-of(OBO) flow

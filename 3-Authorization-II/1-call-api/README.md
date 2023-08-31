@@ -11,6 +11,7 @@ products:
  - aspnet-core
  - msal-angular
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-netcore
 description: This sample demonstrates an Angular single-page application (SPA) to sign-in users and call a ASP.NET Core web API secured with Azure Active Directory (Azure AD) using the Microsoft Authentication Library for Angular (MSAL Angular) for the SPA and the Microsoft.Identity.Web (MIW) for the web API.
 ---

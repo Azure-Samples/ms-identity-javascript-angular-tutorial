@@ -11,14 +11,15 @@ products:
  - msal-js
  - msal-angular
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-multi-tenant
 extensions:
-- services: ms-identity
-- platform: javascript
-- endpoint: AAD v2.0
-- level: 400
-- client: Angular SPA
-- service: .NET Core web API
+    services: ms-identity
+    platform: javascript
+    endpoint: AAD v2.0
+    level: 400
+    client: Angular SPA
+    service: .NET Core web API
 ---
 
 # Integrate an Angular SPA using MSAL Angular to authenticate users with Azure AD and call a protected web API using the multi-tenant integration pattern (SaaS)
