@@ -1,8 +1,8 @@
 ---
 page_type: sample
 extensions:
-- services: ms-identity
-- platform: javascript
+    services: ms-identity
+    platform: javascript
 languages:
  - javascript
 products:
