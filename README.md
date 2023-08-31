@@ -15,6 +15,7 @@ products:
 - azure-active-directory-b2c
 - microsoft-identity-web
 - microsoft-authentication-library
+- entra
 description: "Tutorial: Enable your Angular single-page application to sign-in users and call APIs with the Microsoft identity platform"
 urlFragment: "ms-identity-javascript-angular-tutorial"
 ---

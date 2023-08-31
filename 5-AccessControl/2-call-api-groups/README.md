@@ -12,14 +12,15 @@ products:
  - msal-angular
  - microsoft-identity-web
  - microsoft-authentication-library
+ - entra
 urlFragment: spa-msal-angular-security-groups
 extensions:
-- services: ms-identity
-- platform: javascript
-- endpoint: AAD v2.0
-- level: 300
-- client: Angular SPA
-- service: .NET Core web API
+    services: ms-identity
+    platform: javascript
+    endpoint: AAD v2.0
+    level: 300
+    client: Angular SPA
+    service: .NET Core web API
 ---
 
 # Angular single-page application calling a protected ASP.NET Core web API and using Security Groups to implement Role-Based Access Control

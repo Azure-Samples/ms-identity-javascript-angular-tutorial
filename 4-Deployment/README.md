@@ -9,6 +9,7 @@ products:
  - msal-js
  - msal-angular
  - microsoft-authentication-library
+ - entra
 urlFragment: msal-angular-deploy-azure-cloud
 ---
 
