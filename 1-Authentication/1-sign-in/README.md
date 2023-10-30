@@ -5,7 +5,7 @@ languages:
     -  javascript
     -  typescript
 products:
-    - azure-active-directory-b2c
+    - entra-external-id
     - msal-js
     - msal-angular
     - microsoft-authentication-library
