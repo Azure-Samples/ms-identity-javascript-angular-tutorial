@@ -6,7 +6,7 @@ extensions:
 languages:
  - javascript
 products:
- - azure-active-directory
+ - entra-id
  - ms-graph
  - msal-angular
  - microsoft-authentication-library
