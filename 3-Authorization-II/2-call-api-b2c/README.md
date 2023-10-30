@@ -6,7 +6,7 @@ languages:
  - typescript
  - csharp
 products:
- - azure-active-directory-b2c
+ - entra-external-id
  - msal-js
  - msal-angular
  - microsoft-identity-web
