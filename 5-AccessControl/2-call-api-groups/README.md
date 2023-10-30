@@ -6,7 +6,7 @@ languages:
  - csharp
  - javascript
 products:
- - azure-active-directory
+ - entra-id
  - ms-graph
  - msal-js
  - msal-angular
