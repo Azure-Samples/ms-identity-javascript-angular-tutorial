@@ -7,7 +7,7 @@ languages:
  - typescript
  - csharp
 products:
- - azure-active-directory
+ - entra-id
  - aspnet-core
  - msal-angular
  - microsoft-authentication-library
