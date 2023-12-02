@@ -13,7 +13,7 @@
 
 This sample demonstrates an Angular single-page application (SPA) calling a ASP.NET Core web API secured with [Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/overview) using the [Microsoft Authentication Library for Angular](https://github.com/AzureAD/microsoft-authentication-library-for-js/tree/dev/lib/msal-angular) (MSAL Angular) for the SPA and the [Microsoft.Identity.Web](https://github.com/AzureAD/microsoft-identity-web) (M.I.W) for the web API.
 
-> :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Azure Active Directory](https://www.youtube.com/watch?v=EJey9KP1dZA)
+> :information_source: See the community call: [Deep dive on using MSAL.js to integrate Angular single-page applications with Microsoft Entra ID](https://www.youtube.com/watch?v=EJey9KP1dZA)
 
 ## Scenario
 
@@ -74,26 +74,26 @@ For more information and potential issues, see: [HTTPS in .NET Core](https://doc
 
 ### Step 5: Register the sample application(s) in your tenant
 
-> :warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Azure portal**. Otherwise, continue with the steps for [Explore the sample](#explore-the-sample).
+> :warning: This sample comes with a pre-registered application for demo purposes. If you would like to use your own **Azure AD B2C** tenant and application, follow the steps below to register and configure the application on **Microsoft admin center**. Otherwise, continue with the steps for [Explore the sample](#explore-the-sample).
 
 #### Choose the Azure AD B2C tenant where you want to create your applications
 
 As a first step you'll need to:
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
+1. Sign in to the [Microsoft admin center](https://portal.azure.com).
 1. If your account is present in more than one Azure AD B2C tenant, select your profile at the top right corner in the menu on top of the page, and then **switch directory** to change your portal session to the desired Azure AD B2C tenant.
 
 #### Create User Flows and Custom Policies
 
-Please refer to: [Tutorial: Create user flows in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
+Please refer to: [Tutorial: Create user flows in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-create-user-flows)
 
 #### Add External Identity Providers
 
-Please refer to: [Tutorial: Add identity providers to your applications in Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
+Please refer to: [Tutorial: Add identity providers to your applications in Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/tutorial-add-identity-providers)
 
 #### Register the service app (msal-dotnet-api)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure Active Directory B2C** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then select **New registration**.
 1. In the **Register an application page** that appears, enter your application's registration information:
     1. In the **Name** section, enter a meaningful application name that will be displayed to users of the app, for example `msal-dotnet-api`.
@@ -128,13 +128,13 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 
 1. Open the `API\TodoListAPI\appsettings.json` file.
 1. Find the key `Instance` and replace the existing value with your Azure AD B2C tenant name e.g.`https://{tenantName}.b2clogin.com`.
-1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Azure portal.
+1. Find the key `ClientId` and replace the existing value with the application ID (clientId) of `msal-dotnet-api` app copied from the Microsoft admin center.
 1. Find the key `Domain` and replace the existing value with your Azure AD B2C tenant name e.g.`{tenantName}.onmicrosoft.com`
 1. Find the key `SignUpSignInPolicyId` and replace the existing value with the user-flow/custom policy Id that you will call this API with e.g. `b2c_1_susi` (:warning: this should match the policy ID in the default authority in SPA project configuration).
 
 #### Register the client app (msal-angular-spa)
 
-1. Navigate to the [Azure portal](https://portal.azure.com) and select the **Azure AD B2C** service.
+1. Navigate to the [Microsoft admin center](https://portal.azure.com) and select the **Azure AD B2C** service.
 1. Select the **App Registrations** blade on the left, then find and select the application that you have registered in the previous tutorial (`msal-angular-spa`).
 1. Since this app signs-in users, we will now proceed to select **delegated permissions**, which is is required by apps signing-in users.
     1. In the app's registration screen, select the **API permissions** blade in the left to open the page where we add access to the APIs that your application needs:
@@ -152,7 +152,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 > In the steps below, "ClientID" is the same as "Application ID" or "AppId".
 
 1. Open the `SPA\src\app\auth-config.ts` file.
-1. Find the key `msalConfig.clientId` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Azure portal.
+1. Find the key `msalConfig.clientId` and replace the existing value with the application ID (clientId) of `msal-angular-spa` app copied from the Microsoft admin center.
 1. Find the key `protectedResources.scopes.read` and replace the existing value with the `ToDoList.Read` scope you have exposed in the `msal-dotnet-api` registration steps earlier e.g. `https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.Read`
 1. Find the key `protectedResources.scopes.write` and replace the existing value with the `ToDoList.ReadWrite` scope you have exposed in the `msal-dotnet-api` registration steps earlier e.g. `https://fabrikamb2c.onmicrosoft.com/TodoList/ToDoList.ReadWrite`
 
@@ -188,7 +188,7 @@ Were we successful in addressing your learning objective? Consider taking a mome
 
 ## Troubleshooting
 
-Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community. Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before. Make sure that your questions or comments are tagged with [`azure-active-directory` `angular` `ms-identity` `adal` `msal`].
+Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community. Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before. Make sure that your questions or comments are tagged with [`microsoft-entra-id` `angular` `ms-identity` `adal` `msal`].
 
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../../issues).
 
@@ -219,7 +219,7 @@ On the web API side, the `AddMicrosoftIdentityWebApiAuthentication` method in [S
 ```csharp
 public void ConfigureServices(IServiceCollection services)
 {
-    // Adds Microsoft Identity platform (AAD v2.0) support to protect this Api
+    // Adds Microsoft Identity platform (ME-ID v2.0) support to protect this Api
     services.AddMicrosoftIdentityWebApiAuthentication(Configuration);
 
     // ...
@@ -240,7 +240,7 @@ public async Task<ActionResult<IEnumerable<TodoItem>>> GetTodoItems()
 {
     /// <summary>
     /// The 'oid' (object id) is the only claim that should be used to uniquely identify
-    /// a user in an Azure AD tenant. The token might have one or more of the following claim,
+    /// a user in a Microsoft Entra tenant. The token might have one or more of the following claim,
     /// that might seem like a unique identifier, but is not and should not be used as such:
     ///
     /// - upn (user principal name): might be unique amongst the active set of users in a tenant
@@ -272,9 +272,9 @@ If you'd like to contribute to this sample, see [CONTRIBUTING.MD](/CONTRIBUTING.
 
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/). For more information, see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
 
-* [What is Azure Active Directory B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
+* [What is Azure AD B2C?](https://docs.microsoft.com/azure/active-directory-b2c/overview)
 * [Application types that can be used in Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/application-types)
-* [Recommendations and best practices for Azure Active Directory B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
+* [Recommendations and best practices for Azure AD B2C](https://docs.microsoft.com/azure/active-directory-b2c/best-practices)
 * [Azure AD B2C session](https://docs.microsoft.com/azure/active-directory-b2c/session-overview)
 * [Building Zero Trust ready apps](https://aka.ms/ztdevsession)
 * [Microsoft.Identity.Web](https://aka.ms/microsoft-identity-web)

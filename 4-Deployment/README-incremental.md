@@ -18,7 +18,7 @@ This sample demonstrates how to deploy an Angular single-page application (SPA) 
 
 ## Scenario
 
-1. The client application uses **MSAL Angular** to sign-in a user and obtain a JWT **Access Token** from **Azure AD**.
+1. The client application uses **MSAL Angular** to sign-in a user and obtain a JWT **Access Token** from **Microsoft Entra ID**.
 1. The **Access Token** is used as a **bearer** token to *authorize* the user to call the protected web API.
 1. The protected web API responds with the claims in the **Access Token**.
 
@@ -49,7 +49,7 @@ There is one .NET Core web API in this sample. To deploy it to **Azure App Servi
 
 #### Publish your files
 
-1. Sign-in to **App Service** using an Azure AD Account.
+1. Sign-in to **App Service** using a Microsoft Entra account.
 1. Open the `API` project folder.
 1. Choose **View** > **Terminal** from the main menu.
 1. The terminal opens in the `API` folder.
@@ -66,13 +66,13 @@ There is one .NET Core web API in this sample. To deploy it to **Azure App Servi
 
 #### Disable Azure App Services default authentication
 
-1. Go to [Azure portal](https://portal.azure.com), and locate your project there.
+1. Go to [Microsoft admin center](https://portal.azure.com), and locate your project there.
     - On the Settings tab, select **Authentication/Authorization**. Make sure `App Service Authentication` is Off. Select **Save**.
 1. Browse your website. If you see the default web page of the project, the publication was successful.
 
 #### Enable cross-origin resource sharing (CORS)
 
-1. Go to [Azure portal](https://portal.azure.com), and locate your project there.
+1. Go to [Microsoft admin center](https://portal.azure.com), and locate your project there.
     - On the API tab, select **CORS**. Check the box **Enable Access-Control-Allow-Credentials**.
     - Under **Allowed origins**, add the coordinates of your published website.
 
@@ -101,23 +101,23 @@ Then follow the steps below:
 
 > :information_source: If you don't have an account already, see: [How to create a storage account](https://docs.microsoft.com/azure/storage/common/storage-account-create).
 
-1. Sign in to the [Azure portal](https://portal.azure.com).
+1. Sign in to the [Microsoft admin center](https://portal.azure.com).
 1. Locate your storage account and display the account overview.
 1. Select **Static website** to display the configuration page for static websites.
 1. Select **Enabled** to enable static website hosting for the storage account.
 1. In the **Index document name** field, specify a default index page (For example: `index.html`).
 1. The default **index page** is displayed when a user navigates to the root of your static website.
-1. Select **Save**. The Azure portal now displays your static website endpoint. Make a note of the **Primary endpoint field**.
+1. Select **Save**. The Microsoft admin center now displays your static website endpoint. Make a note of the **Primary endpoint field**.
 1. Next, select **Storage Explorer**.
 1. Expand the **BLOB CONTAINERS** node, and then select the `$web` container.
 1. Choose the **Upload** button to upload files.
 1. If you intend for the browser to display the contents of file, make sure that the content type of that file is set to `text/html`.
 1. In the pane that appears beside the **account overview page** of your storage account, select **Static Website**. The URL of your site appears in the **Primary endpoint field**. In the next section, you will register this URI.
 
-##### Update the Azure AD app registration
+##### Update the Microsoft Entra app registration
 
-1. Navigate back to to the [Azure portal](https://portal.azure.com).
-1. In the left-hand navigation pane, select the **Azure Active Directory** service, and then select **App registrations**.
+1. Navigate back to to the [Microsoft admin center](https://portal.azure.com).
+1. In the left-hand navigation pane, select the **Microsoft Entra ID** service, and then select **App registrations**.
 1. In the resulting screen, select `msal-angular-spa`.
 1. In the app's registration screen, select **Authentication** in the menu.
    - In the **Redirect URIs** section, update the reply URLs to match the site URL of your Azure deployment. For example:
@@ -155,17 +155,17 @@ Or learn more about how to offer your apps to other tenants (SaaS): [Multitenanc
 - [Azure Blob Storage](https://docs.microsoft.com/azure/storage/blobs/)
 - [Azure App Services](https://docs.microsoft.com/azure/app-service/)
 
-For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Azure AD](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
+For more information about how OAuth 2.0 protocols work in this scenario and other scenarios, see [Authentication Scenarios for Microsoft Entra ID](https://docs.microsoft.com/azure/active-directory/develop/authentication-flows-app-scenarios).
 
 ## Community Help and Support
 
 Use [Stack Overflow](http://stackoverflow.com/questions/tagged/msal) to get support from the community.
 Ask your questions on Stack Overflow first and browse existing issues to see if someone has asked your question before.
-Make sure that your questions or comments are tagged with [`azure-active-directory` `azure-ad-b2c` `ms-identity` `adal` `msal`].
+Make sure that your questions or comments are tagged with [`microsoft-entra-id` `azure-ad-b2c` `ms-identity` `adal` `msal`].
 
 If you find a bug in the sample, raise the issue on [GitHub Issues](../../../issues).
 
-To provide feedback on or suggest features for Azure Active Directory, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
+To provide feedback on or suggest features for Microsoft Entra ID, visit [User Voice page](https://feedback.azure.com/forums/169401-azure-active-directory).
 
 ## Contributing
 
