@@ -274,7 +274,7 @@ Open the project in your IDE (like Visual Studio or Visual Studio Code) to confi
 For instance:
 
 ```json
-        "knownClientApplications": ["ca8dca8d-f828-4f08-82f5-325e1a1c6428"],
+        "knownClientApplications": ["Enter_the_Application_Id_Here"],
 ```
 
 1. **Save** the changes to the manifest.
